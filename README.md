@@ -43,7 +43,11 @@ Ch55xduino supports both USB and Serial upload methods. If the USB port of the C
 
 It is also possible to upload via serial on UART1 of CH55x chips (except CH551). To set CH55x into bootloader mode automatically, you can connect RTS or DTR of a serial adaptor to an interrupt pin of CH55x with a capacitor, and add bootloader jumping code in the interrupt handler.
 
-If you want to leave the bootloader, you may send the following bytes at 57600 baud. ```57 AB A2 01 00 01 A4```  
+If you want to leave the bootloader, you may send the following bytes at 57600 baud. ```57 AB A2 01 00 01 A4```
+
+### WebUSB Upload
+
+Alternatively, on Chromium-based browsers with WebUSB support, you can use this [online tool](https://stephenkingston.github.io/CH55x-WebProgrammer/) to flash your HEX files.
 
 ### Driver for windows
 
