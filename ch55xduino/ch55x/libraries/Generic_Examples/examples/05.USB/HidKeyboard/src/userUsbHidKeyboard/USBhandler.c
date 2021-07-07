@@ -455,8 +455,8 @@ void USBDeviceCfg()
     //     USB_CTRL |= bUC_LOW_SPEED;
     //     UDEV_CTRL |= bUD_LOW_SPEED;                                                //Run for 1.5M
     USB_CTRL &= ~bUC_LOW_SPEED;
-    UDEV_CTRL &= ~bUD_LOW_SPEED;                                             //Select full speed 12M mode, default mode
-    UDEV_CTRL = bUD_PD_DIS;                                                     // Disable DP/DM pull-down resistor
+    UDEV_CTRL &= ~bUD_LOW_SPEED;                                               //Select full speed 12M mode, default mode
+    UDEV_CTRL = bUD_DP_PD_DIS;                                                 // Disable DP/DM pull-down resistor
     UDEV_CTRL |= bUD_PORT_EN;                                                  //Enable physical port
 }
 
