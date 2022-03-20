@@ -45,8 +45,6 @@ void loop() {
   bool button1Press = !digitalRead(BUTTON1_PIN);
   if (button1PressPrev != button1Press) {
     button1PressPrev = button1Press;
-
-    
     if (button1Press) {
       Keyboard_press('a');
     } else {

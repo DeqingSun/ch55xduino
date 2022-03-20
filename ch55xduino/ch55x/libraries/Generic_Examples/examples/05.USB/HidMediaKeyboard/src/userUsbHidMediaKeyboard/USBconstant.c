@@ -21,8 +21,8 @@ __code uint8_t CfgDesc[] ={
     // Interface 1 (HID) descriptor
     0x09,0x04,0x00,0x00,0x02,0x03,0x01,0x01,0x00,    // HID Keyboard, 2 endpoints
     0x09,0x21,0x10,0x01,0x21,0x01,0x22,sizeof(ReportDesc) & 0xff,sizeof(ReportDesc) >> 8,    //HID Descriptor
-    0x07,0x05,0x01,0x03,0x08,0x00,0x0A,                       //endpoint descriptor
-    0x07,0x05,0x81,0x03,0x08,0x00,0x0A,                       //endpoint descriptor
+    0x07,0x05,0x01,0x03,0x09,0x00,0x0A,                       //endpoint descriptor
+    0x07,0x05,0x81,0x03,0x09,0x00,0x0A,                       //endpoint descriptor
 };
 
 __code uint16_t ReportDescLen = sizeof(ReportDesc);
@@ -31,6 +31,7 @@ __code uint8_t ReportDesc[] ={
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
     0x09, 0x06,                    // USAGE (Keyboard)
     0xa1, 0x01,                    // COLLECTION (Application)
+    0x85, 0x01,                    //   REPORT_ID (1)
     0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
     0x19, 0xe0,                    //   USAGE_MINIMUM (Keyboard LeftControl)
     0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)

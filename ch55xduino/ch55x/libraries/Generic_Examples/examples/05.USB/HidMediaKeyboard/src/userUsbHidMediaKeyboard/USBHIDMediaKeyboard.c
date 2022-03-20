@@ -175,7 +175,7 @@ void USB_EP1_OUT(){
     }
 }
 
-uint8_t USB_EP1_send(){
+uint8_t USB_EP1_send(uint8_t reportID){
     uint16_t waitWriteCount = 0;
     
     waitWriteCount = 0;
@@ -185,11 +185,15 @@ uint8_t USB_EP1_send(){
         if (waitWriteCount>=50000) return 0;
     }
     
-    for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
-        Ep1Buffer[64+i] = HIDKey[i];
+    if (reportID == 1){
+        Ep1Buffer[64+0] = 1;
+        for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
+            Ep1Buffer[64+1+i] = HIDKey[i];
+        }
+        UEP1_T_LEN = 1+sizeof(HIDKey);                                             //data length
     }
-                   
-    UEP1_T_LEN = sizeof(HIDKey);                                             //data length
+    
+    
     UpPoint1_Busy = 1;
     UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;                //upload data and respond ACK
     
@@ -232,7 +236,7 @@ uint8_t Keyboard_press(uint8_t k) {
 			return 0;
 		}	
 	}
-	USB_EP1_send();
+	USB_EP1_send(1);
 	return 1;
 }
 
@@ -262,7 +266,7 @@ uint8_t Keyboard_release(uint8_t k) {
 		}
 	}
 
-	USB_EP1_send();
+	USB_EP1_send(1);
 	return 1;
 }
 
@@ -270,7 +274,7 @@ void Keyboard_releaseAll(void){
     for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
         HIDKey[i] = 0;
     }
-	USB_EP1_send();
+	USB_EP1_send(1);
 }
 
 uint8_t Keyboard_write(uint8_t c){
