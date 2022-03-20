@@ -11,6 +11,7 @@ extern __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[];
 volatile __xdata uint8_t UpPoint1_Busy  = 0;   //Flag of whether upload pointer is busy
 
 __xdata uint8_t HIDKey[8] = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
+__xdata uint16_t HIDConsumer[4] = {0x0,0x0,0x0,0x0};
 
 #define SHIFT 0x80
 __code uint8_t _asciimap[128] =
@@ -191,8 +192,15 @@ uint8_t USB_EP1_send(uint8_t reportID){
             Ep1Buffer[64+1+i] = HIDKey[i];
         }
         UEP1_T_LEN = 1+sizeof(HIDKey);                                             //data length
+    }else if (reportID == 2){
+        Ep1Buffer[64+0] = 2;
+        for (uint8_t i=0;i<sizeof(HIDConsumer);i++){                                  //load data for upload
+            Ep1Buffer[64+1+i] = ((uint8_t *)HIDConsumer)[i];
+        }
+        UEP1_T_LEN = 1+sizeof(HIDConsumer);                                             //data length
+    }else{
+        UEP1_T_LEN = 0;
     }
-    
     
     UpPoint1_Busy = 1;
     UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;                //upload data and respond ACK
@@ -285,4 +293,55 @@ uint8_t Keyboard_write(uint8_t c){
 
 uint8_t Keyboard_getLEDStatus(){
     return Ep1Buffer[0];    //The only info we gets
+}
+
+uint8_t Consumer_press(uint16_t k) {
+    uint8_t i;
+
+    // Add k to the consumer report only if it's not already present
+    // and if there is an empty slot.
+    if (HIDConsumer[0] != k && HIDConsumer[1] != k &&
+        HIDConsumer[2] != k && HIDConsumer[3] != k) {
+        
+        for (i=0; i<4; i++) {
+            if (HIDConsumer[i] == 0x00) {
+                HIDConsumer[i] = k;
+                break;
+            }
+        }
+        if (i == 4) {
+            //setWriteError();
+            return 0;
+        }
+    }
+    USB_EP1_send(2);
+    return 1;
+}
+
+uint8_t Consumer_release(uint16_t k) {
+    uint8_t i;
+    
+    // Test the consumer report to see if k is present.  Clear it if it exists.
+    // Check all positions in case the key is present more than once (which it shouldn't be)
+    for (i=0; i<4; i++) {
+        if (0 != k && HIDConsumer[i] == k) {
+            HIDConsumer[i] = 0x00;
+        }
+    }
+    
+    USB_EP1_send(2);
+    return 1;
+}
+
+void Consumer_releaseAll(void){
+    for (uint8_t i=0;i<4;i++){                                  //load data for upload
+        HIDConsumer[i] = 0;
+    }
+    USB_EP1_send(2);
+}
+
+uint8_t Consumer_write(uint16_t c){
+    uint8_t p = Consumer_press(c);  // Keydown
+    Consumer_release(c);            // Keyup
+    return p;              // just return the result of press() since release() almost always returns 1
 }

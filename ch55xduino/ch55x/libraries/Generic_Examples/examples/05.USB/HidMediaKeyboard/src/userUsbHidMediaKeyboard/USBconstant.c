@@ -46,7 +46,7 @@ __code uint8_t ReportDesc[] ={
     0x95, 0x06,                    //   REPORT_COUNT (6)
     0x75, 0x08,                    //   REPORT_SIZE (8)
     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0xff,                    //   LOGICAL_MAXIMUM (255)
+    0x26, 0xff, 0x00,              //   LOGICAL_MAXIMUM (255)
     0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
     0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
     0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)
@@ -62,6 +62,18 @@ __code uint8_t ReportDesc[] ={
     0x95, 0x01,                    //   REPORT_COUNT (1)
     0x75, 0x03,                    //   REPORT_SIZE (3)
     0x91, 0x03,                    //   OUTPUT (Cnst,Var,Abs)
+    0xc0,                          // END_COLLECTION
+    0x05, 0x0c,                    // USAGE_PAGE (Consumer Devices)
+    0x09, 0x01,                    // USAGE (Consumer Control)
+    0xa1, 0x01,                    // COLLECTION (Application)
+    0x85, 0x02,                    //   REPORT_ID (2)
+    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+    0x26, 0xff, 0x03,              //   LOGICAL_MAXIMUM (1023)
+    0x19, 0x00,                    //   USAGE_MINIMUM (Unassigned)
+    0x2a, 0xff, 0x03,              //   USAGE_MAXIMUM (Undefined)
+    0x95, 0x04,                    //   REPORT_COUNT (4)
+    0x75, 0x10,                    //   REPORT_SIZE (16)
+    0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
     0xc0                           // END_COLLECTION
 };
 
@@ -71,8 +83,8 @@ __code uint16_t CfgDescLen = sizeof(CfgDesc);
 __code uint8_t LangDes[]={0x04,0x03,0x09,0x04};           //Language Descriptor
 __code uint16_t LangDesLen = sizeof(LangDes);
 __code uint8_t SerDes[]={                                 //Serial String Descriptor
-    0x14,0x03,
-    'C',0x00,'H',0x00,'5',0x00,'5',0x00,'x',0x00,' ',0x00,'k',0x00,'b',0x00,'d',0x00
+    0x20,0x03,
+    'C',0x00,'H',0x00,'5',0x00,'5',0x00,'x',0x00,' ',0x00,'m',0x00,'e',0x00,'d',0x00,'i',0x00,'a',0x00,' ',0x00,'k',0x00,'b',0x00,'d',0x00
 };
 __code uint16_t SerDesLen = sizeof(SerDes);
 __code uint8_t Prod_Des[]={                                //Produce String Descriptor
