@@ -17,9 +17,9 @@
 #error "This example needs to be compiled with a USER USB setting"
 #endif
 
-#include "src/userUsbHidKeyboard/USBHIDKeyboard.h"
+#include "src/userUsbHidMediaKeyboard/USBHIDMediaKeyboard.h"
 
-#define BUTTON1_PIN 30
+#define BUTTON1_PIN 11
 #define BUTTON2_PIN 31
 #define BUTTON3_PIN 32
 
@@ -36,6 +36,8 @@ void setup() {
   pinMode(BUTTON2_PIN, INPUT_PULLUP);
   pinMode(BUTTON3_PIN, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(14, OUTPUT);
+  digitalWrite(14,LOW);
 }
 
 void loop() {
@@ -43,6 +45,8 @@ void loop() {
   bool button1Press = !digitalRead(BUTTON1_PIN);
   if (button1PressPrev != button1Press) {
     button1PressPrev = button1Press;
+
+    
     if (button1Press) {
       Keyboard_press('a');
     } else {
