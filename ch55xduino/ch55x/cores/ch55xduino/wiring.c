@@ -619,57 +619,96 @@ void delay(uint32_t ms)
 }
 
 void delayMicroseconds(uint16_t us){
-#ifdef    F_CPU
-#if        F_CPU <= 6000000
-    us >>= 2;
-#endif
-#if        F_CPU <= 3000000
-    us >>= 2;
-#endif
-#if        F_CPU <= 750000
-    us >>= 4;
-#endif
+    // call with const, "mov dptr, #CONST" and "lcall", 3 + (6 or 7) cycles, depending on even or odd address
+    // call with var, "mov dpl, r", "mov dph, r", and "lcall", 2 + 2 + (6 or 7) cycles, depending on odd or even address
+    // The compiler by default uses a caller saves convention for register saving across function calls
+    
+#if  F_CPU >= 24000000UL
+    __asm__ (".even                                    \n"
+             "    mov  r6, dpl                         \n" //low 8-bit
+             "    mov  r7, dph                         \n" //high 8-bit
+             "    clr  c                               \n"
+             "    mov  a,#0x01                         \n"
+             "    subb a, r6                           \n"
+             "    clr  a                               \n"
+             "    subb a, r7                           \n"
+             "    jc skip_0us$                         \n"
+             "    ret                                  \n" //return if 0 1 us  about 1.2us total
+             "    nop                                  \n"
+             "skip_0us$:                               \n"
+             "    clr  c                               \n" //do some loop init, not useful for 3us but better here
+             "    mov  a, #0x02                        \n"
+             "    subb a, r6                           \n"
+             "    mov  r5, a                           \n"
+             "    mov  a, #0x00                        \n"
+             "    subb a, r7                           \n"
+             "    mov  r7, a                           \n"
+             
+             "    nop                                  \n" //keep even
+             "    cjne r6,#0x02,loop16m_us$            \n"
+             "    nop \n nop \n nop \n nop \n          "
+             "    ret                                  \n" //return if 2us  about 2 us total
+             
+             "loop16m_us$:                             \n" //about nus
+             
+             "    nop \n nop \n nop \n nop \n nop \n    " // 17 cycle
+             "    nop \n nop \n nop \n nop \n nop \n    "
+             "    nop \n nop \n nop \n nop \n nop \n    "
+             "    nop \n nop \n                         "
+             
+             "    inc  r5                              \n" // 1 cycle
+             "    cjne r5, #0,loop16m_us$              \n" // 6 cycle
+             "    inc  r7                              \n" // there will be extra 7 cycles for every 256us, ignore for now
+             "    cjne r7, #0,loop16m_us$              \n"
+             "    nop                                  \n"
+             );
+#elif F_CPU >= 16000000UL
+    __asm__ (".even                                    \n"
+             "    mov  r6, dpl                         \n" //low 8-bit
+             "    mov  r7, dph                         \n" //high 8-bit
+             "    clr  c                               \n"
+             "    mov  a,#0x01                         \n"
+             "    subb a, r6                           \n"
+             "    clr  a                               \n"
+             "    subb a, r7                           \n"
+             "    jc skip_0us$                         \n"
+             "    ret                                  \n" //return if 0 1 us  about 1.7us total
+             "    nop                                  \n"
+             "skip_0us$:                               \n"
+             "    cjne r7,#0x00,skip_2us$              \n"
+             "    cjne r6,#0x02,skip_2us$              \n"
+             "    ret                                  \n" //return if 2us  about 2.3us total
+             "    nop                                  \n" //keep even
+             "skip_2us$:                               \n"
+             
+             "    clr  c                               \n" //do some loop init, not useful for 3us but better here
+             "    mov  a, #0x03                        \n"
+             "    subb a, r6                           \n"
+             "    mov  r5, a                           \n"
+             "    mov  a, #0x00                        \n"
+             "    subb a, r7                           \n"
+             "    mov  r7, a                           \n"
+             
+             "    cjne r6,#0x03,loop16m_us$            \n"
+             "    ret                                  \n" //return if 3us  about 3.2 us total
+             "    nop                                  \n" //keep even
+             
+             "loop16m_us$:                             \n" //about n.5us
+             
+             "    nop \n nop \n nop \n nop \n nop \n    " // 9 cycle
+             "    nop \n nop \n nop \n nop \n           "
+             
+             "    inc  r5                              \n" // 1 cycle
+             "    cjne r5, #0,loop16m_us$              \n" // 6 cycle
+             "    inc  r7                              \n" // there will be extra 7 cycles for every 256us, ignore for now
+             "    cjne r7, #0,loop16m_us$              \n"
+             );
+#else
+#error "clock not supported yet"
+    
 #endif
     
-    // in arduino setup, the code above seems useless (clock generally much higher than 6M).
-    
-    while ( us ) {  // total = 12~13 Fsys cycles, 1uS @Fsys=12MHz
-//        ++ SAFE_MOD;  // 2 Fsys cycles, for higher Fsys, add operation here
-
-#ifdef    F_CPU
-#if        F_CPU >= 14000000
-//        ++ SAFE_MOD;
-#endif
-#if        F_CPU >= 16000000
-//        ++ SAFE_MOD;  //seems SDCC is not very efficent, dirty tweak for a little more accuracy, but still not very accurate. accurate time need carefull planning and word alignment. Maybe for later.
-#endif
-#if        F_CPU >= 18000000
-        ++ SAFE_MOD;
-#endif
-#if        F_CPU >= 20000000
-        ++ SAFE_MOD;
-#endif
-#if        F_CPU >= 22000000
-        ++ SAFE_MOD;
-#endif
-#if        F_CPU >= 24000000
-        ++ SAFE_MOD;
-#endif
-#if        F_CPU >= 26000000
-        ++ SAFE_MOD;
-#endif
-#if        F_CPU >= 28000000
-        ++ SAFE_MOD;
-#endif
-#if        F_CPU >= 30000000
-        ++ SAFE_MOD;
-#endif
-#if        F_CPU >= 32000000
-        ++ SAFE_MOD;
-#endif
-#endif
-        -- us;
-    }
+    // return takes 5~6 cycles, depending on even or odd address
 }
 
 void init()
