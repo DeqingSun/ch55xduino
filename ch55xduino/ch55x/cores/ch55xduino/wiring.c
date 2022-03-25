@@ -623,7 +623,46 @@ void delayMicroseconds(uint16_t us){
     // call with var, "mov dpl, r", "mov dph, r", and "lcall", 2 + 2 + (6 or 7) cycles, depending on odd or even address
     // The compiler by default uses a caller saves convention for register saving across function calls
     
-#if  F_CPU >= 24000000UL
+#if  F_CPU >= 56000000UL
+    __asm__ (".even                                    \n"
+             "    mov  r6, dpl                         \n" //low 8-bit
+             "    mov  r7, dph                         \n" //high 8-bit
+             "    clr  c                               \n"
+             "    mov  a,#0x00                         \n"
+             "    subb a, r6                           \n"
+             "    clr  a                               \n"
+             "    subb a, r7                           \n"
+             "    jc skip_0us$                         \n"
+             "    ret                                  \n" //return if 0 us  about 0.48us total
+             "    nop                                  \n"
+             "skip_0us$:                               \n"
+             "    clr  c                               \n" //do some loop init, not useful for 1us but better here
+             "    mov  a, #0x01                        \n"
+             "    subb a, r6                           \n"
+             "    mov  r5, a                           \n"
+             "    mov  a, #0x00                        \n"
+             "    subb a, r7                           \n"
+             "    mov  r7, a                           \n"
+             
+             "    nop                                  \n" //keep even
+             "    nop \n nop \n nop \n nop \n nop \n    "
+             "    nop \n nop \n nop \n nop \n nop \n    "
+             "    cjne r6,#0x01,loop56m_us$            \n"
+             "    nop \n nop \n nop \n nop \n          "
+             "    ret                                  \n" //return if 1us  about 1 us total
+             
+             "loop56m_us$:                             \n" //about nus
+             "    mov r6, #8                           \n" //need 49 cycle
+             "loop_rep_nop$:                           \n"
+             "    djnz r6, loop_rep_nop$               \n"
+             "    nop \n nop \n nop \n                   "
+             "    inc  r5                              \n" // 1 cycle
+             "    cjne r5, #0,loop56m_us$              \n" // 6 cycle
+             "    inc  r7                              \n" // there will be extra 7 cycles for every 256us, ignore for now
+             "    cjne r7, #0,loop56m_us$              \n"
+             //"    nop                                  \n"
+             );
+#elif F_CPU >= 24000000UL
     __asm__ (".even                                    \n"
              "    mov  r6, dpl                         \n" //low 8-bit
              "    mov  r7, dph                         \n" //high 8-bit
@@ -636,7 +675,7 @@ void delayMicroseconds(uint16_t us){
              "    ret                                  \n" //return if 0 1 us  about 1.2us total
              "    nop                                  \n"
              "skip_0us$:                               \n"
-             "    clr  c                               \n" //do some loop init, not useful for 3us but better here
+             "    clr  c                               \n" //do some loop init, not useful for 2us but better here
              "    mov  a, #0x02                        \n"
              "    subb a, r6                           \n"
              "    mov  r5, a                           \n"
@@ -645,11 +684,11 @@ void delayMicroseconds(uint16_t us){
              "    mov  r7, a                           \n"
              
              "    nop                                  \n" //keep even
-             "    cjne r6,#0x02,loop16m_us$            \n"
+             "    cjne r6,#0x02,loop24m_us$            \n"
              "    nop \n nop \n nop \n nop \n          "
              "    ret                                  \n" //return if 2us  about 2 us total
              
-             "loop16m_us$:                             \n" //about nus
+             "loop24m_us$:                             \n" //about nus
              
              "    nop \n nop \n nop \n nop \n nop \n    " // 17 cycle
              "    nop \n nop \n nop \n nop \n nop \n    "
@@ -657,9 +696,9 @@ void delayMicroseconds(uint16_t us){
              "    nop \n nop \n                         "
              
              "    inc  r5                              \n" // 1 cycle
-             "    cjne r5, #0,loop16m_us$              \n" // 6 cycle
+             "    cjne r5, #0,loop24m_us$              \n" // 6 cycle
              "    inc  r7                              \n" // there will be extra 7 cycles for every 256us, ignore for now
-             "    cjne r7, #0,loop16m_us$              \n"
+             "    cjne r7, #0,loop24m_us$              \n"
              "    nop                                  \n"
              );
 #elif F_CPU >= 16000000UL
