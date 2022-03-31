@@ -68,9 +68,11 @@ if ! command -v cp > /dev/null; then
 fi
 
 # echo the full command line in cyan:
->&2 echo -ne "${CYAN}"
->&2 echo -n  "${@}"
->&2 echo -e  "${OFF}"
+if [ $VERBOSE -gt 0 ]; then
+	>&2 echo -ne "${CYAN}"
+	>&2 echo -n  "${@}"
+	>&2 echo -e  "${OFF}"
+fi
 
 # echo the mark id in green and the compiler call in white:
 SDCC=$1
@@ -79,13 +81,18 @@ OBJ=$3
 REL=${OBJ%.o}.rel
 MARK=$4
 shift 4
->&2 echo -ne "${GREEN}Mark $MARK:${OFF}"
->&2 echo "$SDCC" "$@" "$SRC" -o "$OBJ"
+
+if [ $VERBOSE -gt 0 ]; then
+	>&2 echo -ne "${GREEN}Mark $MARK:${OFF}"
+	>&2 echo "$SDCC" "$@" "$SRC" -o "$OBJ"
+fi
 
 case "$SRC" in
 	*.cpp)
 		# rename .cpp to .c and compile
-		>&2 echo -e "${RED}cpp found${OFF}";
+		if [ $VERBOSE -gt 0 ]; then
+			>&2 echo -e "${RED}cpp found${OFF}";
+		fi
 		CSRC="${SRC%pp}"
 		(
 			# add a reference to main to pull in main.c
