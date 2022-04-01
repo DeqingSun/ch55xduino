@@ -25,4 +25,18 @@ void Serial0_end(void);
 void uart0IntRxHandler();
 void uart0IntTxHandler();
 
+
+uint8_t Serial1(void);
+void Serial1_begin(unsigned long baud);
+
+uint8_t Serial1_available(void);
+uint8_t Serial1_read(void);
+uint8_t Serial1_write(uint8_t c);
+void Serial1_flush(void);
+
+void Serial1_end(void);
+
+void uart1IntRxHandler();
+void uart1IntTxHandler();
+
 #endif

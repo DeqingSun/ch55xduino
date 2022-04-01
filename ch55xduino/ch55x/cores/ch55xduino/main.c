@@ -47,6 +47,18 @@ void Uart0_ISR(void) __interrupt (INT_NO_UART0)
     }
 }
 
+void Uart1_ISR(void) __interrupt (INT_NO_UART1)
+{
+    if (U1RI){
+        uart1IntRxHandler();
+        U1RI =0;
+    }
+    if (U1TI){
+        uart1IntTxHandler();
+        U1TI =0;
+    }
+}
+
 typedef void (*voidFuncPtr)(void);
 extern __xdata voidFuncPtr intFunc[];
 void INT0_ISR(void) __interrupt (INT_NO_INT0)
