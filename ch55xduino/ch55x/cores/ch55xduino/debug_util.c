@@ -9,6 +9,7 @@
 #pragma callee_saves sendCharDebug
 void sendCharDebug(char c) //8Mbps under 24M clk
 {
+    c;  //avoid unreferenced function argument warning
     //uint8_t interruptOn = EA;
     //EA = 0;
     __asm__("  mov c,_EA         \n"

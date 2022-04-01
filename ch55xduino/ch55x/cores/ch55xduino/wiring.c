@@ -626,7 +626,7 @@ void delayMicroseconds(uint16_t us){
     // call with const, "mov dptr, #CONST" and "lcall", 3 + (6 or 7) cycles, depending on even or odd address
     // call with var, "mov dpl, r", "mov dph, r", and "lcall", 2 + 2 + (6 or 7) cycles, depending on odd or even address
     // The compiler by default uses a caller saves convention for register saving across function calls
-    
+    us;  //avoid unreferenced function argument warning
 #if  F_CPU >= 56000000UL
     __asm__ (".even                                    \n"
              "    mov  r6, dpl                         \n" //low 8-bit
