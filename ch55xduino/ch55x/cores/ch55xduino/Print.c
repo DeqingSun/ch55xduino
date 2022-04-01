@@ -23,6 +23,7 @@
  Modified 23 November 2006 by David A. Mellis
  Modified 03 August 2015 by Chuck Todd
  Modified 30 December 2016 by Michael Mayer
+ Modified 4 July 2020 by Deqing Sun for use with CH55xduino
  */
 
 

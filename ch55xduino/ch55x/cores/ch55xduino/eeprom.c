@@ -1,3 +1,7 @@
+/*
+ created by Deqing Sun for use with CH55xduino
+ */
+
 #include <stdint.h>
 #include "include/ch5xx.h"
 #include "include/ch5xx_usb.h"

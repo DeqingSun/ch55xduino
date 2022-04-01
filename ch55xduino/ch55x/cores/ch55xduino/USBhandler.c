@@ -1,3 +1,7 @@
+/*
+ created by Deqing Sun for use with CH55xduino
+ */
+
 #ifndef USER_USB_RAM
 
 #include "USBhandler.h"

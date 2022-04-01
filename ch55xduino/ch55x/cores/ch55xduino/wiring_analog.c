@@ -1,3 +1,7 @@
+/*
+ created by Deqing Sun for use with CH55xduino
+ */
+
 #define ARDUINO_MAIN
 #include "wiring_private.h"
 #include "pins_arduino_include.h"

@@ -1,3 +1,7 @@
+/*
+ created by Deqing Sun for use with CH55xduino
+ */
+
 #include "wiring_private.h"
 
 void nothing(void) {
