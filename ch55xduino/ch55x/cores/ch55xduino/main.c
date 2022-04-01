@@ -20,7 +20,9 @@
 #include <Arduino.h>
 
 // make sure to define prototypes for all used interrupts
-void USBInterrupt(void);
+void USBInterrupt(void); //USBInterrupt does not need to saves the context
+void Timer2Interrupt(void) __interrupt (INT_NO_TMR2); //Timer2Interrupt NEEDs to saves the context
+void GPIOInterrupt(void) __interrupt (INT_NO_GPIO); //GPIOInterrupt NEEDs to saves the context
 
 //unsigned char runSerialEvent;
 
