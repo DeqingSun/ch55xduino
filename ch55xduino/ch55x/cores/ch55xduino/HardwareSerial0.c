@@ -53,9 +53,12 @@ void Serial0_begin(unsigned long baud){
 
 uint8_t Serial0_write(uint8_t SendDat)
 {
+    uint8_t interruptOn = EA;
+    EA = 0;
     if ( (uart0_tx_buffer_head == uart0_tx_buffer_tail) && (uart0_flag_sending==0) ){    //start to send
         uart0_flag_sending = 1;
         SBUF = SendDat;
+        if (interruptOn) EA = 1;
         return 1;
     }
     
@@ -63,6 +66,7 @@ uint8_t Serial0_write(uint8_t SendDat)
     
     uint16_t waitWriteCount=0;
     while ((nextHeadPos == uart0_tx_buffer_tail) ){    //wait max 100ms or discard
+        if (interruptOn) EA = 1;
         waitWriteCount++;
         delayMicroseconds(5);   
         if (waitWriteCount>=20000) return 0;
@@ -70,6 +74,8 @@ uint8_t Serial0_write(uint8_t SendDat)
     Transmit_Uart0_Buf[uart0_tx_buffer_head]=SendDat;
     
     uart0_tx_buffer_head = nextHeadPos;
+    
+    if (interruptOn) EA = 1;
     
     return 1;
 }
