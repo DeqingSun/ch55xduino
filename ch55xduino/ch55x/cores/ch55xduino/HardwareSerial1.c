@@ -54,6 +54,9 @@ void Serial1_begin(unsigned long baud){
 
 uint8_t Serial1_write(uint8_t SendDat)
 {
+    uint8_t interruptOn = EA;
+    EA = 0;
+    
     if ( (uart1_tx_buffer_head == uart1_tx_buffer_tail) && (uart1_flag_sending==0) ){    //start to send
         uart1_flag_sending = 1;
 #if defined(CH551) || defined(CH552)
@@ -63,6 +66,7 @@ uint8_t Serial1_write(uint8_t SendDat)
 #elif defined(CH549)
 #error "NOT YET"
 #endif
+        if (interruptOn) EA = 1;
         return 1;
     }
 
@@ -70,6 +74,7 @@ uint8_t Serial1_write(uint8_t SendDat)
 
     uint16_t waitWriteCount=0;
     while ((nextHeadPos == uart1_tx_buffer_tail) ){    //wait max 100ms or discard
+        if (interruptOn) EA = 1;
         waitWriteCount++;
         delayMicroseconds(5);
         if (waitWriteCount>=20000) return 0;
@@ -77,6 +82,8 @@ uint8_t Serial1_write(uint8_t SendDat)
     Transmit_Uart1_Buf[uart1_tx_buffer_head]=SendDat;
 
     uart1_tx_buffer_head = nextHeadPos;
+    
+    if (interruptOn) EA = 1;
 
     return 1;
 }
