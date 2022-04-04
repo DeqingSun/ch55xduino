@@ -72,7 +72,14 @@ void Uart1_ISR(void) __interrupt (INT_NO_UART1)
             break;
     }
 #elif defined(CH549)
-#error "NOT YET"
+    if (SIF1&bU1RI){
+        uart1IntRxHandler();
+        SIF1 = bU1RI;
+    }
+    if (SIF1&bU1TI){
+        uart1IntTxHandler();
+        SIF1 = bU1TI;
+    }
 #endif
 }
 

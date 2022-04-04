@@ -47,7 +47,11 @@ void Serial1_begin(unsigned long baud){
     IE_UART1 = 1;
     EA = 1;
 #elif defined(CH549)
-    #error "NOT YET"
+    SCON1 = bU1REN | bU1SMOD;
+    SBAUD1 = 256 - F_CPU / 16 / baud;
+    SIF1 = bU1TI|bU1RI;   //clear interrupt flags
+    IE_UART1 = 1;
+    EA = 1;
 #endif
     serial1Initialized = 1;
 }
@@ -64,7 +68,7 @@ uint8_t Serial1_write(uint8_t SendDat)
 #elif defined(CH559)
         SER1_THR = SendDat;
 #elif defined(CH549)
-#error "NOT YET"
+        SBUF1 = SendDat;
 #endif
         if (interruptOn) EA = 1;
         return 1;

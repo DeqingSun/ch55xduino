@@ -17,7 +17,7 @@ void uart1IntRxHandler(){
 #elif defined(CH559)
         Receive_Uart1_Buf[uart1_rx_buffer_head] = SER1_RBR;
 #elif defined(CH549)
-#error "NOT YET"
+        Receive_Uart1_Buf[uart1_rx_buffer_head] = SBUF1;
 #endif
         uart1_rx_buffer_head = nextHead;
     }
@@ -34,7 +34,7 @@ void uart1IntTxHandler(){
 #elif defined(CH559)
             SER1_THR=Transmit_Uart1_Buf[uart1_tx_buffer_tail];
 #elif defined(CH549)
-#error "NOT YET"
+            SBUF1=Transmit_Uart1_Buf[uart1_tx_buffer_tail];
 #endif
             uart1_tx_buffer_tail = (uart1_tx_buffer_tail + 1) % SERIAL1_TX_BUFFER_SIZE;
         }
