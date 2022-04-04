@@ -18,6 +18,8 @@ uint8_t Serial1(void){
 }
 
 void Serial1_begin(unsigned long baud){
+    
+#if defined(CH551) || defined(CH552)
     U1SM0 = 0;
     U1SMOD = 1;                                                                  //use mode 1 for serial 1
     U1REN = 1;                                                                   //Enable serial 1 receive
@@ -26,7 +28,27 @@ void Serial1_begin(unsigned long baud){
 
     IE_UART1 = 1;
     EA = 1;                                                                       //Enable serial 1 interrupt
-
+#elif defined(CH559)
+    uint32_t x;
+    uint8_t x2;
+    SER1_LCR |= bLCR_DLAB;      //change baudrate
+    SER1_DIV = 1;
+    x = 10 * F_CPU * 2 / 1 / 16 / baud;
+    x2 = ((uint16_t)x) % 10;
+    x /= 10;
+    if ( x2 >= 5 ) x ++;                                                       //round
+    SER1_DLM = x >> 8;
+    SER1_DLL = x & 0xff;
+    SER1_LCR &= ~bLCR_DLAB;     //prevent changing baudrate
+    XBUS_AUX |=  bALE_CLK_EN;   //make RS485EN = 0
+    SER1_LCR = bLCR_WORD_SZ1|bLCR_WORD_SZ0; //no break, no parity, 8n1
+    SER1_IER = bIER_PIN_MOD1 | bIER_THR_EMPTY | bIER_RECV_RDY;     //RXD1:P2.6 TXD1:P2.7
+    SER1_MCR |= bMCR_OUT2;
+    IE_UART1 = 1;
+    EA = 1;
+#elif defined(CH549)
+    #error "NOT YET"
+#endif
     serial1Initialized = 1;
 }
 
@@ -34,7 +56,13 @@ uint8_t Serial1_write(uint8_t SendDat)
 {
     if ( (uart1_tx_buffer_head == uart1_tx_buffer_tail) && (uart1_flag_sending==0) ){    //start to send
         uart1_flag_sending = 1;
+#if defined(CH551) || defined(CH552)
         SBUF1 = SendDat;
+#elif defined(CH559)
+        SER1_THR = SendDat;
+#elif defined(CH549)
+#error "NOT YET"
+#endif
         return 1;
     }
 

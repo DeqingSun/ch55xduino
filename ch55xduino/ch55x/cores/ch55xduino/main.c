@@ -51,6 +51,7 @@ void Uart0_ISR(void) __interrupt (INT_NO_UART0)
 
 void Uart1_ISR(void) __interrupt (INT_NO_UART1)
 {
+#if defined(CH551) || defined(CH552)
     if (U1RI){
         uart1IntRxHandler();
         U1RI =0;
@@ -59,6 +60,20 @@ void Uart1_ISR(void) __interrupt (INT_NO_UART1)
         uart1IntTxHandler();
         U1TI =0;
     }
+#elif defined(CH559)
+    uint8_t interruptStatus = SER1_IIR & 0x0f;
+    switch(interruptStatus)
+    {
+        case U1_INT_RECV_RDY:
+            uart1IntRxHandler();
+            break;
+        case U1_INT_THR_EMPTY:
+            uart1IntTxHandler();
+            break;
+    }
+#elif defined(CH549)
+#error "NOT YET"
+#endif
 }
 
 typedef void (*voidFuncPtr)(void);

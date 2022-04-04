@@ -12,7 +12,13 @@ void uart1IntRxHandler(){
     uint8_t nextHead = (uart1_rx_buffer_head + 1) % SERIAL1_RX_BUFFER_SIZE;
 
     if (nextHead != uart1_rx_buffer_tail) {
+#if defined(CH551) || defined(CH552)
         Receive_Uart1_Buf[uart1_rx_buffer_head] = SBUF1;
+#elif defined(CH559)
+        Receive_Uart1_Buf[uart1_rx_buffer_head] = SER1_RBR;
+#elif defined(CH549)
+#error "NOT YET"
+#endif
         uart1_rx_buffer_head = nextHead;
     }
 }
@@ -23,7 +29,13 @@ void uart1IntTxHandler(){
             //do no more
             uart1_flag_sending &= 0;
         }else{
+#if defined(CH551) || defined(CH552)
             SBUF1=Transmit_Uart1_Buf[uart1_tx_buffer_tail];
+#elif defined(CH559)
+            SER1_THR=Transmit_Uart1_Buf[uart1_tx_buffer_tail];
+#elif defined(CH549)
+#error "NOT YET"
+#endif
             uart1_tx_buffer_tail = (uart1_tx_buffer_tail + 1) % SERIAL1_TX_BUFFER_SIZE;
         }
     }
