@@ -643,28 +643,32 @@ void delayMicroseconds(uint16_t us){
              "    clr  c                               \n" //do some loop init, not useful for 1us but better here
              "    mov  a, #0x01                        \n"
              "    subb a, r6                           \n"
-             "    mov  r5, a                           \n"
+             "    mov  r6, a                           \n"
              "    mov  a, #0x00                        \n"
              "    subb a, r7                           \n"
              "    mov  r7, a                           \n"
              
              "    nop                                  \n" //keep even
-             "    nop \n nop \n nop \n nop \n nop \n    "
-             "    nop \n nop \n nop \n nop \n nop \n    "
-             "    cjne r6,#0x01,loop56m_us$            \n"
-             "    nop \n nop \n nop \n nop \n          "
+             "    nop \n nop \n nop \n nop \n nop \n     "
+             "    nop \n nop \n nop \n nop \n nop \n     "
+             "    cjne r6,#0x00,loop56m_us$            \n"
+             "    cjne r7,#0x00,loop56m_us$            \n"
+             "    nop \n                                 "
              "    ret                                  \n" //return if 1us  about 1 us total
              
              "loop56m_us$:                             \n" //about nus
-             "    mov r6, #8                           \n" //need 49 cycle
+             "    nop                                  \n" //6 cycle
+             "    nop \n nop \n nop \n nop \n nop \n     "
+             "loop56m_us_2$:                           \n"
+             
+             "    mov r5, #7                           \n" //2 cycle
              "loop_rep_nop$:                           \n"
-             "    djnz r6, loop_rep_nop$               \n"
-             "    nop \n nop \n nop \n                   "
-             "    inc  r5                              \n" // 1 cycle
-             "    cjne r5, #0,loop56m_us$              \n" // 6 cycle
-             "    inc  r7                              \n" // there will be extra 7 cycles for every 256us, ignore for now
-             "    cjne r7, #0,loop56m_us$              \n"
-             //"    nop                                  \n"
+             "    djnz r5, loop_rep_nop$               \n" //6*6+2 = 38 cycle
+             "    nop \n nop \n nop \n                   " //3 cycle
+             "    inc  r6                              \n" // 1 cycle
+             "    cjne r6, #0,loop56m_us$              \n" // 6 cycle
+             "    inc  r7                              \n" // there will be extra 1 cycles for every 256us
+             "    cjne r7, #0,loop56m_us_2$            \n"
              );
 #elif F_CPU >= 24000000UL
     __asm__ (".even                                    \n"
@@ -682,27 +686,31 @@ void delayMicroseconds(uint16_t us){
              "    clr  c                               \n" //do some loop init, not useful for 2us but better here
              "    mov  a, #0x02                        \n"
              "    subb a, r6                           \n"
-             "    mov  r5, a                           \n"
+             "    mov  r6, a                           \n"
              "    mov  a, #0x00                        \n"
              "    subb a, r7                           \n"
              "    mov  r7, a                           \n"
              
              "    nop                                  \n" //keep even
-             "    cjne r6,#0x02,loop24m_us$            \n"
-             "    nop \n nop \n nop \n nop \n          "
+             "    cjne r6,#0x00,loop24m_us$            \n"
+             "    cjne r7,#0x00,loop24m_us$            \n"
+             "    nop                                  \n"
              "    ret                                  \n" //return if 2us  about 2 us total
              
              "loop24m_us$:                             \n" //about nus
              
-             "    nop \n nop \n nop \n nop \n nop \n    " // 17 cycle
-             "    nop \n nop \n nop \n nop \n nop \n    "
-             "    nop \n nop \n nop \n nop \n nop \n    "
-             "    nop \n nop \n                         "
+             "    nop \n nop \n nop \n nop \n nop \n    " // 6+11 cycle
+             "    nop \n "
+             "loop24m_us_2$:                          \n"  //need more test
              
-             "    inc  r5                              \n" // 1 cycle
-             "    cjne r5, #0,loop24m_us$              \n" // 6 cycle
-             "    inc  r7                              \n" // there will be extra 7 cycles for every 256us, ignore for now
-             "    cjne r7, #0,loop24m_us$              \n"
+             "    nop \n nop \n nop \n nop \n nop \n    "
+             "    nop \n nop \n nop \n nop \n nop \n    "
+             "    nop \n                                "
+             
+             "    inc  r6                              \n" // 1 cycle
+             "    cjne r6, #0,loop24m_us$              \n" // 6 cycle
+             "    inc  r7                              \n" // there will be extra 1 cycles for every 256us
+             "    cjne r7, #0,loop24m_us_2$            \n"
              "    nop                                  \n"
              );
 #elif F_CPU >= 16000000UL
@@ -727,24 +735,26 @@ void delayMicroseconds(uint16_t us){
              "    clr  c                               \n" //do some loop init, not useful for 3us but better here
              "    mov  a, #0x03                        \n"
              "    subb a, r6                           \n"
-             "    mov  r5, a                           \n"
+             "    mov  r6, a                           \n"
              "    mov  a, #0x00                        \n"
              "    subb a, r7                           \n"
              "    mov  r7, a                           \n"
              
-             "    cjne r6,#0x03,loop16m_us$            \n"
-             "    ret                                  \n" //return if 3us  about 3.2 us total
-             "    nop                                  \n" //keep even
+             "    cjne r6,#0x00,loop16m_us$            \n"
+             "    cjne r7,#0x00,loop16m_us$            \n"
+             "    ret                                  \n" //return if 3us  about 3.4 us total
              
              "loop16m_us$:                             \n" //about n.5us
              
-             "    nop \n nop \n nop \n nop \n nop \n    " // 9 cycle
-             "    nop \n nop \n nop \n nop \n           "
+             "    nop \n nop \n nop \n nop \n nop \n    " // 6+3 cycle
+             "    nop \n                                "
+             "loop16m_us_2$:                          \n"
+             "    nop \n nop \n nop \n                  "
              
-             "    inc  r5                              \n" // 1 cycle
-             "    cjne r5, #0,loop16m_us$              \n" // 6 cycle
-             "    inc  r7                              \n" // there will be extra 7 cycles for every 256us, ignore for now
-             "    cjne r7, #0,loop16m_us$              \n"
+             "    inc  r6                              \n" // 1 cycle
+             "    cjne r6, #0,loop16m_us$              \n" // 6 cycle
+             "    inc  r7                              \n" // there will be extra 1 cycles for every 256us
+             "    cjne r7, #0,loop16m_us_2$            \n"
              );
 #else
 #error "clock not supported yet"
