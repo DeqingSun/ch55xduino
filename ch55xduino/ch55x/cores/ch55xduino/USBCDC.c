@@ -59,6 +59,7 @@ void setControlLineStateHandler(){
 #if BOOT_LOAD_ADDR == 0x3800
         USB_CTRL = 0;
         EA = 0;                     //Disabling all interrupts is required.
+        TMOD = 0;
         delayMicroseconds(50000);
         delayMicroseconds(50000);
         
