@@ -49,14 +49,14 @@ void loop() {
     EA = 0;
     rawValueBuf = touchRawValue[1]; //prevent interrupt from changing it
     EA = 1;
-    USBSerial_print_s("RawValue:");
-    USBSerial_print_i(rawValueBuf);
-    USBSerial_print_s(",touchThreshold:");
-    USBSerial_print_i(touchBaseline[1] - touchThreshold);
-    USBSerial_print_s(",releaseThreshold:");
-    USBSerial_print_i(touchBaseline[1] - releaseThreshold);
-    USBSerial_print_s(",Baseline:");
-    USBSerial_println_i(touchBaseline[1]);
+    USBSerial_print("RawValue:");
+    USBSerial_print(rawValueBuf);
+    USBSerial_print(",touchThreshold:");
+    USBSerial_print(touchBaseline[1] - touchThreshold);
+    USBSerial_print(",releaseThreshold:");
+    USBSerial_print(touchBaseline[1] - releaseThreshold);
+    USBSerial_print(",Baseline:");
+    USBSerial_println(touchBaseline[1]);
   }
   uint8_t touchResult = TouchKey_Get();
   if (touchResult & (1 << 1)) {

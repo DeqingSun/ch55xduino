@@ -39,7 +39,7 @@ void loop() {
   //read the pushbutton value into a variable
   int sensorVal = digitalRead(11);
   //print out the value of the pushbutton
-  USBSerial_println_u(sensorVal);
+  USBSerial_println(sensorVal);
 
   // Keep in mind the pull-up means the pushbutton's logic is inverted. It goes
   // HIGH when it's open, and LOW when it's pressed. Turn on pin 3 when the

@@ -57,12 +57,12 @@ void loop() {
     if (buttonState == HIGH) {
       // if the current state is HIGH then the button went from off to on:
       buttonPushCounter++;
-      USBSerial_println_s("on");
-      USBSerial_print_s("number of button pushes:  ");
-      USBSerial_println_u(buttonPushCounter);
+      USBSerial_println("on");
+      USBSerial_print("number of button pushes:  ");
+      USBSerial_println(buttonPushCounter);
     } else {
       // if the current state is LOW then the button went from on to off:
-      USBSerial_println_s("off");
+      USBSerial_println("off");
     }
     // Delay a little bit to avoid bouncing
     delay(50);

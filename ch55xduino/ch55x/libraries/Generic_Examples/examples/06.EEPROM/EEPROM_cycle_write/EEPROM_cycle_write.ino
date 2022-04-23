@@ -15,13 +15,13 @@ uint8_t writePtr = 0;
 uint8_t writeData = 0;
 
 void dumpEEPROM() {
-  USBSerial_println_s("DataFalsh Dump:");
+  USBSerial_println("DataFalsh Dump:");
   for (uint8_t i = 0; i < 128; i++) {
     uint8_t eepromData = eeprom_read_byte(i);
-    if (eepromData < 0x10) USBSerial_print_c('0');
+    if (eepromData < 0x10) USBSerial_print((char)'0');
     USBSerial_print_ub(eepromData, HEX);
-    USBSerial_print_c(',');
-    if ((i & 15) == 15) USBSerial_println();
+    USBSerial_print((char)',');
+    if ((i & 15) == 15) USBSerial_println_only();
   }
   USBSerial_flush();
 }
@@ -37,9 +37,9 @@ void setup() {
 
 void loop() {
   delay(5000);
-  USBSerial_print_s("Write ");
+  USBSerial_print("Write ");
   USBSerial_print_ub(writeData, HEX);
-  USBSerial_print_s(" to addr: ");
+  USBSerial_print(" to addr: ");
   USBSerial_println_ub(writePtr, HEX);
   eeprom_write_byte(writePtr, writeData);
   writeData++;

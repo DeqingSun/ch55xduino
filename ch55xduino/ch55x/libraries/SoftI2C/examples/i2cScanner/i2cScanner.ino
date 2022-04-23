@@ -10,7 +10,7 @@ void loop() {
 
   uint8_t ack_bit;
 
-  USBSerial_println_s("\nScanning:");
+  USBSerial_println("\nScanning:");
 
   for (uint8_t i = 0; i < 128; i++) {
     I2CStart();
@@ -18,7 +18,7 @@ void loop() {
     I2CStop();
     delay(1);
     if (ack_bit == 0) {
-      USBSerial_print_s("I2C got ACK from: 0x");
+      USBSerial_print("I2C got ACK from: 0x");
       USBSerial_println_ub(i, HEX);
     }
   }

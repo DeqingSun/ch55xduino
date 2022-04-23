@@ -31,7 +31,7 @@ void setup() {
   }
 
   // prints title with ending line break
-  USBSerial_println_s("ASCII Table ~ Character Map");
+  USBSerial_println("ASCII Table ~ Character Map");
 }
 
 // first visible ASCIIcharacter '!' is number 33:
@@ -46,26 +46,26 @@ void loop() {
   // will show up as '!'
   USBSerial_write(thisByte);
 
-  USBSerial_print_s(", dec: ");
+  USBSerial_print(", dec: ");
   // prints value as string as an ASCII-encoded decimal (base 10).
   // Decimal is the default format for Serial.print() and Serial.println(),
   // so no modifier is needed:
-  USBSerial_print_u(thisByte);
+  USBSerial_print(thisByte);
   // But you can declare the modifier for decimal if you want to.
   // this also works if you uncomment it:
 
   // Serial_print_ub(thisByte, DEC);
 
 
-  USBSerial_print_s(", hex: ");
+  USBSerial_print(", hex: ");
   // prints value as string in hexadecimal (base 16):
   USBSerial_print_ub(thisByte, HEX);
 
-  USBSerial_print_s(", oct: ");
+  USBSerial_print(", oct: ");
   // prints value as string in octal (base 8);
   USBSerial_print_ub(thisByte, OCT);
 
-  USBSerial_print_s(", bin: ");
+  USBSerial_print(", bin: ");
   // prints value as string in binary (base 2) also prints ending line break:
   USBSerial_println_ub(thisByte, BIN);
 

@@ -15,7 +15,7 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  USBSerial_println_s("Access ADXL345 with SPI.");
+  USBSerial_println("Access ADXL345 with SPI.");
 
   digitalWrite(CS_PIN, LOW);
   SPI_transfer(0x00 | 0x80); //read DEVID 0x00
@@ -23,9 +23,9 @@ void setup() {
   digitalWrite(CS_PIN, HIGH);
 
   if (ret == 0xE5) {
-    USBSerial_println_s("DEVID OK");
+    USBSerial_println("DEVID OK");
   } else {
-    USBSerial_println_s("DEVID NOT OK");
+    USBSerial_println("DEVID NOT OK");
     while (1);
   }
 
@@ -53,7 +53,7 @@ void loop() {
   uint8_t ret1, ret2;
 
   digitalWrite(CS_PIN, LOW);
-  USBSerial_println_s("send:");
+  USBSerial_println("send:");
 
   SPI_transfer(0x32 | 0x80 | 0x40); //read DATAX0 0x32, multiple bytes
   ret1 = SPI_transfer(0xFF);
@@ -67,10 +67,10 @@ void loop() {
   z = (int16_t)((((int)ret2) << 8) | ret1);
   digitalWrite(CS_PIN, HIGH);
 
-  USBSerial_print_s("ACCEL: ");
-  USBSerial_print_i(x);
-  USBSerial_print_s(", ");
-  USBSerial_print_i(y);
-  USBSerial_print_s(", ");
-  USBSerial_println_i(z);
+  USBSerial_print("ACCEL: ");
+  USBSerial_print(x);
+  USBSerial_print(", ");
+  USBSerial_print(y);
+  USBSerial_print(", ");
+  USBSerial_println(z);
 }

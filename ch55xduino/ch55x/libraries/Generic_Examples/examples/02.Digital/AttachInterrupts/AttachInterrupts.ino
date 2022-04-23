@@ -45,18 +45,18 @@ void loop() {
   //if you see a number increases a lot when you tie the pin Low with something mechanical, it is caused by bouncing. A small capacitor between pin and GND may help.
   if (int0Count != int0CountOld) {
     int0CountOld = int0Count;
-    USBSerial_print_s("Int0 triggered: ");
-    USBSerial_println_i(int0Count);
+    USBSerial_print("Int0 triggered: ");
+    USBSerial_println(int0Count);
     
     if (int0Count>=5){
-        USBSerial_println_s("Int0 detached");
+        USBSerial_println("Int0 detached");
         detachInterrupt(0);
     }
   }
   if (int1Count != int1CountOld) {
     int1CountOld = int1Count;
-    USBSerial_print_s("Int1 triggered: ");
-    USBSerial_println_i(int1Count);
+    USBSerial_print("Int1 triggered: ");
+    USBSerial_println(int1Count);
   }
 
 }

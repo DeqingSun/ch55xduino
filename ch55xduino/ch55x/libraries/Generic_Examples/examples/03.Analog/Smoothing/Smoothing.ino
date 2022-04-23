@@ -67,6 +67,6 @@ void loop() {
   // calculate the average:
   average = total / numReadings;
   // send it to the computer as ASCII digits
-  USBSerial_println_u(average);
+  USBSerial_println(average);
   delay(1);        // delay in between reads for stability
 }

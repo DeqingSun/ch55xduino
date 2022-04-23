@@ -36,7 +36,7 @@ void setup() {
 
 void loop() {
   // send the value of analog input P1.1. You may use P1.1, P1.4, P1.5 and P3.2
-  USBSerial_println_u(analogRead(11));
+  USBSerial_println(analogRead(11));
   // wait a bit for the analog-to-digital converter to stabilize after the last
   // reading:
   delay(2);

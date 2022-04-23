@@ -32,14 +32,14 @@ void loop() {
     digitalWrite(LED_BUILTIN, LOW);
   }
   for (uint8_t i = 0; i < 6; i++) {
-    USBSerial_print_s("TIN");
-    USBSerial_print_i(i);
+    USBSerial_print("TIN");
+    USBSerial_print(i);
     if (touchResult & (1 << i)) {
-      USBSerial_print_s(" X ");
+      USBSerial_print(" X ");
     } else {
-      USBSerial_print_s(" _ ");
+      USBSerial_print(" _ ");
     }
   }
-  USBSerial_println();
+  USBSerial_println_only();
 
 }

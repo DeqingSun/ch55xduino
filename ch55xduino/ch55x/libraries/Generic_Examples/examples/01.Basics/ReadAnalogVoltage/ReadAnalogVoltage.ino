@@ -27,7 +27,7 @@ void loop() {
   // Convert the analog reading (which goes from 0 - 255) to a voltage (0 - 5V):
   float voltage = sensorValue * (5.0 / 255.0);
   // print out the value you read:
-  USBSerial_println_f(voltage);
+  USBSerial_println(voltage);
   // or with precision:
   //USBSerial_println_fd(voltage,1);
 

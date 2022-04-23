@@ -273,7 +273,6 @@ void USBSerial_print_f_func(float f);
                                     unsigned int: USBSerial_print_u_func,  \
                                     unsigned short: USBSerial_print_u_func,  \
                                     unsigned long: USBSerial_print_u_func,  \
-                                    char *: USBSerial_print_s_func,  \
                                     __code char*: USBSerial_print_s_func,  \
                                     __data char*: USBSerial_print_s_func,  \
                                     __xdata char*: USBSerial_print_s_func,  \
@@ -294,7 +293,6 @@ void Serial0_print_f_func(float f);
                                     unsigned int: Serial0_print_u_func,  \
                                     unsigned short: Serial0_print_u_func,  \
                                     unsigned long: Serial0_print_u_func,  \
-                                    char *: Serial0_print_s_func,  \
                                     __code char*: Serial0_print_s_func,  \
                                     __data char*: Serial0_print_s_func,  \
                                     __xdata char*: Serial0_print_s_func,  \
@@ -315,7 +313,6 @@ void Serial1_print_f_func(float f);
                                     unsigned int: Serial1_print_u_func,  \
                                     unsigned short: Serial1_print_u_func,  \
                                     unsigned long: Serial1_print_u_func,  \
-                                    char *: Serial1_print_s_func,  \
                                     __code char*: Serial1_print_s_func,  \
                                     __data char*: Serial1_print_s_func,  \
                                     __xdata char*: Serial1_print_s_func,  \

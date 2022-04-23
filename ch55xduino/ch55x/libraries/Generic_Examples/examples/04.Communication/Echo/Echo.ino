@@ -43,15 +43,15 @@ void loop() {
   }
 
   if (stringComplete) {
-    USBSerial_print_s("ECHO:");
-    USBSerial_println_s(recvStr);
+    USBSerial_print("ECHO:");
+    USBSerial_println(recvStr);
     USBSerial_flush();
     stringComplete = false;
     recvStrPtr = 0;
 
     echoCounter++;
-    USBSerial_print_s("echo count: ");
-    USBSerial_println_i(echoCounter);
+    USBSerial_print("echo count: ");
+    USBSerial_println(echoCounter);
     USBSerial_flush();
   }
 }

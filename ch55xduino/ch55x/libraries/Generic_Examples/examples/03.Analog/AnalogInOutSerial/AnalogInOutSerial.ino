@@ -47,10 +47,10 @@ void loop() {
   analogWrite(analogOutPin, outputValue);
 
   // print the results to the Serial Monitor:
-  USBSerial_print_s("sensor = ");
-  USBSerial_print_u(sensorValue);
-  USBSerial_print_s("\t output = ");
-  USBSerial_println_u(outputValue);
+  USBSerial_print("sensor = ");
+  USBSerial_print(sensorValue);
+  USBSerial_print("\t output = ");
+  USBSerial_println(outputValue);
 
   // wait 2 milliseconds before the next loop for the analog-to-digital
   // converter to settle after the last reading:
