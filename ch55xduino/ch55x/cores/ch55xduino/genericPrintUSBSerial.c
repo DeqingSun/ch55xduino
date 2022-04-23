@@ -5,6 +5,9 @@
 
 #include "Arduino.h"
 
+void printNothing(){    //only appear in this file
+}
+
 void USBSerial_print_i_func(long i) {
     Print_print_i(USBSerial_write, i);
 }
@@ -14,3 +17,4 @@ void USBSerial_print_u_func(unsigned long u) {
 void USBSerial_print_s_func(char * s) {
     Print_print_s(USBSerial_write, s);
 }
+

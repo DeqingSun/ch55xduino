@@ -9,3 +9,7 @@
 void USBSerial_print_f_func(float f) {
     Print_print_f(USBSerial_write, f);
 }
+
+void USBSerial_print_fd_func(float f, __xdata uint8_t digits) {
+    Print_print_fd(USBSerial_write, f, digits);
+}

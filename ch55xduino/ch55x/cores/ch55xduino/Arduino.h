@@ -259,66 +259,7 @@ char USBSerial_read();
 #include "Print.h"
 
 // Generic selection for print
-// dedicated function make main code less big because no xdata is needed in main
-void USBSerial_print_i_func(long i);
-void USBSerial_print_u_func(unsigned long u);
-void USBSerial_print_s_func(char * s);
-void USBSerial_print_f_func(float f);
-#define USBSerial_print(X) _Generic((X), \
-                                    char: USBSerial_write, \
-                                    int: USBSerial_print_i_func, \
-                                    short: USBSerial_print_i_func, \
-                                    long: USBSerial_print_i_func, \
-                                    unsigned char: USBSerial_print_u_func,  \
-                                    unsigned int: USBSerial_print_u_func,  \
-                                    unsigned short: USBSerial_print_u_func,  \
-                                    unsigned long: USBSerial_print_u_func,  \
-                                    __code char*: USBSerial_print_s_func,  \
-                                    __data char*: USBSerial_print_s_func,  \
-                                    __xdata char*: USBSerial_print_s_func,  \
-                                    float: USBSerial_print_f_func  \
-                                   )(X)
-#define USBSerial_println(X) USBSerial_print(X);Print_println(USBSerial_write);
-
-void Serial0_print_i_func(long i);
-void Serial0_print_u_func(unsigned long u);
-void Serial0_print_s_func(char * s);
-void Serial0_print_f_func(float f);
-#define Serial0_print(X) _Generic((X), \
-                                    char: Serial0_write, \
-                                    int: Serial0_print_i_func, \
-                                    short: Serial0_print_i_func, \
-                                    long: Serial0_print_i_func, \
-                                    unsigned char: Serial0_print_u_func,  \
-                                    unsigned int: Serial0_print_u_func,  \
-                                    unsigned short: Serial0_print_u_func,  \
-                                    unsigned long: Serial0_print_u_func,  \
-                                    __code char*: Serial0_print_s_func,  \
-                                    __data char*: Serial0_print_s_func,  \
-                                    __xdata char*: Serial0_print_s_func,  \
-                                    float: Serial0_print_f_func  \
-                                   )(X)
-#define Serial0_println(X) Serial0_print(X);Print_println(Serial0_write);
-
-void Serial1_print_i_func(long i);
-void Serial1_print_u_func(unsigned long u);
-void Serial1_print_s_func(char * s);
-void Serial1_print_f_func(float f);
-#define Serial1_print(X) _Generic((X), \
-                                    char: Serial1_write, \
-                                    int: Serial1_print_i_func, \
-                                    short: Serial1_print_i_func, \
-                                    long: Serial1_print_i_func, \
-                                    unsigned char: Serial1_print_u_func,  \
-                                    unsigned int: Serial1_print_u_func,  \
-                                    unsigned short: Serial1_print_u_func,  \
-                                    unsigned long: Serial1_print_u_func,  \
-                                    __code char*: Serial1_print_s_func,  \
-                                    __data char*: Serial1_print_s_func,  \
-                                    __xdata char*: Serial1_print_s_func,  \
-                                    float: Serial1_print_f_func  \
-                                   )(X)
-#define Serial1_println(X) Serial1_print(X);Print_println(Serial1_write);
+#include "genericPrintSelection.h"
 
 // not quite understans X marco in sduino, use a lot define for now
 
