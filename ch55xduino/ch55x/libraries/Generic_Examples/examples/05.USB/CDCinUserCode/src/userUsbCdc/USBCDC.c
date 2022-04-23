@@ -65,6 +65,7 @@ void setControlLineStateHandler(){
         pTaskFn tasksArr[1];
         USB_CTRL = 0;
         EA = 0;                                                                    //Disabling all interrupts is required.
+        TMOD = 0;
         tasksArr[0] = (pTaskFn)0x3800;
         delayMicroseconds(50000);
         delayMicroseconds(50000);
