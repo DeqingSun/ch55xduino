@@ -5,8 +5,11 @@
 
 // dedicated function make main code less big because no xdata is needed in main
 void USBSerial_print_i_func(long i);
+void USBSerial_print_ib_func(long i, __xdata uint8_t base);
 void USBSerial_print_u_func(unsigned long u);
+void USBSerial_print_ub_func(unsigned long u, __xdata uint8_t base);
 void USBSerial_print_s_func(char * s);
+void USBSerial_print_sn_func(char * s, __xdata uint8_t size);
 void USBSerial_print_f_func(float f);
 void USBSerial_print_fd_func(float f, __xdata uint8_t digits);
 
@@ -41,9 +44,18 @@ void printNothing();
                                     float: USBSerial_print_f_func  \
 )
 #define USB_SERIAL_SELECT_2(_1, _2) _Generic((_1), \
-        float: _Generic((_2),          \
-                default: USBSerial_print_fd_func     \
-        )                               \
+                                    float: _Generic((_2), default: USBSerial_print_fd_func) , \
+                                    __code char*: _Generic((_2), default: USBSerial_print_sn_func) , \
+                                    __data char*: _Generic((_2), default: USBSerial_print_sn_func) , \
+                                    __xdata char*: _Generic((_2), default: USBSerial_print_sn_func) , \
+                                    char: _Generic((_2), default: USBSerial_print_ib_func) , \
+                                    int: _Generic((_2), default: USBSerial_print_ib_func) , \
+                                    short: _Generic((_2), default: USBSerial_print_ib_func) , \
+                                    long: _Generic((_2), default: USBSerial_print_ib_func) , \
+                                    unsigned char: _Generic((_2), default: USBSerial_print_ub_func) , \
+                                    unsigned int: _Generic((_2), default: USBSerial_print_ub_func) , \
+                                    unsigned short: _Generic((_2), default: USBSerial_print_ub_func) , \
+                                    unsigned long: _Generic((_2), default: USBSerial_print_ub_func) \
 )
 
 
