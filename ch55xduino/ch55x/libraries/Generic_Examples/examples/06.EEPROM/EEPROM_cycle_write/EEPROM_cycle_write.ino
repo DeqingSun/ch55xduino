@@ -19,9 +19,9 @@ void dumpEEPROM() {
   for (uint8_t i = 0; i < 128; i++) {
     uint8_t eepromData = eeprom_read_byte(i);
     if (eepromData < 0x10) USBSerial_print((char)'0');
-    USBSerial_print_ub(eepromData, HEX);
+    USBSerial_print(eepromData, HEX);
     USBSerial_print((char)',');
-    if ((i & 15) == 15) USBSerial_println_only();
+    if ((i & 15) == 15) USBSerial_println();
   }
   USBSerial_flush();
 }
@@ -38,9 +38,9 @@ void setup() {
 void loop() {
   delay(5000);
   USBSerial_print("Write ");
-  USBSerial_print_ub(writeData, HEX);
+  USBSerial_print(writeData, HEX);
   USBSerial_print(" to addr: ");
-  USBSerial_println_ub(writePtr, HEX);
+  USBSerial_println(writePtr, HEX);
   eeprom_write_byte(writePtr, writeData);
   writeData++;
   writePtr++;

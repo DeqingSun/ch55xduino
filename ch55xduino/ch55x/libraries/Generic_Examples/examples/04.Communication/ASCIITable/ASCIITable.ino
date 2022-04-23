@@ -54,20 +54,20 @@ void loop() {
   // But you can declare the modifier for decimal if you want to.
   // this also works if you uncomment it:
 
-  // Serial_print_ub(thisByte, DEC);
+  // Serial_print(thisByte, DEC);
 
 
   USBSerial_print(", hex: ");
   // prints value as string in hexadecimal (base 16):
-  USBSerial_print_ub(thisByte, HEX);
+  USBSerial_print(thisByte, HEX);
 
   USBSerial_print(", oct: ");
   // prints value as string in octal (base 8);
-  USBSerial_print_ub(thisByte, OCT);
+  USBSerial_print(thisByte, OCT);
 
   USBSerial_print(", bin: ");
   // prints value as string in binary (base 2) also prints ending line break:
-  USBSerial_println_ub(thisByte, BIN);
+  USBSerial_println(thisByte, BIN);
 
   // if printed last visible character '~' or 126, stop:
   if (thisByte == 126) {    // you could also use if (thisByte == '~') {

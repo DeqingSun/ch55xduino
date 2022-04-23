@@ -40,6 +40,6 @@ void loop() {
       USBSerial_print(" _ ");
     }
   }
-  USBSerial_println_only();
+  USBSerial_println();
 
 }

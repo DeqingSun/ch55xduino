@@ -29,7 +29,7 @@ void loop() {
   // print out the value you read:
   USBSerial_println(voltage);
   // or with precision:
-  //USBSerial_println_fd(voltage,1);
+  //USBSerial_println(voltage,1);
 
   delay(10);
 }

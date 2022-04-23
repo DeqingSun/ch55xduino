@@ -35,11 +35,11 @@ void loop() {
       I2CStop();
       USBSerial_print("Get 2 bytes start from addr ");
       USBSerial_flush();
-      USBSerial_print_ub(i, HEX);
+      USBSerial_print(i, HEX);
       USBSerial_print(": ");
-      USBSerial_print_ub(readData1, HEX);
+      USBSerial_print(readData1, HEX);
       USBSerial_print(", ");
-      USBSerial_println_ub(readData2, HEX);
+      USBSerial_println(readData2, HEX);
       USBSerial_flush();
     }
 

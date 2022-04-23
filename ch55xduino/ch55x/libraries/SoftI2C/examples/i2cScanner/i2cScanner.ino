@@ -19,7 +19,7 @@ void loop() {
     delay(1);
     if (ack_bit == 0) {
       USBSerial_print("I2C got ACK from: 0x");
-      USBSerial_println_ub(i, HEX);
+      USBSerial_println(i, HEX);
     }
   }
   delay(1000);

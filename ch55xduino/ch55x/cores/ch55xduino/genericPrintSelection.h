@@ -65,7 +65,7 @@ void printNothing();
                                     unsigned short: _Generic((_2), default: USBSerial_print_ub_func) , \
                                     unsigned long: _Generic((_2), default: USBSerial_print_ub_func) \
 )
-#define USBSerial_println(...) USBSerial_print(__VA_ARGS__);Print_println(USBSerial_write);
+#define USBSerial_println(...) {USBSerial_print(__VA_ARGS__);Print_println(USBSerial_write);}
 
 #define Serial0_print(...) SERIAL0_SELECT(__VA_ARGS__)(__VA_ARGS__)
 #define SERIAL0_SELECT(...) CONCAT(SERIAL0_SELECT_, NARG(__VA_ARGS__))(__VA_ARGS__)
@@ -98,7 +98,7 @@ void printNothing();
                                     unsigned short: _Generic((_2), default: Serial0_print_ub_func) , \
                                     unsigned long: _Generic((_2), default: Serial0_print_ub_func) \
 )
-#define Serial0_println(...) Serial0_print(__VA_ARGS__);Print_println(Serial0_write);
+#define Serial0_println(...) {Serial0_print(__VA_ARGS__);Print_println(Serial0_write);}
 
 #define Serial1_print(...) SERIAL1_SELECT(__VA_ARGS__)(__VA_ARGS__)
 #define SERIAL1_SELECT(...) CONCAT(SERIAL1_SELECT_, NARG(__VA_ARGS__))(__VA_ARGS__)
@@ -131,7 +131,7 @@ void printNothing();
                                     unsigned short: _Generic((_2), default: Serial1_print_ub_func) , \
                                     unsigned long: _Generic((_2), default: Serial1_print_ub_func) \
 )
-#define Serial1_println(...) Serial1_print(__VA_ARGS__);Print_println(Serial1_write);
+#define Serial1_println(...) {Serial1_print(__VA_ARGS__);Print_println(Serial1_write);}
 
 
 #define CONCAT(X, Y) CONCAT_(X, Y)
