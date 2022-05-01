@@ -89,20 +89,9 @@ fi
 
 case "$SRC" in
 	*.cpp)
-		# rename .cpp to .c and compile
-		if [ $VERBOSE -gt 0 ]; then
-			>&2 echo -e "${RED}cpp found${OFF}";
-		fi
-		CSRC="${SRC%pp}"
-		(
-			# add a reference to main to pull in main.c
-			echo "void main(void); void (*dummy_variable) () = main;"
-                	cat "$SRC"
-                ) > "$CSRC"
-#		cp -a "$SRC" "$CSRC"
-		"$SDCC" "$@" "$CSRC" -o "$OBJ"
+		# use -x c to compile as c
+		"$SDCC" "$@" -x c "$SRC"  -o "$OBJ"
 		ERR=$?
-		rm -f "$CSRC"
 		;;
 	*.c)
 		# compile a .c file
