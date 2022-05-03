@@ -89,8 +89,8 @@ fi
 
 case "$SRC" in
 	*.cpp)
-		# use -x c to compile as c
-		"$SDCC" "$@" -x c "$SRC"  -o "$OBJ"
+		# use -x c to compile as c, add a reference to main to pull in main.c
+		"$SDCC" "$@" -x c --include dummy_variable_main.h "$SRC"  -o "$OBJ"
 		ERR=$?
 		;;
 	*.c)
