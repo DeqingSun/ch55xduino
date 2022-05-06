@@ -125,21 +125,19 @@ if [ -f ${REL} ]; then
                 >&2 echo "Change CSEG value from ${CSEG_HEX_VAL} to ${CSEG_ADDED_HEX_VAL}"
             fi
             if [[ $(uname) == "Darwin" ]]; then
-                SP=" " # Needed for portability with sed
+                sed -i '' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL} # Needed for portability with sed
             else
-                SP=""
+                sed -i'' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL}
             fi
-            sed -i${SP}'' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL}
         fi
     fi
     #check if "A GSFINAL size 3" exists in main, the "ljmp __sdcc_program_startup"∂ is 3 bytes and takes GSFINAL
     if [[ "${REL}" == *"main.c"* ]]; then
         if [[ $(uname) == "Darwin" ]]; then
-            SP=" " # Needed for portability with sed
+            sed -i '' -e "s/A GSFINAL size 3/A GSFINAL size 4/g" ${REL} # Needed for portability with sed
         else
-            SP=""
+            sed -i'' -e "s/A GSFINAL size 3/A GSFINAL size 4/g" ${REL}
         fi
-        sed -i${SP}'' -e "s/A GSFINAL size 3/A GSFINAL size 4/g" ${REL}
     fi
 fi
 # propagate the sdcc exit code
