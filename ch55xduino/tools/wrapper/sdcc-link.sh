@@ -186,7 +186,7 @@ if [ -f ${MAPFILE} ]; then
     #only get 1st match
     CSEG_ADDR_STR="$(grep -o '^CSEG[ ]\+[0-9A-F]\+' ${MAPFILE} | head -1)"
     CSEG_ADDR_HEX_VAL="$(echo ${CSEG_ADDR_STR} | grep -o '[^ ]*$')"
-    CSEG_ADDR_DEC_VAL="$(echo $((16#$CSEG_ADDR_HEX_VAL)))"
+    CSEG_ADDR_DEC_VAL="$(printf '%d' 0x${CSEG_ADDR_HEX_VAL})"
     if [ $((CSEG_ADDR_DEC_VAL%2)) -eq 1 ]; then
         >&2 echo "Warning: CSEG starts at odd address: ${CSEG_ADDR_HEX_VAL}, and it may cause timing issue"
     fi
