@@ -108,5 +108,30 @@ then
 	cp -a "${OBJ}" "${REL}"
 fi
 
+#check rel file size, if it is odd, add by 1 to align code
+if [ -f ${REL} ]; then
+    CSEG_STR="$(grep -o '^A CSEG size [0-9A-F]\+' ${REL})"
+    if [[ -z $CSEG_STR ]]; then
+        >&2 echo "CSEG String not found in ${REL}"
+    else
+        CSEG_HEX_VAL="$(echo ${CSEG_STR} | grep -o '[^ ]*$')"
+        CSEG_DEC_VAL="$(echo $((16#$CSEG_HEX_VAL)))"
+        if [ $VERBOSE -gt 0 ]; then
+            >&2 echo "CSEG of ${REL} is hex: ${CSEG_HEX_VAL}, dec:${CSEG_DEC_VAL}"
+        fi
+    if [ $((CSEG_DEC_VAL%2)) -eq 1 ]; then
+            CSEG_ADDED_HEX_VAL="$(printf '%X' $((CSEG_DEC_VAL+1)))"
+            if [ $VERBOSE -gt 0 ]; then
+                >&2 echo "Change CSEG value from ${CSEG_HEX_VAL} to ${CSEG_ADDED_HEX_VAL}"
+            fi
+            if [[ $(uname) == "Darwin" ]]; then
+                SP=" " # Needed for portability with sed
+            else
+                SP=""
+            fi
+            sed -i${SP}'' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL}
+        fi
+    fi
+fi
 # propagate the sdcc exit code
 exit $ERR
