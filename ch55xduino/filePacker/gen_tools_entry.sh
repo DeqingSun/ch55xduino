@@ -60,7 +60,7 @@ EOF
 detect_hosttype()
 {
 	case $1 in
-		*amd64-unknown-linux* | *linux64* )
+		*amd64-unknown-linux* | *linux64* | *amd64-ubuntu*-linux* )
 			HOST="x86_64-pc-linux-gnu"
 			;;
 		*mingw32*)

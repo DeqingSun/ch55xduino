@@ -2,9 +2,9 @@
 
 #prepared for mac
 
-COREVERSION=0.0.10
-SDCCVERSION=11630
-TOOLSVERSION=2022.04.07
+COREVERSION=0.0.12
+SDCCVERSION=13407
+TOOLSVERSION=2022.05.06
 COREFILE=ch55xduino-core-$COREVERSION.tar.bz2
 
 #pack core
@@ -24,3 +24,5 @@ tar -jcv --exclude="*DS_Store" -f packedFiles/$TOOLFILE_LINUX -C ../ tools/wrapp
 TOOLFILE_WIN=ch55xduino-tools_mingw32-$TOOLSVERSION.tar.bz2
 tar -jcv --exclude="*DS_Store" -f packedFiles/$TOOLFILE_WIN -C ../ tools/wrapper tools/win
 ./gen_tools_entry.sh packedFiles/ch55xduino-tools $TOOLSVERSION $COREVERSION > packedFiles/tools_$TOOLSVERSION.txt
+
+./gen_tools_entry.sh sdcc $SDCCVERSION $COREVERSION > packedFiles/sdcc_$SDCCVERSION.txt
