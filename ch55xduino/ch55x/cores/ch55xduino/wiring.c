@@ -766,6 +766,19 @@ void delayMicroseconds(uint16_t us){
 
 void init()
 {
+    
+#if F_EXT_OSC > 0
+    //switch to external OSC
+    SAFE_MOD = 0x55;
+    SAFE_MOD = 0xAA;
+    CLOCK_CFG |= bOSC_EN_XT;
+    delayMicroseconds(10000);
+    SAFE_MOD = 0x55;
+    SAFE_MOD = 0xAA;
+    CLOCK_CFG &= ~bOSC_EN_INT;
+    SAFE_MOD = 0x00;
+#endif
+    
     //set internal clock 
     SAFE_MOD = 0x55;
     SAFE_MOD = 0xAA;
