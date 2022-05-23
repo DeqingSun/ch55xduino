@@ -186,12 +186,12 @@ static void turnOffPWM(uint8_t pwm)
             }
             break;
         case PIN_PWM1_:
-            if ((PIN_FUNC & bPWM1_PIN_X) == 1){
+            if ((PIN_FUNC & bPWM1_PIN_X) != 0){
                 PWM_CTRL &= ~bPWM1_OUT_EN;
             }
             break;
         case PIN_PWM2_:
-            if ((PIN_FUNC & bPWM2_PIN_X) == 1){
+            if ((PIN_FUNC & bPWM2_PIN_X) != 0){
                 PWM_CTRL &= ~bPWM2_OUT_EN;
             }
             break;
