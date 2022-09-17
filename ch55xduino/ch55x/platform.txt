@@ -142,7 +142,7 @@ tools.vnproch55x_usb.path.macosx={runtime.tools.MCS51Tools.path}/macosx
 
 tools.vnproch55x_usb.upload.params.verbose=
 tools.vnproch55x_usb.upload.params.quiet=
-tools.vnproch55x_usb.upload.pattern="{path}/{cmd}" "{build.path}/{build.project_name}.hex"
+tools.vnproch55x_usb.upload.pattern="{path}/{cmd}" "{build.path}/{build.project_name}.hex" -r2
 
 # ----
 
