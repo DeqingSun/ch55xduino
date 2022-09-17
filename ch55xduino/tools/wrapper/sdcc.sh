@@ -125,7 +125,13 @@ if [ -f ${REL} ]; then
                 >&2 echo "Change CSEG value from ${CSEG_HEX_VAL} to ${CSEG_ADDED_HEX_VAL}"
             fi
             if [[ $(uname) == "Darwin" ]]; then
-                sed -i '' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL} # Needed for portability with sed
+				if [[ $(sed --version 2>/dev/null) != *GNU* ]]; then
+					#IDE V1 uses /usr/bin/sed
+					sed -i '' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL}
+				else
+					#IDE V2 uses /usr/local/bin/sed
+					sed -i'' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL}
+				fi
             else
                 sed -i'' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL}
             fi
@@ -134,7 +140,13 @@ if [ -f ${REL} ]; then
     #check if "A GSFINAL size 3" exists in main, the "ljmp __sdcc_program_startup"∂ is 3 bytes and takes GSFINAL
     if [ -n "$(echo ${REL} | grep -c main.c)" ]; then
         if [[ $(uname) == "Darwin" ]]; then
-            sed -i '' -e "s/A GSFINAL size 3/A GSFINAL size 4/g" ${REL} # Needed for portability with sed
+			if [[ $(sed --version 2>/dev/null) != *GNU* ]]; then
+				#IDE V1 uses /usr/bin/sed
+				sed -i '' -e "s/A GSFINAL size 3/A GSFINAL size 4/g" ${REL} 
+			else
+				#IDE V2 uses /usr/local/bin/sed
+				sed -i'' -e "s/A GSFINAL size 3/A GSFINAL size 4/g" ${REL}
+			fi
         else
             sed -i'' -e "s/A GSFINAL size 3/A GSFINAL size 4/g" ${REL}
         fi
