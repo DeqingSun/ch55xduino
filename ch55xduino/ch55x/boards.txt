@@ -50,6 +50,11 @@ ch552.menu.usb_settings.user0=USER CODE w/ 0B USB ram
 ch552.menu.usb_settings.user0.upload.maximum_data_size=1024
 ch552.menu.usb_settings.user0.upload.xdata_location=0
 ch552.menu.usb_settings.user0.build.extra_flags=--model-small -DUSER_USB_RAM=0
+## ----
+ch552.menu.usb_settings.user266=USER CODE w/ 266B USB ram
+ch552.menu.usb_settings.user266.upload.maximum_data_size=758
+ch552.menu.usb_settings.user266.upload.xdata_location=266
+ch552.menu.usb_settings.user266.build.extra_flags=--model-small -DUSER_USB_RAM=266
 
 ## ----------------------------------------------
 ch552.menu.upload_method.usb=USB
