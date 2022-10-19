@@ -110,6 +110,7 @@ fi
 
 #check rel file size, if it is odd, add by 1 to align code
 if [ -f ${REL} ]; then
+    #check CSEG size
     CSEG_STR="$(grep -o '^A CSEG size [0-9A-F]\+' ${REL})"
     if [[ -z "$CSEG_STR" ]]; then
         >&2 echo "CSEG String not found in ${REL}"
@@ -134,6 +135,34 @@ if [ -f ${REL} ]; then
 				fi
             else
                 sed -i'' -e "s/${CSEG_STR}/A CSEG size ${CSEG_ADDED_HEX_VAL}/g" ${REL}
+            fi
+        fi
+    fi
+    #check GSINIT size with the same method
+    GSINIT_STR="$(grep -o '^A GSINIT size [0-9A-F]\+' ${REL})"
+    if [[ -z "$GSINIT_STR" ]]; then
+        >&2 echo "GSINIT String not found in ${REL}"
+    else
+        GSINIT_HEX_VAL="$(echo ${GSINIT_STR} | grep -o '[^ ]*$')"
+        GSINIT_DEC_VAL="$(printf '%d' 0x${GSINIT_HEX_VAL})"
+        if [ $VERBOSE -gt 0 ]; then
+            >&2 echo "GSINIT of ${REL} is hex: ${GSINIT_HEX_VAL}, dec:${GSINIT_DEC_VAL}"
+        fi
+        if [ $((GSINIT_DEC_VAL%2)) -eq 1 ]; then
+            GSINIT_ADDED_HEX_VAL="$(printf '%X' $((GSINIT_DEC_VAL+1)))"
+            if [ $VERBOSE -gt 0 ]; then
+                >&2 echo "Change GSINIT value from ${GSINIT_HEX_VAL} to ${GSINIT_ADDED_HEX_VAL}"
+            fi
+            if [[ $(uname) == "Darwin" ]]; then
+				if [[ $(sed --version 2>/dev/null) != *GNU* ]]; then
+					#IDE V1 uses /usr/bin/sed
+					sed -i '' -e "s/${GSINIT_STR}/A GSINIT size ${GSINIT_ADDED_HEX_VAL}/g" ${REL}
+				else
+					#IDE V2 uses /usr/local/bin/sed
+					sed -i'' -e "s/${GSINIT_STR}/A GSINIT size ${GSINIT_ADDED_HEX_VAL}/g" ${REL}
+				fi
+            else
+                sed -i'' -e "s/${GSINIT_STR}/A GSINIT size ${GSINIT_ADDED_HEX_VAL}/g" ${REL}
             fi
         fi
     fi
