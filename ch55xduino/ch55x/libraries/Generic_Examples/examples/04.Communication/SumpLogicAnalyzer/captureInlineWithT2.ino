@@ -82,7 +82,7 @@ void captureInlineWithT2() {
 
   __asm__("  mov r6,#192      \n"
 
-          ".odd \n loop8Samples$:    \n" //even address is faster, not sure why need odd.
+          ".even \n loop8Samples$:    \n" //new linking file ensured each file start at even address, so even in one file is even in final, faster for jnz 
 
           "  mov a,_P1 \n  swap a \n mov @r0,a \n "
           "waitTF2_1$: \n  jnb _TF2,waitTF2_1$ \n  clr _TF2 \n"

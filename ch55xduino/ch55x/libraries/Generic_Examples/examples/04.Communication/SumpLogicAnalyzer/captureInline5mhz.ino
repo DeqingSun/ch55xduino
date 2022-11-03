@@ -47,12 +47,12 @@ void captureInline5mhz() {
 
   //===768 pairs
 
-  __asm__("  mov r6,#153      \n"
+  __asm__("  mov r6,#153      \n" //opcode 7E 99
 
-          ".odd \n loop10Samples$:    \n" //even address is faster, not sure why need odd.
+          ".even \n loop10Samples$:    \n" //new linking file ensured each file start at even address, so even in one file is even in final, faster for jnz 
 
-          "  mov a,_P1 \n  swap a \n mov @r0,a \n "
-          "  mov a,_P1 \n  xchd A,@r0 \n  .db #0xa5 \n"
+          "  mov a,_P1 \n  swap a \n mov @r0,a \n " //opcode E5 90 C4 F6, 4CLK
+          "  mov a,_P1 \n  xchd A,@r0 \n  .db #0xa5 \n" //4CLK
 
           "  mov a,_P1 \n  swap a \n mov @r0,a \n "
           "  mov a,_P1 \n  xchd A,@r0 \n  .db #0xa5 \n"
