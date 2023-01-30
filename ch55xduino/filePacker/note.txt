@@ -1,0 +1,11 @@
+
+
+compile in linux
+
+./configure
+
+make install DESTDIR=/home/deqing/Desktop/share/build/
+
+tar -jcv  -f "pack.tar.bz2" sdcc
+
+sdcc-snapshot-amd64-ubuntu16.04-linux2.5-20220917-13706

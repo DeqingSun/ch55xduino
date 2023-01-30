@@ -26,47 +26,44 @@ void neopixel_show_long_P3_3(uint32_t dataAndLen) {
            ";disable interrupt                      \n"
            "    clr _EA                             \n"
 
-           //even may skip a byte, may leaving it 0xFF, and the MOV R7,A may affect R7
-           //CH552 can save 1 instruction of jump/branch insctruction go to an even addr
-           ".even                                   \n"
+           //.even may skip a byte, leaving it 0xFF
+           //CH55x can save 1 cycle (or more) of jump/branch instructions going from/to an even addr
+           ".even                                   \n" // [bytes, cycles]
            "startNewByte$:                          \n"
-           "    movx  a,@dptr                       \n"
-           "    inc dptr                            \n"
+           "    movx  a,@dptr                       \n" // [1,1]
+           "    inc dptr                            \n" // [1,1]
+           "    mov r2,#8                           \n" // [2,2]
            "loopbit$:                               \n"
-           "    setb _P3_3                          \n"
-           "    rlc a                               \n"
-           "    nop                                 \n"  //make it even
-           "    jnc bit7skipLowNop$                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "bit7skipLowNop$:                        \n"
-           "    clr _P3_3                           \n"
-           "    jc bit7skipHighNop$                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
-           "    nop                                 \n"
+           "    setb _P3_3                          \n" // [2,2]
+           "    rlc a                               \n" // [1,1]
+           "    nop                                 \n" // [1,1] //make it even
+           "    jnc bit7skipHighNop$                \n" // [2,2/4|5]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
            "bit7skipHighNop$:                       \n"
-           "    anl ar2,#7                          \n"
-
-           "    djnz r2,loopbit$                    \n"
-           "    djnz r3,startNewByte$               \n"
-           "    nop                                 \n"
-           "    clr _P3_3                          \n"
+           "    clr _P3_3                           \n" // [2,2]
+           "    jc bit7skipLowNop$                  \n" // [2,2/4|5]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "    nop                                 \n" // [1,1]
+           "bit7skipLowNop$:                        \n"
+           "    djnz r2,loopbit$                    \n" // [2,2/4|5|6]
+           "    djnz r3,startNewByte$               \n" // [2,2/4|5|6]
 
            ";restore EA from R6                     \n"
            "    mov a,r6                            \n"
