@@ -42,7 +42,7 @@ compiler.tools.path={runtime.tools.avr-gcc.path}/bin
 
 compiler.c.cmd=sdcc
 compiler.c.wrapper=sdcc.sh
-compiler.c.flags=-MMD -c -Ddouble=float -DUSE_STDINT -D__PROG_TYPES_COMPAT__ {compiler.warning_flags}
+compiler.c.flags=-MMD -c -Ddouble=float -DUSE_STDINT -D__PROG_TYPES_COMPAT__ --int-long-reent {compiler.warning_flags}
 compiler.c.elf.flags=--code-size {upload.maximum_size} --xram-size {upload.maximum_data_size} --xram-loc {upload.xdata_location}
 
 compiler.c.elf.cmd=sdcc
@@ -106,7 +106,7 @@ recipe.S.o.pattern="{compiler.path}/{compiler.c.cmd}" re3 {compiler.S.flags} -mm
 recipe.ar.pattern="{compiler.wrapper.path}/{compiler.ar.wrapper}" "{compiler.path}/{compiler.ar.cmd}" "{archive_file_path}" "{object_file}" re4  {compiler.ar.flags} {compiler.ar.extra_flags}
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.wrapper.path}/{compiler.c.elf.wrapper}" "{compiler.path}/{compiler.c.elf.cmd}" --nostdlib "-L{build.path}" "-L{compiler.syslibs.stdlib.path}/lib/small" {compiler.c.elf.flags} -mmcs51 -D{build.mcu} {compiler.c.elf.extra_flags} {object_files} "{build.path}/{archive_file}" -lmcs51 -llibsdcc -lliblong -lliblonglong -llibint -llibfloat --out-fmt-ihx -o "{build.path}/{build.project_name}.elf"
+recipe.c.combine.pattern="{compiler.wrapper.path}/{compiler.c.elf.wrapper}" "{compiler.path}/{compiler.c.elf.cmd}" --nostdlib "-L{build.path}" "-L{compiler.syslibs.stdlib.path}/lib/small-stack-auto" {compiler.c.elf.flags} -mmcs51 -D{build.mcu} {compiler.c.elf.extra_flags} {object_files} "{build.path}/{archive_file}" -lmcs51 -llibsdcc -lliblong -lliblonglong -llibint -llibfloat --out-fmt-ihx -o "{build.path}/{build.project_name}.elf"
 
 ## Create output files (.eep and .hex)
 #recipe.objcopy.eep.pattern="{compiler.tools.path}/{compiler.objcopy.cmd}" {compiler.objcopy.eep.flags} {compiler.objcopy.eep.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.eep"

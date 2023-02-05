@@ -43,7 +43,7 @@ TAR_EXCLUDE='--exclude=doc	--exclude=src 	--exclude=non-free
 --exclude=*pdk*		--exclude=*rab		--exclude=huge
 --exclude=large*	--exclude=medium	--exclude=stm*
 --exclude=mos6502*  --exclude=z80*      --exclude=sm83
---exclude=man --exclude=small-stack-auto
+--exclude=man --exclude=small
 --exclude=bin/ucsim* --exclude=bin/as2gbmap --exclude=bin/makebin
 --exclude=bin/packihx  --exclude=bin/s51 --exclude=bin/savr
 --exclude=bin/*stm* --exclude=bin/sdcdb* --exclude=bin/sdnm
