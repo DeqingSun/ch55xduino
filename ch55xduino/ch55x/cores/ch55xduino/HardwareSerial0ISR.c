@@ -1,7 +1,7 @@
 /*
  created by Deqing Sun for use with CH55xduino
  */
-
+#if defined(UART0)
 #include "HardwareSerial.h"
 
 __xdata uint8_t Receive_Uart0_Buf[SERIAL0_RX_BUFFER_SIZE];   //arduino style serial buffer
@@ -14,7 +14,7 @@ volatile __bit uart0_flag_sending=0;
 
 void uart0IntRxHandler(){
     uint8_t nextHead = (uart0_rx_buffer_head + 1) % SERIAL0_RX_BUFFER_SIZE;
-    
+
     if (nextHead != uart0_rx_buffer_tail) {
         Receive_Uart0_Buf[uart0_rx_buffer_head] = SBUF;
         uart0_rx_buffer_head = nextHead;
@@ -32,5 +32,4 @@ void uart0IntTxHandler(){
         }
     }
 }
-
-
+#endif

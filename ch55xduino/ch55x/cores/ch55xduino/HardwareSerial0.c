@@ -1,7 +1,7 @@
 /*
  created by Deqing Sun for use with CH55xduino
  */
-
+#if defined(UART0)
 #include "HardwareSerial.h"
 
 __xdata unsigned char serial0Initialized;
@@ -25,7 +25,7 @@ void Serial0_begin(unsigned long baud){
 
     uint32_t x;
     uint8_t x2;
-    
+
     x = 10 * F_CPU / baud / 16;                                       //Make sure it doesn't overflow when baudrate is changed, default 9600
     x2 = ((uint16_t)x) % 10;
     x /= 10;
@@ -38,16 +38,16 @@ void Serial0_begin(unsigned long baud){
     RCLK = 0;                                                                  //UART0 receive clk
     TCLK = 0;                                                                  //UART0 send clk
     PCON |= SMOD;
-    
+
     TMOD = TMOD & ~ bT1_GATE & ~ bT1_CT & ~ MASK_T1_MOD | bT1_M1;              //0X20,Timer1 as 8 bit autoload timer
     T2MOD = T2MOD | bTMR_CLK | bT1_CLK;                                        //Timer1 clk selection. trade off: bTMR_CLK is low, will make Uart0 not accurate. bTMR_CLK is high, make T2 timeout is short, multiple timeout must be allowed in 1st edge, as reset may take long
     TH1 = 0-x;                                                                 //baud/12 is real rate
     TR1 = 1;                                                                   //start timer1
     TI = 0;
     REN = 1;                                                                   //Enable serial 0 receive
-    
+
     ES = 1;                                                                       //Enable serial 0 interrupt
-    
+
     serial0Initialized = 1;
 }
 
@@ -61,22 +61,22 @@ uint8_t Serial0_write(uint8_t SendDat)
         if (interruptOn) EA = 1;
         return 1;
     }
-    
+
     uint8_t nextHeadPos =  ((uint8_t)(uart0_tx_buffer_head + 1)) % SERIAL0_TX_BUFFER_SIZE;
-    
+
     uint16_t waitWriteCount=0;
     while ((nextHeadPos == uart0_tx_buffer_tail) ){    //wait max 100ms or discard
         if (interruptOn) EA = 1;
         waitWriteCount++;
-        delayMicroseconds(5);   
+        delayMicroseconds(5);
         if (waitWriteCount>=20000) return 0;
     }
     Transmit_Uart0_Buf[uart0_tx_buffer_head]=SendDat;
-    
+
     uart0_tx_buffer_head = nextHeadPos;
-    
+
     if (interruptOn) EA = 1;
-    
+
     return 1;
 }
 
@@ -98,3 +98,4 @@ uint8_t Serial0_read(void){
     }
     return 0;
 }
+#endif

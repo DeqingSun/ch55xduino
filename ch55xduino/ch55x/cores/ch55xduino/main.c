@@ -37,10 +37,11 @@ __idata __at (0x0C) volatile uint8_t timer0_overflow_count_5th_byte = 0;
 
 void Timer0Interrupt(void) __interrupt (INT_NO_TMR0) __using(1); //located in wiring.c, using register bank 1
 
+#if defined(UART0)
 void Uart0_ISR(void) __interrupt (INT_NO_UART0)
 {
     if (RI){
-        uart0IntRxHandler();        
+        uart0IntRxHandler();
         RI =0;
     }
     if (TI){
@@ -48,7 +49,9 @@ void Uart0_ISR(void) __interrupt (INT_NO_UART0)
         TI =0;
     }
 }
+#endif
 
+#if defined(UART1)
 void Uart1_ISR(void) __interrupt (INT_NO_UART1)
 {
 #if defined(CH551) || defined(CH552)
@@ -82,6 +85,7 @@ void Uart1_ISR(void) __interrupt (INT_NO_UART1)
     }
 #endif
 }
+#endif
 
 typedef void (*voidFuncPtr)(void);
 extern __xdata voidFuncPtr intFunc[];
@@ -130,5 +134,3 @@ unsigned char _sdcc_external_startup (void) __nonbanked
 {
     return 0;
 }
-
-
