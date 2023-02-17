@@ -13,7 +13,7 @@ void USBSerial_print_sn_func(char * s, __xdata uint8_t size);
 void USBSerial_print_f_func(float f);
 void USBSerial_print_fd_func(float f, __xdata uint8_t digits);
 
-#if defined(UART0)
+#if !defined(NO_UART0)
 void Serial0_print_i_func(long i);
 void Serial0_print_ib_func(long i, __xdata uint8_t base);
 void Serial0_print_u_func(unsigned long u);
@@ -24,7 +24,7 @@ void Serial0_print_f_func(float f);
 void Serial0_print_fd_func(float f, __xdata uint8_t digits);
 #endif
 
-#if defined(UART1)
+#if !defined(NO_UART1)
 void Serial1_print_i_func(long i);
 void Serial1_print_ib_func(long i, __xdata uint8_t base);
 void Serial1_print_u_func(unsigned long u);
@@ -71,7 +71,7 @@ void printNothing();
 )
 #define USBSerial_println(...) {USBSerial_print(__VA_ARGS__);Print_println(USBSerial_write);}
 
-#if defined(UART0)
+#if !defined(NO_UART0)
 #define Serial0_print(...) SERIAL0_SELECT(__VA_ARGS__)(__VA_ARGS__)
 #define SERIAL0_SELECT(...) CONCAT(SERIAL0_SELECT_, NARG(__VA_ARGS__))(__VA_ARGS__)
 #define SERIAL0_SELECT_0() printNothing
@@ -106,7 +106,7 @@ void printNothing();
 #define Serial0_println(...) {Serial0_print(__VA_ARGS__);Print_println(Serial0_write);}
 #endif
 
-#if defined(UART1)
+#if !defined(NO_UART1)
 #define Serial1_print(...) SERIAL1_SELECT(__VA_ARGS__)(__VA_ARGS__)
 #define SERIAL1_SELECT(...) CONCAT(SERIAL1_SELECT_, NARG(__VA_ARGS__))(__VA_ARGS__)
 #define SERIAL1_SELECT_0() printNothing

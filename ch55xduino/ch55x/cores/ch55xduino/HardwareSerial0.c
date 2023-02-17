@@ -1,7 +1,7 @@
 /*
  created by Deqing Sun for use with CH55xduino
  */
-#if defined(UART0)
+#if !defined(NO_UART0)
 #include "HardwareSerial.h"
 
 __xdata unsigned char serial0Initialized;

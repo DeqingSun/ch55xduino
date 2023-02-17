@@ -2,7 +2,7 @@
  created by Deqing Sun for use with CH55xduino
  need SDCC 13402 or higher version
  */
-#if defined(UART0)
+#if !defined(NO_UART0)
 #include "Arduino.h"
 
 void Serial0_print_i_func(long i) {

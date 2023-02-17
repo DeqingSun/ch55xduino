@@ -1,7 +1,7 @@
 /*
  created by Deqing Sun for use with CH55xduino
  */
-#if defined(UART0)
+#if !defined(NO_UART0)
 #include "HardwareSerial.h"
 
 __xdata uint8_t Receive_Uart0_Buf[SERIAL0_RX_BUFFER_SIZE];   //arduino style serial buffer

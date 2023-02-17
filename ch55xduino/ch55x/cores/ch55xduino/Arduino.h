@@ -284,7 +284,7 @@ char USBSerial_read();
 #define USBSerial_println_fd(P,Q) ( Print_print_fd(USBSerial_write,(P),(Q) ) + Print_println(USBSerial_write) )
 #define USBSerial_println_c(P) ( (USBSerial_write(P)) + Print_println(USBSerial_write) )
 
-#if defined(UART0)
+#if !defined(NO_UART0)
 #define Serial0_print_s(P) ( Print_print_s(Serial0_write,(P)) )
 #define Serial0_print_sn(P,Q) ( Print_print_sn(Serial0_write,(P),(Q)) )
 #define Serial0_print_i(P) ( Print_print_i(Serial0_write,(P)) )
@@ -307,7 +307,7 @@ char USBSerial_read();
 #define Serial0_println_c(P) ( (Serial0_write(P)) + Print_println(Serial0_write) )
 #endif
 
-#if defined(UART1)
+#if !defined(NO_UART1)
 #define Serial1_print_s(P) ( Print_print_s(Serial1_write,(P)) )
 #define Serial1_print_sn(P,Q) ( Print_print_sn(Serial1_write,(P),(Q)) )
 #define Serial1_print_i(P) ( Print_print_i(Serial1_write,(P)) )

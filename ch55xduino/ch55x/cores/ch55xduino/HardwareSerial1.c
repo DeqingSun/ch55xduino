@@ -1,4 +1,4 @@
-#if defined(UART1)
+#if !defined(NO_UART1)
 #include "HardwareSerial.h"
 
 __xdata unsigned char serial1Initialized;

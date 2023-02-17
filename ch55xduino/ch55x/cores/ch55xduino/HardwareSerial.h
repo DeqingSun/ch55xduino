@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "include/ch5xx.h"
 
-#if defined(UART0)
+#if !defined(NO_UART0)
 #define SERIAL0_TX_BUFFER_SIZE 16
 #define SERIAL0_RX_BUFFER_SIZE 16
 
@@ -25,7 +25,7 @@ void uart0IntRxHandler();
 void uart0IntTxHandler();
 #endif
 
-#if defined(UART1)
+#if !defined(NO_UART1)
 #define SERIAL1_TX_BUFFER_SIZE 16
 #define SERIAL1_RX_BUFFER_SIZE 16
 
