@@ -3,6 +3,7 @@
 menu.usb_settings=USB Settings
 menu.upload_method=Upload method
 menu.clock=Clock Source
+menu.uart=Hardware Serial
 ##############################################################
 
 ch552.name=CH552 Board
@@ -33,6 +34,15 @@ ch552.build.mcu=CH552
 
 ch552.upload.use_1200bps_touch=true
 ch552.upload.wait_for_upload_port=false
+
+## Hardware UART Settings
+ch552.menu.uart.uart0_uart1=UART0 & UART1
+ch552.menu.uart.uart0=UART0
+ch552.menu.uart.uart0.build.uart_flags=-DNO_UART1
+ch552.menu.uart.uart1=UART1
+ch552.menu.uart.uart1.build.uart_flags=-DNO_UART0
+ch552.menu.uart.nouart=No UART
+ch552.menu.uart.nouart.build.uart_flags=-DNO_UART0 -DNO_UART1
 
 ## USB Memory Settings
 ## ----------------------------------------------
@@ -98,6 +108,12 @@ ch551.build.mcu=CH551
 ch551.upload.use_1200bps_touch=true
 ch551.upload.wait_for_upload_port=false
 
+## Hardware UART Settings
+ch551.menu.uart.uart0=UART0
+ch551.menu.uart.uart0.build.uart_flags=-DNO_UART1
+ch551.menu.uart.nouart=No UART
+ch551.menu.uart.nouart.build.uart_flags=-DNO_UART0 -DNO_UART1
+
 ## USB Memory Settings
 ## ----------------------------------------------
 ch551.menu.usb_settings.usbcdc=Default CDC
@@ -153,6 +169,15 @@ ch559.build.mcu=CH559
 ch559.upload.use_1200bps_touch=true
 ch559.upload.wait_for_upload_port=false
 
+## Hardware UART Settings
+ch559.menu.uart.uart0_uart1=UART0 & UART1
+ch559.menu.uart.uart0=UART0
+ch559.menu.uart.uart0.build.uart_flags=-DNO_UART1
+ch559.menu.uart.uart1=UART1
+ch559.menu.uart.uart1.build.uart_flags=-DNO_UART0
+ch559.menu.uart.nouart=No UART
+ch559.menu.uart.nouart.build.uart_flags=-DNO_UART0 -DNO_UART1
+
 ## USB Memory Settings
 ## ----------------------------------------------
 ch559.menu.usb_settings.usbcdc=Default CDC
@@ -199,6 +224,15 @@ ch549.build.mcu=CH549
 
 ch549.upload.use_1200bps_touch=true
 ch549.upload.wait_for_upload_port=false
+
+## Hardware UART Settings
+ch549.menu.uart.uart0_uart1=UART0 & UART1
+ch549.menu.uart.uart0=UART0
+ch549.menu.uart.uart0.build.uart_flags=-DNO_UART1
+ch549.menu.uart.uart1=UART1
+ch549.menu.uart.uart1.build.uart_flags=-DNO_UART0
+ch549.menu.uart.nouart=No UART
+ch549.menu.uart.nouart.build.uart_flags=-DNO_UART0 -DNO_UART1
 
 ## USB Memory Settings
 ## ----------------------------------------------

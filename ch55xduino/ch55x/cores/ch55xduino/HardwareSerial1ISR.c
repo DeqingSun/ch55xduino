@@ -1,3 +1,4 @@
+#if !defined(NO_UART1)
 #include "HardwareSerial.h"
 
 __xdata uint8_t Receive_Uart1_Buf[SERIAL1_RX_BUFFER_SIZE];   //arduino style serial buffer
@@ -40,5 +41,4 @@ void uart1IntTxHandler(){
         }
     }
 }
-
-
+#endif

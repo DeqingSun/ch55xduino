@@ -1,3 +1,4 @@
+#if !defined(NO_UART1)
 #include "HardwareSerial.h"
 
 __xdata unsigned char serial1Initialized;
@@ -18,7 +19,7 @@ uint8_t Serial1(void){
 }
 
 void Serial1_begin(unsigned long baud){
-    
+
 #if defined(CH551) || defined(CH552)
     U1SM0 = 0;
     U1SMOD = 1;                                                                  //use mode 1 for serial 1
@@ -60,7 +61,7 @@ uint8_t Serial1_write(uint8_t SendDat)
 {
     uint8_t interruptOn = EA;
     EA = 0;
-    
+
     if ( (uart1_tx_buffer_head == uart1_tx_buffer_tail) && (uart1_flag_sending==0) ){    //start to send
         uart1_flag_sending = 1;
 #if defined(CH551) || defined(CH552)
@@ -86,7 +87,7 @@ uint8_t Serial1_write(uint8_t SendDat)
     Transmit_Uart1_Buf[uart1_tx_buffer_head]=SendDat;
 
     uart1_tx_buffer_head = nextHeadPos;
-    
+
     if (interruptOn) EA = 1;
 
     return 1;
@@ -110,3 +111,4 @@ uint8_t Serial1_read(void){
     }
     return 0;
 }
+#endif
