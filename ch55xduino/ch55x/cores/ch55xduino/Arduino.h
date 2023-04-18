@@ -166,9 +166,9 @@ void init(void);
 //void serialEvent(void);		// weak
 //extern unsigned char runSerialEvent;
 
-void pinMode(uint8_t pin, __xdata uint8_t mode);
-void digitalWrite(uint8_t pin, __xdata uint8_t val);
-uint8_t digitalRead(uint8_t pin);
+void pinMode(__data uint8_t pin, __xdata uint8_t mode);
+void digitalWrite(__data uint8_t pin, __xdata uint8_t val);
+uint8_t digitalRead(__data uint8_t pin);
 #if defined(CH559)
 uint16_t analogRead(uint8_t pin);
 #else

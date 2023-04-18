@@ -8,10 +8,11 @@
 
 #include "pins_arduino.h"   //only include once in core
 
-void pinMode(uint8_t pin, __xdata uint8_t mode)    //only P1 & P3 can set mode
+void pinMode(__data uint8_t pin, __xdata uint8_t mode)    //only P1 & P3 can set mode
 {
-    uint8_t bit = digitalPinToBitMask(pin);
-    uint8_t port = digitalPinToPort(pin);
+    //__data make sure the local varaibles reside in register in large model
+    __data uint8_t bit = digitalPinToBitMask(pin);
+    __data uint8_t port = digitalPinToPort(pin);
     
     if (port == NOT_A_PIN) return;
     
@@ -170,7 +171,7 @@ void pinMode(uint8_t pin, __xdata uint8_t mode)    //only P1 & P3 can set mode
     }
 }
 
-static void turnOffPWM(uint8_t pwm)
+static void turnOffPWM(__data uint8_t pwm)
 {
 #if defined(CH551) || defined(CH552)
     switch (pwm)
@@ -202,11 +203,11 @@ static void turnOffPWM(uint8_t pwm)
     //todo: PWM mode for CH559
 }
 
-uint8_t digitalRead(uint8_t pin)
+uint8_t digitalRead(__data uint8_t pin)
 {
-    uint8_t pwm = digitalPinToPWM(pin);
-    uint8_t bit = digitalPinToBitMask(pin);
-    uint8_t port = digitalPinToPort(pin);
+    __data uint8_t pwm = digitalPinToPWM(pin);
+    __data uint8_t bit = digitalPinToBitMask(pin);
+    __data uint8_t port = digitalPinToPort(pin);
     
     if (port == NOT_A_PIN) return LOW;
     
@@ -214,7 +215,7 @@ uint8_t digitalRead(uint8_t pin)
     // before getting a digital reading.
     if (pwm != NOT_ON_PWM) turnOffPWM(pwm);
     
-    uint8_t portBuf = 0;
+    __data uint8_t portBuf = 0;
     
     switch(port){
 #if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559)
@@ -257,11 +258,11 @@ uint8_t digitalRead(uint8_t pin)
     return LOW;
 }
 
-void digitalWrite(uint8_t pin, __xdata uint8_t val)
+void digitalWrite(__data uint8_t pin, __xdata uint8_t val)
 {
-    uint8_t pwm = digitalPinToPWM(pin);
-    uint8_t bit = digitalPinToBitMask(pin);
-    uint8_t port = digitalPinToPort(pin);
+    __data uint8_t pwm = digitalPinToPWM(pin);
+    __data uint8_t bit = digitalPinToBitMask(pin);
+    __data uint8_t port = digitalPinToPort(pin);
     
     // If the pin that support PWM output, we need to turn it off
     // before doing a digital write.
@@ -269,7 +270,7 @@ void digitalWrite(uint8_t pin, __xdata uint8_t val)
     
     //C pointers cannot be used to access the 8051's SFRs (special function registers).
     
-    uint8_t interruptOn = EA;
+    __data uint8_t interruptOn = EA;
     EA = 0;
     
     switch(port){
