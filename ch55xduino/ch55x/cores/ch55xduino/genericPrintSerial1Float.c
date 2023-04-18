@@ -6,10 +6,10 @@
 
 #include "Arduino.h"
 
-void Serial1_print_f_func(float f) {
+void Serial1_print_f_func(__data float f) {
     Print_print_f(Serial1_write, f);
 }
 
-void Serial1_print_fd_func(float f, __xdata uint8_t digits) {
+void Serial1_print_fd_func(__data float f, __xdata uint8_t digits) {
     Print_print_fd(Serial1_write, f, digits);
 }

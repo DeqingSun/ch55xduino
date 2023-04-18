@@ -4,32 +4,32 @@
  */
 
 // dedicated function make main code less big because no xdata is needed in main
-void USBSerial_print_i_func(long i);
-void USBSerial_print_ib_func(long i, __xdata uint8_t base);
-void USBSerial_print_u_func(unsigned long u);
-void USBSerial_print_ub_func(unsigned long u, __xdata uint8_t base);
-void USBSerial_print_s_func(char * s);
-void USBSerial_print_sn_func(char * s, __xdata uint8_t size);
-void USBSerial_print_f_func(float f);
-void USBSerial_print_fd_func(float f, __xdata uint8_t digits);
+void USBSerial_print_i_func(__data long i);
+void USBSerial_print_ib_func(__data long i, __xdata uint8_t base);
+void USBSerial_print_u_func(__data unsigned long u);
+void USBSerial_print_ub_func(__data unsigned long u, __xdata uint8_t base);
+void USBSerial_print_s_func(char * __data s);
+void USBSerial_print_sn_func(char * __data s, __xdata uint8_t size);
+void USBSerial_print_f_func(__data float f);
+void USBSerial_print_fd_func(__data float f, __xdata uint8_t digits);
 
-void Serial0_print_i_func(long i);
-void Serial0_print_ib_func(long i, __xdata uint8_t base);
-void Serial0_print_u_func(unsigned long u);
-void Serial0_print_ub_func(unsigned long u, __xdata uint8_t base);
-void Serial0_print_s_func(char * s);
-void Serial0_print_sn_func(char * s, __xdata uint8_t size);
-void Serial0_print_f_func(float f);
-void Serial0_print_fd_func(float f, __xdata uint8_t digits);
+void Serial0_print_i_func(__data long i);
+void Serial0_print_ib_func(__data long i, __xdata uint8_t base);
+void Serial0_print_u_func(__data unsigned long u);
+void Serial0_print_ub_func(__data unsigned long u, __xdata uint8_t base);
+void Serial0_print_s_func(char * __data s);
+void Serial0_print_sn_func(char * __data s, __xdata uint8_t size);
+void Serial0_print_f_func(__data float f);
+void Serial0_print_fd_func(__data float f, __xdata uint8_t digits);
 
-void Serial1_print_i_func(long i);
-void Serial1_print_ib_func(long i, __xdata uint8_t base);
-void Serial1_print_u_func(unsigned long u);
-void Serial1_print_ub_func(unsigned long u, __xdata uint8_t base);
-void Serial1_print_s_func(char * s);
-void Serial1_print_sn_func(char * s, __xdata uint8_t size);
-void Serial1_print_f_func(float f);
-void Serial1_print_fd_func(float f, __xdata uint8_t digits);
+void Serial1_print_i_func(__data long i);
+void Serial1_print_ib_func(__data long i, __xdata uint8_t base);
+void Serial1_print_u_func(__data unsigned long u);
+void Serial1_print_ub_func(__data unsigned long u, __xdata uint8_t base);
+void Serial1_print_s_func(char * __data s);
+void Serial1_print_sn_func(char * __data s, __xdata uint8_t size);
+void Serial1_print_f_func(__data float f);
+void Serial1_print_fd_func(__data float f, __xdata uint8_t digits);
 
 void printNothing();
 

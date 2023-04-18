@@ -7,7 +7,7 @@
 //At this moment, sendCharDebug is not included in any header
 //use pragma callee_saves when you declare sendCharDebug
 #pragma callee_saves sendCharDebug
-void sendCharDebug(char c) //8Mbps under 24M clk
+void sendCharDebug(__data char c) //8Mbps under 24M clk
 {
     c;  //avoid unreferenced function argument warning
     //uint8_t interruptOn = EA;

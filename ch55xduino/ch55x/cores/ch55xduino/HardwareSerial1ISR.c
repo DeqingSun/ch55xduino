@@ -9,7 +9,7 @@ volatile __xdata uint8_t uart1_tx_buffer_tail=0;
 volatile __bit uart1_flag_sending=0;
 
 void uart1IntRxHandler(){
-    uint8_t nextHead = (uart1_rx_buffer_head + 1) % SERIAL1_RX_BUFFER_SIZE;
+    __data uint8_t nextHead = (uart1_rx_buffer_head + 1) % SERIAL1_RX_BUFFER_SIZE;
 
     if (nextHead != uart1_rx_buffer_tail) {
 #if defined(CH551) || defined(CH552)

@@ -11,13 +11,13 @@ extern volatile __xdata uint8_t uart1_tx_buffer_tail;
 extern volatile __bit uart1_flag_sending;
 
 //extern wait functions
-void delayMicroseconds(uint16_t us);
+void delayMicroseconds(__data uint16_t us);
 
 uint8_t Serial1(void){
     return serial1Initialized;
 }
 
-void Serial1_begin(unsigned long baud){
+void Serial1_begin(__data unsigned long baud){
     
 #if defined(CH551) || defined(CH552)
     U1SM0 = 0;
@@ -29,8 +29,8 @@ void Serial1_begin(unsigned long baud){
     IE_UART1 = 1;
     EA = 1;                                                                       //Enable serial 1 interrupt
 #elif defined(CH559)
-    uint32_t x;
-    uint8_t x2;
+    __data uint32_t x;
+    __data uint8_t x2;
     SER1_LCR |= bLCR_DLAB;      //change baudrate
     SER1_DIV = 1;
     x = 10 * F_CPU * 2 / 1 / 16 / baud;
@@ -56,9 +56,9 @@ void Serial1_begin(unsigned long baud){
     serial1Initialized = 1;
 }
 
-uint8_t Serial1_write(uint8_t SendDat)
+uint8_t Serial1_write(__data uint8_t SendDat)
 {
-    uint8_t interruptOn = EA;
+    __data uint8_t interruptOn = EA;
     EA = 0;
     
     if ( (uart1_tx_buffer_head == uart1_tx_buffer_tail) && (uart1_flag_sending==0) ){    //start to send
@@ -74,9 +74,9 @@ uint8_t Serial1_write(uint8_t SendDat)
         return 1;
     }
 
-    uint8_t nextHeadPos =  ((uint8_t)(uart1_tx_buffer_head + 1)) % SERIAL1_TX_BUFFER_SIZE;
+    __data uint8_t nextHeadPos =  ((uint8_t)(uart1_tx_buffer_head + 1)) % SERIAL1_TX_BUFFER_SIZE;
 
-    uint16_t waitWriteCount=0;
+    __data uint16_t waitWriteCount=0;
     while ((nextHeadPos == uart1_tx_buffer_tail) ){    //wait max 100ms or discard
         if (interruptOn) EA = 1;
         waitWriteCount++;
@@ -97,14 +97,14 @@ void Serial1_flush(void){
 }
 
 uint8_t Serial1_available(void){
-    uint8_t rxBufLength = ((uint8_t)(SERIAL1_RX_BUFFER_SIZE + uart1_rx_buffer_head - uart1_rx_buffer_tail)) % SERIAL1_RX_BUFFER_SIZE;
+    __data uint8_t rxBufLength = ((uint8_t)(SERIAL1_RX_BUFFER_SIZE + uart1_rx_buffer_head - uart1_rx_buffer_tail)) % SERIAL1_RX_BUFFER_SIZE;
     return rxBufLength;
 }
 
 uint8_t Serial1_read(void){
-    uint8_t rxBufLength = ((uint8_t)(SERIAL1_RX_BUFFER_SIZE + uart1_rx_buffer_head - uart1_rx_buffer_tail)) % SERIAL1_RX_BUFFER_SIZE;
+    __data uint8_t rxBufLength = ((uint8_t)(SERIAL1_RX_BUFFER_SIZE + uart1_rx_buffer_head - uart1_rx_buffer_tail)) % SERIAL1_RX_BUFFER_SIZE;
     if(rxBufLength>0){
-        uint8_t result = Receive_Uart1_Buf[uart1_rx_buffer_tail];
+        __data uint8_t result = Receive_Uart1_Buf[uart1_rx_buffer_tail];
         uart1_rx_buffer_tail = (((uint8_t)(uart1_rx_buffer_tail + 1)) % SERIAL1_RX_BUFFER_SIZE);
         return result;
     }

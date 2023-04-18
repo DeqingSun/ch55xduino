@@ -13,7 +13,7 @@ volatile __xdata uint8_t uart0_tx_buffer_tail=0;
 volatile __bit uart0_flag_sending=0;
 
 void uart0IntRxHandler(){
-    uint8_t nextHead = (uart0_rx_buffer_head + 1) % SERIAL0_RX_BUFFER_SIZE;
+    __data uint8_t nextHead = (uart0_rx_buffer_head + 1) % SERIAL0_RX_BUFFER_SIZE;
     
     if (nextHead != uart0_rx_buffer_tail) {
         Receive_Uart0_Buf[uart0_rx_buffer_head] = SBUF;
