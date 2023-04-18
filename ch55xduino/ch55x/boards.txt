@@ -39,22 +39,22 @@ ch552.upload.wait_for_upload_port=false
 ch552.menu.usb_settings.usbcdc=Default CDC
 ch552.menu.usb_settings.usbcdc.upload.maximum_data_size=876
 ch552.menu.usb_settings.usbcdc.upload.xdata_location=148
-ch552.menu.usb_settings.usbcdc.build.extra_flags=--model-large -DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
+ch552.menu.usb_settings.usbcdc.build.extra_flags=-DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
 ## ----
 ch552.menu.usb_settings.user148=USER CODE w/ 148B USB ram
 ch552.menu.usb_settings.user148.upload.maximum_data_size=876
 ch552.menu.usb_settings.user148.upload.xdata_location=148
-ch552.menu.usb_settings.user148.build.extra_flags=--model-large -DUSER_USB_RAM=148
+ch552.menu.usb_settings.user148.build.extra_flags=-DUSER_USB_RAM=148
 ## ----
 ch552.menu.usb_settings.user0=USER CODE w/ 0B USB ram
 ch552.menu.usb_settings.user0.upload.maximum_data_size=1024
 ch552.menu.usb_settings.user0.upload.xdata_location=0
-ch552.menu.usb_settings.user0.build.extra_flags=--model-large -DUSER_USB_RAM=0
+ch552.menu.usb_settings.user0.build.extra_flags=-DUSER_USB_RAM=0
 ## ----
 ch552.menu.usb_settings.user266=USER CODE w/ 266B USB ram
 ch552.menu.usb_settings.user266.upload.maximum_data_size=758
 ch552.menu.usb_settings.user266.upload.xdata_location=266
-ch552.menu.usb_settings.user266.build.extra_flags=--model-large -DUSER_USB_RAM=266
+ch552.menu.usb_settings.user266.build.extra_flags=-DUSER_USB_RAM=266
 
 ## ----------------------------------------------
 ch552.menu.upload_method.usb=USB
@@ -100,17 +100,17 @@ ch551.upload.wait_for_upload_port=false
 ch551.menu.usb_settings.usbcdc=Default CDC
 ch551.menu.usb_settings.usbcdc.upload.maximum_data_size=364
 ch551.menu.usb_settings.usbcdc.upload.xdata_location=148
-ch551.menu.usb_settings.usbcdc.build.extra_flags=--model-large -DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
+ch551.menu.usb_settings.usbcdc.build.extra_flags=-DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
 ## ----
 ch551.menu.usb_settings.user148=USER CODE w/ 148B USB ram
 ch551.menu.usb_settings.user148.upload.maximum_data_size=364
 ch551.menu.usb_settings.user148.upload.xdata_location=148
-ch551.menu.usb_settings.user148.build.extra_flags=--model-large -DUSER_USB_RAM=148
+ch551.menu.usb_settings.user148.build.extra_flags=-DUSER_USB_RAM=148
 ## ----
 ch551.menu.usb_settings.user0=USER CODE w/ 0B USB ram
 ch551.menu.usb_settings.user0.upload.maximum_data_size=512
 ch551.menu.usb_settings.user0.upload.xdata_location=0
-ch551.menu.usb_settings.user0.build.extra_flags=--model-large -DUSER_USB_RAM=0
+ch551.menu.usb_settings.user0.build.extra_flags=-DUSER_USB_RAM=0
 
 # meaningless variables just to keep the makefile happy
 
@@ -155,17 +155,17 @@ ch559.upload.wait_for_upload_port=false
 ch559.menu.usb_settings.usbcdc=Default CDC
 ch559.menu.usb_settings.usbcdc.upload.maximum_data_size=5996
 ch559.menu.usb_settings.usbcdc.upload.xdata_location=148
-ch559.menu.usb_settings.usbcdc.build.extra_flags=--model-large -DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
+ch559.menu.usb_settings.usbcdc.build.extra_flags=-DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
 ## ----
 ch559.menu.usb_settings.user148=USER CODE w/ 148B USB ram
 ch559.menu.usb_settings.user148.upload.maximum_data_size=5996
 ch559.menu.usb_settings.user148.upload.xdata_location=148
-ch559.menu.usb_settings.user148.build.extra_flags=--model-large -DUSER_USB_RAM=148
+ch559.menu.usb_settings.user148.build.extra_flags=-DUSER_USB_RAM=148
 ## ----
 ch559.menu.usb_settings.user0=USER CODE w/ 0B USB ram
 ch559.menu.usb_settings.user0.upload.maximum_data_size=6144
 ch559.menu.usb_settings.user0.upload.xdata_location=0
-ch559.menu.usb_settings.user0.build.extra_flags=--model-large -DUSER_USB_RAM=0
+ch559.menu.usb_settings.user0.build.extra_flags=-DUSER_USB_RAM=0
 
 # meaningless variables just to keep the makefile happy
 
@@ -202,17 +202,17 @@ ch549.upload.wait_for_upload_port=false
 ch549.menu.usb_settings.usbcdc=Default CDC
 ch549.menu.usb_settings.usbcdc.upload.maximum_data_size=1900
 ch549.menu.usb_settings.usbcdc.upload.xdata_location=148
-ch549.menu.usb_settings.usbcdc.build.extra_flags=--model-large -DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
+ch549.menu.usb_settings.usbcdc.build.extra_flags=-DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
 ## ----
 ch549.menu.usb_settings.user148=USER CODE w/ 148B USB ram
 ch549.menu.usb_settings.user148.upload.maximum_data_size=1900
 ch549.menu.usb_settings.user148.upload.xdata_location=148
-ch549.menu.usb_settings.user148.build.extra_flags=--model-large -DUSER_USB_RAM=148
+ch549.menu.usb_settings.user148.build.extra_flags=-DUSER_USB_RAM=148
 ## ----
 ch549.menu.usb_settings.user0=USER CODE w/ 0B USB ram
 ch549.menu.usb_settings.user0.upload.maximum_data_size=2048
 ch549.menu.usb_settings.user0.upload.xdata_location=0
-ch549.menu.usb_settings.user0.build.extra_flags=--model-large -DUSER_USB_RAM=0
+ch549.menu.usb_settings.user0.build.extra_flags=-DUSER_USB_RAM=0
 
 ## ----------------------------------------------
 ch549.menu.upload_method.usb=USB
