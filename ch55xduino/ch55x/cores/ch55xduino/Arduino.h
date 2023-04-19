@@ -252,7 +252,7 @@ inline unsigned int makeWord(unsigned char h, unsigned char l) { return (h << 8)
 //USB Serial functions. Don't exist in Arduino AVR core Arduino.h, may be moved later
 bool USBSerial();
 uint8_t USBSerial_print_n(uint8_t * __xdata buf, __xdata int len);
-uint8_t USBSerial_write(char c);
+uint8_t USBSerial_write(__data char c);
 void USBSerial_flush(void);
 uint8_t USBSerial_available();
 char USBSerial_read();

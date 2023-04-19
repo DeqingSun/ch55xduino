@@ -101,8 +101,8 @@ void USBSerial_flush(void){
     }
 }
 
-uint8_t USBSerial_write(char c){  //3 bytes generic pointer
-    uint16_t waitWriteCount;
+uint8_t USBSerial_write(__data char c){  //3 bytes generic pointer
+    __data uint16_t waitWriteCount;
     if (controlLineState > 0) {
         while (true){
             waitWriteCount = 0;
@@ -124,7 +124,7 @@ uint8_t USBSerial_write(char c){  //3 bytes generic pointer
 }
 
 uint8_t USBSerial_print_n(uint8_t * __xdata buf, __xdata int len){  //3 bytes generic pointer, not using USBSerial_write for a bit efficiency
-    uint16_t waitWriteCount;
+    __data uint16_t waitWriteCount;
     if (controlLineState > 0) {
         while (len>0){
             waitWriteCount = 0;
@@ -154,7 +154,7 @@ uint8_t USBSerial_available(){
 
 char USBSerial_read(){
     if(USBByteCountEP2==0) return 0;
-    char data = Ep2Buffer[USBBufOutPointEP2];
+    __data char data = Ep2Buffer[USBBufOutPointEP2];
     USBBufOutPointEP2++;
     USBByteCountEP2--;
     if(USBByteCountEP2==0) {

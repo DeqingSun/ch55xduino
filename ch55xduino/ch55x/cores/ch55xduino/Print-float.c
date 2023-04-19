@@ -37,7 +37,7 @@
 // Public Methods //////////////////////////////////////////////////////////////
 
 
-uint8_t Print_print_fd(writefunc_p writefunc, __xdata double number, __xdata uint8_t digits)
+uint8_t Print_print_fd(__data writefunc_p writefunc, __xdata double number, __xdata uint8_t digits)
 { 
   __xdata uint8_t n = 0;
   __xdata uint8_t i;
