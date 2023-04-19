@@ -170,24 +170,24 @@ void pinMode(__data uint8_t pin, __xdata uint8_t mode);
 void digitalWrite(__data uint8_t pin, __xdata uint8_t val);
 uint8_t digitalRead(__data uint8_t pin);
 #if defined(CH559)
-uint16_t analogRead(uint8_t pin);
+uint16_t analogRead(__data uint8_t pin);
 #else
-uint8_t analogRead(uint8_t pin);
+uint8_t analogRead(__data uint8_t pin);
 #endif
-void analogWrite(uint8_t pin, __xdata uint16_t val);
+void analogWrite(__data uint8_t pin, __xdata uint16_t val);
 
 uint32_t millis(void);
 uint32_t micros(void);
-void delay(uint32_t ms);
-void delayMicroseconds(uint16_t us);
+void delay(__data uint32_t ms);
+void delayMicroseconds(__data uint16_t us);
 //unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
 //unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout);
 
 //void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val);
 //uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
 
-void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), __xdata uint8_t mode);
-void detachInterrupt(uint8_t interruptNum);
+void attachInterrupt(__data uint8_t interruptNum, __xdata void (*userFunc)(void), __xdata uint8_t mode);
+void detachInterrupt(__data uint8_t interruptNum);
 
 void setup(void);
 void loop(void);
@@ -226,10 +226,10 @@ void loop(void);
 //void noTone(uint8_t _pin);
 
 // WMath prototypes
-long random(long howbig);
-long random_minmax(long howsmall, __xdata long howbig);
-void randomSeed(unsigned long seed);
-long map(long x, __xdata long in_min, __xdata long in_max, __xdata long out_min, __xdata long out_max);
+long random(__data long howbig);
+long random_minmax(__data long howsmall, __xdata long howbig);
+void randomSeed(__data unsigned long seed);
+long map(__data long x, __xdata long in_min, __xdata long in_max, __xdata long out_min, __xdata long out_max);
 
 inline unsigned int makeWord(unsigned char h, unsigned char l) { return (h << 8) | l; }
 

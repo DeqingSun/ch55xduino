@@ -713,9 +713,9 @@ uint32_t millis()
 #endif
 }
 
-void delay(uint32_t ms)
+void delay(__data uint32_t ms)
 {
-    uint32_t start = micros();
+    __data uint32_t start = micros();
     
     while (ms > 0) {
         //yield();
@@ -726,7 +726,7 @@ void delay(uint32_t ms)
     }
 }
 
-void delayMicroseconds(uint16_t us){
+void delayMicroseconds(__data uint16_t us){
     // call with const, "mov dptr, #CONST" and "lcall", 3 + (6 or 7) cycles, depending on even or odd address
     // call with var, "mov dpl, r", "mov dph, r", and "lcall", 2 + 2 + (6 or 7) cycles, depending on odd or even address
     // The compiler by default uses a caller saves convention for register saving across function calls

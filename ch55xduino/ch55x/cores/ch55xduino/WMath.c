@@ -29,14 +29,14 @@ extern "C" {
   #include "stdlib.h"
 #endif
 
-void randomSeed(unsigned long seed)
+void randomSeed(__data unsigned long seed)
 {
   if (seed != 0) {
     srand(seed);
   }
 }
 
-long random(long howbig)
+long random(__data long howbig)
 {
   if (howbig == 0) {
     return 0;
@@ -44,9 +44,9 @@ long random(long howbig)
   return rand() % howbig;
 }
 
-long random_minmax(long howsmall, __xdata long howbig)
+long random_minmax(__data long howsmall, __xdata long howbig)
 {
-  long diff;
+  __data long diff;
 
   if (howsmall >= howbig) {
     return howsmall;
@@ -55,7 +55,7 @@ long random_minmax(long howsmall, __xdata long howbig)
   return random(diff) + howsmall;
 }
 
-long map(long x, __xdata long in_min, __xdata long in_max, __xdata long out_min, __xdata long out_max)
+long map(__data long x, __xdata long in_min, __xdata long in_max, __xdata long out_min, __xdata long out_max)
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }

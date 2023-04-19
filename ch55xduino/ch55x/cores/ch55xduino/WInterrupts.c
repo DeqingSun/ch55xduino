@@ -17,7 +17,7 @@ __xdata voidFuncPtr intFunc[EXTERNAL_NUM_INTERRUPTS] = {
 #endif
 };
 
-void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), __xdata uint8_t mode) {
+void attachInterrupt(__data uint8_t interruptNum, __xdata void (*userFunc)(void), __xdata uint8_t mode) {
     if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
         intFunc[interruptNum] = userFunc;
     
@@ -42,7 +42,7 @@ void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), __xdata uint8
 }
 
 
-void detachInterrupt(uint8_t interruptNum) {
+void detachInterrupt(__data uint8_t interruptNum) {
     if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
         // Disable the interrupt.  (We can't assume that interruptNum is equal
         // to the number of the EIMSK bit to clear, as this isn't true on the 

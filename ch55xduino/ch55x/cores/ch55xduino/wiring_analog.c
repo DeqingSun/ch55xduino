@@ -7,9 +7,9 @@
 #include "pins_arduino_include.h"
 
 #if defined(CH559)
-uint16_t analogRead(uint8_t pin)
+uint16_t analogRead(__data uint8_t pin)
 #else
-uint8_t analogRead(uint8_t pin)
+uint8_t analogRead(__data uint8_t pin)
 #endif
 {
     pin = analogPinToChannel(pin);
@@ -28,7 +28,7 @@ uint8_t analogRead(uint8_t pin)
     return ADC_DATA;
 #elif defined(CH559)
     
-    uint8_t pinMask = 1<<pin;
+    __data uint8_t pinMask = 1<<pin;
     P1_IE &= ~(pinMask); //Close other data functions of P1 port, if only part of the sampling channel is used, set the rest to 1, otherwise it will affect the IO function
     ADC_SETUP |= bADC_POWER_EN; //ADC power enable
     ADC_CK_SE = (F_CPU/6000000L); //Set frequency division, make it similar to 6M
@@ -43,7 +43,7 @@ uint8_t analogRead(uint8_t pin)
     ADC_CTRL &= ~bADC_SAMPLE;
     while((ADC_STAT & bADC_IF_ACT) == 0); //Non-interrupt mode, waiting for the completion of the acquisition
     ADC_STAT |= bADC_IF_ACT;
-    uint16_t ADCValue = ADC_FIFO;
+    __data uint16_t ADCValue = ADC_FIFO;
     return ADCValue; //Return sample value
 
 #else
@@ -56,7 +56,7 @@ uint8_t analogRead(uint8_t pin)
 // hardware support.  These are defined in the appropriate
 // pins_*.c file.  For the rest of the pins, we default
 // to digital output.
-void analogWrite(uint8_t pin, __xdata uint16_t val)
+void analogWrite(__data uint8_t pin, __xdata uint16_t val)
 {
     // We need to make sure the PWM output is enabled for those pins
     // that support it, as we turn it off when digitally reading or

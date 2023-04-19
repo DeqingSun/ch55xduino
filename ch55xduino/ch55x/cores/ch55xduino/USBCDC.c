@@ -23,7 +23,7 @@ volatile __xdata uint8_t controlLineState = 0;
 
 __xdata uint8_t usbWritePointer = 0;
 
-void delayMicroseconds(uint16_t us);
+void delayMicroseconds(__data uint16_t us);
 
 void resetCDCParameters(){
 
@@ -32,7 +32,7 @@ void resetCDCParameters(){
 }
 
 void setLineCodingHandler(){
-    for (uint8_t i=0;i<((LINE_CODEING_SIZE<=USB_RX_LEN)?LINE_CODEING_SIZE:USB_RX_LEN);i++){
+    for (__data uint8_t i=0;i<((LINE_CODEING_SIZE<=USB_RX_LEN)?LINE_CODEING_SIZE:USB_RX_LEN);i++){
         LineCoding[i] = Ep0Buffer[i];
     }
     
@@ -40,10 +40,10 @@ void setLineCodingHandler(){
 }
 
 uint16_t getLineCodingHandler(){
-    uint16_t returnLen;
+    __data uint16_t returnLen;
 
     returnLen = LINE_CODEING_SIZE;
-    for (uint8_t i=0;i<returnLen;i++){
+    for (__data uint8_t i=0;i<returnLen;i++){
         Ep0Buffer[i] = LineCoding[i];
     }
 
@@ -84,7 +84,7 @@ void setControlLineStateHandler(){
 }
 
 bool USBSerial(){
-    bool result = false;
+    __data bool result = false;
     if (controlLineState > 0)
         result = true;
     //delay(10); not doing it for now
