@@ -1,0 +1,4 @@
+# CH55x bootloader
+# copy to /etc/udev/rules.d/
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="4348", ATTRS{idProduct}=="55e0", MODE="0666"
