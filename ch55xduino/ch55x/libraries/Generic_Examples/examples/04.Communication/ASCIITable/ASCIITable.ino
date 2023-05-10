@@ -72,6 +72,7 @@ void loop() {
   // if printed last visible character '~' or 126, stop:
   if (thisByte == 126) {    // you could also use if (thisByte == '~') {
     // This loop loops forever and does nothing
+    USBSerial_flush();
     while (true) {
       continue;
     }

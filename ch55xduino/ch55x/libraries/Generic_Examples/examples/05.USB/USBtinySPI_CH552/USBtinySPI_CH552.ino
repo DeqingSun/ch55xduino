@@ -18,6 +18,8 @@
 
   This code is published under The GNU General Public License v3.0.
 
+  cli board options: usb_settings=user266
+
 */
 
 #ifndef USER_USB_RAM

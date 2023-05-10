@@ -176,7 +176,11 @@ void USB_EP1_OUT(){
 }
 
 uint8_t USB_EP1_send(){
-    uint16_t waitWriteCount = 0;
+    if (UsbConfig == 0){
+        return 0;
+    }
+    
+    __data uint16_t waitWriteCount = 0;
     
     waitWriteCount = 0;
     while (UpPoint1_Busy){//wait for 250ms or give up
@@ -185,7 +189,7 @@ uint8_t USB_EP1_send(){
         if (waitWriteCount>=50000) return 0;
     }
     
-    for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
+    for (__data uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
         Ep1Buffer[64+i] = HIDKey[i];
     }
                    
@@ -196,8 +200,8 @@ uint8_t USB_EP1_send(){
     return 1;
 }
 
-uint8_t Keyboard_press(uint8_t k) {
-	uint8_t i;
+uint8_t Keyboard_press(__data uint8_t k) {
+	__data uint8_t i;
 	if (k >= 136) {			// it's a non-printing key (not a modifier)
 		k = k - 136;
 	} else if (k >= 128) {	// it's a modifier key
@@ -236,8 +240,8 @@ uint8_t Keyboard_press(uint8_t k) {
 	return 1;
 }
 
-uint8_t Keyboard_release(uint8_t k) {
-	uint8_t i;
+uint8_t Keyboard_release(__data uint8_t k) {
+	__data uint8_t i;
 	if (k >= 136) {			// it's a non-printing key (not a modifier)
 		k = k - 136;
 	} else if (k >= 128) {	// it's a modifier key
@@ -267,14 +271,14 @@ uint8_t Keyboard_release(uint8_t k) {
 }
 
 void Keyboard_releaseAll(void){
-    for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
+    for (__data uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
         HIDKey[i] = 0;
     }
 	USB_EP1_send();
 }
 
-uint8_t Keyboard_write(uint8_t c){
-	uint8_t p = Keyboard_press(c);  // Keydown
+uint8_t Keyboard_write(__data uint8_t c){
+	__data uint8_t p = Keyboard_press(c);  // Keydown
 	Keyboard_release(c);            // Keyup
 	return p;              // just return the result of press() since release() almost always returns 1
 }

@@ -7,6 +7,8 @@
 
   This example code is in the public domain.
 
+  cli board options: usb_settings=user148
+
 */
 
 //For windows user, if you ever played with other HID device with the same PID C55D

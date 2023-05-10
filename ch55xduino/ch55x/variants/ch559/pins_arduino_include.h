@@ -26,9 +26,10 @@ enum {
     NOT_ON_PWM = 0,
     PIN_PWM1,
     PIN_PWM2,
+    PIN_PWM3,
     PIN_PWM1_,
     PIN_PWM2_,
-    // todo: add pwm3
+    PIN_PWM3_,
     NUM_PWM_PINS
 };
 

@@ -43,7 +43,7 @@ __code uint8_t digital_pin_to_pwm_PGM[] = {
 	
     NOT_ON_PWM, //PIN10
     NOT_ON_PWM,
-    NOT_ON_PWM,
+    PIN_PWM3,
     NOT_ON_PWM,
     NOT_ON_PWM,
     NOT_ON_PWM,
@@ -76,7 +76,7 @@ __code uint8_t digital_pin_to_pwm_PGM[] = {
     
     NOT_ON_PWM, //PIN40
     NOT_ON_PWM,
-    NOT_ON_PWM,
+    PIN_PWM3_,
     PIN_PWM1_,
     NOT_ON_PWM,
     PIN_PWM2_,

@@ -9,6 +9,8 @@
 
   This example code is in the public domain.
 
+  cli board options: usb_settings=user148
+
 */
 
 

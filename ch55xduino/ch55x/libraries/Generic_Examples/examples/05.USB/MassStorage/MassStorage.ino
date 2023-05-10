@@ -1,3 +1,16 @@
+/*
+  Mass Storage example
+
+
+  created 2021
+  by Deqing Sun for use with CH55xduino
+
+  This example code is in the public domain.
+
+  cli board options: usb_settings=user148
+
+*/
+
 #ifndef USER_USB_RAM
 #error "This example needs to be compiled with a USER USB setting"
 #endif

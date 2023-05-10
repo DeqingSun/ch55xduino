@@ -915,7 +915,7 @@ end:
 //             number of bytes in request (upper 16 bits)
 static uint8_t DAP_TransferBlock(const uint8_t *req, uint8_t *res)
 {
-    uint8_t num;
+    uint32_t num;   //https://github.com/DeqingSun/ch55xduino/issues/72
 
     switch (debug_port)
     {

@@ -329,9 +329,7 @@ char USBSerial_read();
 #define Serial1_println_c(P) ( (Serial1_write(P)) + Print_println(Serial1_write) )
 
 //10K lifecycle DataFlash access on CH551/CH552.
-#define eeprom_write_byte(ADDR,VAL) { DPL=(VAL);DPH=(ADDR);eeprom_write_byte_2_params_DPTR(); }
-//SDCC is not efficent to convert 2 8bit data to 1 16bit data, se we use DPTR directly. The mismatch of parameter of the H and C is intentional
-void eeprom_write_byte_2_params_DPTR();
+void eeprom_write_byte (__data uint8_t addr, __xdata uint8_t val);
 uint8_t eeprom_read_byte (__data uint8_t addr);
 
 #endif

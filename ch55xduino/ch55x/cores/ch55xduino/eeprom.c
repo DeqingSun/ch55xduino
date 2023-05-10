@@ -6,14 +6,11 @@
 #include "include/ch5xx.h"
 #include "include/ch5xx_usb.h"
 
-void eeprom_write_byte_2_params_DPTR (__data uint16_t addr_val){
-//using a single parameter of 16bit number utilize both DPL and DPH, avoid using memory to pass parameters
-#define ADDR_PARAM ((addr_val>>8)&0xff)
-#define VAL_PARAM ((addr_val>>0)&0xff)
+void eeprom_write_byte (__data uint8_t addr, __xdata uint8_t val){
     
 #if defined(CH551) || defined(CH552)
     
-    if (ADDR_PARAM>=128){
+    if (addr>=128){
         return;
     }
     
@@ -22,8 +19,8 @@ void eeprom_write_byte_2_params_DPTR (__data uint16_t addr_val){
     GLOBAL_CFG |= bDATA_WE;                                                    //Enable DataFlash write
     SAFE_MOD = 0;                                                              //Exit Safe mode
     ROM_ADDR_H = DATA_FLASH_ADDR >> 8;
-    ROM_ADDR_L = ADDR_PARAM<<1;
-    ROM_DATA_L = VAL_PARAM;
+    ROM_ADDR_L = addr<<1;
+    ROM_DATA_L = val;
     if ( ROM_STATUS & bROM_ADDR_OK ) {                                          // Valid access Address
         ROM_CTRL = ROM_CMD_WRITE;                                               // Write
     }

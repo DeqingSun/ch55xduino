@@ -120,10 +120,10 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val)
     {
         uint8_t pwmPin = digitalPinToPWM(pin);
         if (pwmPin!=NOT_ON_PWM){
-#if (F_CPU/(1000L*256))>255
+#if (F_CPU/(1000L*255))>255
             PWM_CK_SE = 255;
 #else
-            PWM_CK_SE = (F_CPU/(1000L*256));
+            PWM_CK_SE = (F_CPU/(1000L*255));
 #endif
             PWM_CYCLE = 255;
         }
@@ -138,6 +138,30 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val)
                 PIN_FUNC &= ~(bPWM1_PIN_X);
                 PWM_CTRL |= bPWM2_OUT_EN;
                 PWM_DATA2 = val;
+                break;
+            case PIN_PWM3:
+            case PIN_PWM3_:
+                if (pwmPin == PIN_PWM3){
+                    P1_DIR |= bPWM3;    //push pull
+                    P1_PU |= bPWM3;
+                    PIN_FUNC &= ~bTMR3_PIN_X;
+                }else{
+                    P4_DIR |= bPWM3_;    //push pull
+                    P4_PU |= bPWM3_;
+                    PIN_FUNC |= bTMR3_PIN_X;
+                }
+                T3_CTRL |= bT3_CLR_ALL;   
+                T3_CTRL &= ~bT3_CLR_ALL;
+                T3_SETUP |= bT3_EN_CK_SE;
+                T3_CK_SE_L = (F_CPU/(1000L*255)) & 0xFF;
+                T3_CK_SE_H = ((F_CPU/(1000L*255))>>8) & 0xFF;
+                T3_SETUP &= ~bT3_EN_CK_SE;
+                T3_CTRL |= bT3_OUT_EN;
+                T3_END_L = 0xff;
+                T3_END_H = 0;
+                T3_FIFO_L = val;
+                T3_FIFO_H = 0;
+                T3_CTRL |= bT3_CNT_EN ;
                 break;
             case PIN_PWM1_:
                 PIN_FUNC |= (bPWM1_PIN_X);

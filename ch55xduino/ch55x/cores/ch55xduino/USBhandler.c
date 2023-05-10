@@ -21,7 +21,8 @@ __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[8];       //on page 47 of data sheet,
 __xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[128];     //IN and OUT buffer, must be even address
 
 __data uint16_t SetupLen;
-__data uint8_t SetupReq,UsbConfig;
+__data uint8_t SetupReq;
+volatile __xdata uint8_t UsbConfig;
 
 __code uint8_t * __data pDescr;
 

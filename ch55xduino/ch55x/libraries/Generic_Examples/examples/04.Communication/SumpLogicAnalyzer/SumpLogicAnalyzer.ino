@@ -43,7 +43,7 @@
  *
  * Sampling rate: 5MHz (or lower)
  * Channel Groups: 0 (zero) only
- * Recording Size: 1536
+ * Recording Size: 1480 (740*2)
  * Noise Filter: doesn't matter
  * RLE: disabled (unchecked)
  *
@@ -99,7 +99,7 @@ void captureInlineWithT2(void);
 #define SUMP_SELF_TEST 0x03
 #define SUMP_GET_METADATA 0x04
 
-#define MAX_CAPTURE_SIZE (768*2)
+#define MAX_CAPTURE_SIZE (740*2)
 
 // SUMP command from host (via serial)
 // SUMP commands are either 1 byte, or for the extended commands, 5 bytes.
@@ -300,9 +300,9 @@ void get_metadata() {
   USBSerial_write((uint8_t)0x21);
   USBSerial_write((uint8_t)0x00);
   USBSerial_write((uint8_t)0x00);
-  // 1536 bytes
-  USBSerial_write((uint8_t)0x06);
-  USBSerial_write((uint8_t)0x00);
+  // 740*2 = 1480 bytes
+  USBSerial_write((uint8_t)0x05);
+  USBSerial_write((uint8_t)0xC8);
 
   // sample rate (5MHz)
   USBSerial_write((uint8_t)0x23);

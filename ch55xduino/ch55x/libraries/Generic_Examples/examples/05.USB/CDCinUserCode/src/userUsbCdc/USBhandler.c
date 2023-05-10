@@ -18,17 +18,18 @@ __xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[128];     //IN and OUT buffer, must b
 #error "This example needs more USB ram. Increase this setting in menu."
 #endif
 
-uint16_t SetupLen;
-uint8_t SetupReq,UsbConfig;
+__data uint16_t SetupLen;
+__data uint8_t SetupReq;
+volatile __xdata uint8_t UsbConfig;
 
 __code uint8_t *pDescr;
 
-volatile uint8_t usbMsgFlags=0;    // uint8_t usbMsgFlags copied from VUSB
+volatile __data uint8_t usbMsgFlags=0;    // uint8_t usbMsgFlags copied from VUSB
 
 inline void NOP_Process(void) {}
 
 void USB_EP0_SETUP(){
-    uint8_t len = USB_RX_LEN;
+    __data uint8_t len = USB_RX_LEN;
     if(len == (sizeof(USB_SETUP_REQ)))
     {
         SetupLen = ((uint16_t)UsbSetupBuf->wLengthH<<8) | (UsbSetupBuf->wLengthL);
@@ -101,27 +102,27 @@ void USB_EP0_SETUP(){
                         }
                         else if(UsbSetupBuf->wValueL == 1)
                         {
-                            pDescr = Manuf_Des;
+                            pDescr = (__code uint8_t *)Manuf_Des;
                             len = Manuf_DesLen;
                         }
                         else if(UsbSetupBuf->wValueL == 2)
                         {
-                            pDescr = Prod_Des;
+                            pDescr = (__code uint8_t *)Prod_Des;
                             len = Prod_DesLen;
                         }
                         else if(UsbSetupBuf->wValueL == 3)
                         {
-                            pDescr = SerDes;
+                            pDescr = (__code uint8_t *)SerDes;
                             len = SerDesLen;
                         }
                         else if(UsbSetupBuf->wValueL == 4)
                         {
-                            pDescr = CDC_Des;
+                            pDescr = (__code uint8_t *)CDC_Des;
                             len = CDC_DesLen;
                         }
                         else
                         {
-                            pDescr = SerDes;
+                            pDescr = (__code uint8_t *)SerDes;
                             len = SerDesLen;
                         }
                         break;
@@ -135,7 +136,7 @@ void USB_EP0_SETUP(){
                             SetupLen = len;    // Limit length
                         }
                         len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen;                            //transmit length for this packet
-                        for (uint8_t i=0;i<len;i++){
+                        for (__data uint8_t i=0;i<len;i++){
                             Ep0Buffer[i] = pDescr[i];
                         }
                         SetupLen -= len;
@@ -332,8 +333,8 @@ void USB_EP0_IN(){
     {
         case USB_GET_DESCRIPTOR:
         {
-            uint8_t len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen;                                 //send length
-            for (uint8_t i=0;i<len;i++){
+            __data uint8_t len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen;                                 //send length
+            for (__data uint8_t i=0;i<len;i++){
                 Ep0Buffer[i] = pDescr[i];
             }
             //memcpy( Ep0Buffer, pDescr, len );                                  
@@ -383,7 +384,7 @@ void USB_EP1_IN(){
 void USBInterrupt(void) {   //inline not really working in multiple files in SDCC
     if(UIF_TRANSFER) {
         // Dispatch to service functions
-        uint8_t callIndex=USB_INT_ST & MASK_UIS_ENDP;
+        __data uint8_t callIndex=USB_INT_ST & MASK_UIS_ENDP;
         switch (USB_INT_ST & MASK_UIS_TOKEN) {
             case UIS_TOKEN_OUT:
             {//SDCC will take IRAM if array of function pointer is used.
@@ -505,13 +506,24 @@ void USBDeviceIntCfg()
 
 void USBDeviceEndPointCfg()
 {
+#if defined(CH559)
+    //CH559 use differend endianness for these registers
+    UEP0_DMA_H = ((uint16_t)Ep0Buffer >> 8);                                                      //Endpoint 0 data transfer address
+    UEP0_DMA_L = ((uint16_t)Ep0Buffer >> 0);                                                      //Endpoint 0 data transfer address
+    UEP1_DMA_H = ((uint16_t)Ep1Buffer >> 8);                                                      //Endpoint 1 data transfer address
+    UEP1_DMA_L = ((uint16_t)Ep1Buffer >> 0);                                                      //Endpoint 1 data transfer address
+    UEP2_DMA_H = ((uint16_t)Ep2Buffer >> 8);                                                      //Endpoint 2 data transfer address
+    UEP2_DMA_L = ((uint16_t)Ep2Buffer >> 0);                                                      //Endpoint 2 data transfer address
+#else
+    UEP0_DMA = (uint16_t) Ep0Buffer;                                                      //Endpoint 0 data transfer address
     UEP1_DMA = (uint16_t) Ep1Buffer;                                                      //Endpoint 1 data transfer address
     UEP2_DMA = (uint16_t) Ep2Buffer;                                                      //Endpoint 2 data transfer address
+#endif
+    
     UEP2_3_MOD = 0x0C;                                                         //Endpoint2 double buffer
     UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK;                //Endpoint 1 automatically flips the sync flag, and IN transaction returns NAK
     UEP2_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;        //Endpoint 2 automatically flips the sync flag, IN transaction returns NAK, OUT returns ACK
     
-    UEP0_DMA = (uint16_t) Ep0Buffer;                                                      //Endpoint 0 data transfer address
     UEP4_1_MOD = 0X40;                                                         //endpoint1 TX enable
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;                //Manual flip, OUT transaction returns ACK, IN transaction returns NAK
 }

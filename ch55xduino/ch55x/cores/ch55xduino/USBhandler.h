@@ -13,7 +13,8 @@ extern __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[];
 extern __xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[];
 
 extern __data uint16_t SetupLen;
-extern __data uint8_t SetupReq,UsbConfig;
+extern __data uint8_t SetupReq;
+volatile extern __xdata uint8_t UsbConfig;
 extern const __code uint8_t * __data pDescr;
 
 

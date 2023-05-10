@@ -15,7 +15,7 @@ uint8_t writePtr = 0;
 uint8_t writeData = 0;
 
 void dumpEEPROM() {
-  USBSerial_println("DataFalsh Dump:");
+  USBSerial_println("DataFlash Dump:");
   for (uint8_t i = 0; i < 128; i++) {
     uint8_t eepromData = eeprom_read_byte(i);
     if (eepromData < 0x10) USBSerial_print((char)'0');

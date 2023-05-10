@@ -14,8 +14,9 @@ __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[128];       //on page 47 of data shee
 #error "This example needs more USB ram. Increase this setting in menu."
 #endif
 
-uint16_t SetupLen;
-uint8_t SetupReq,UsbConfig;
+__data uint16_t SetupLen;
+__data uint8_t SetupReq;
+volatile __xdata uint8_t UsbConfig;
 
 __code uint8_t *pDescr;
 
@@ -24,7 +25,7 @@ volatile uint8_t usbMsgFlags=0;    // uint8_t usbMsgFlags copied from VUSB
 inline void NOP_Process(void) {}
 
 void USB_EP0_SETUP(){
-    uint8_t len = USB_RX_LEN;
+    __data uint8_t len = USB_RX_LEN;
     if(len == (sizeof(USB_SETUP_REQ)))
     {
         SetupLen = ((uint16_t)UsbSetupBuf->wLengthH<<8) | (UsbSetupBuf->wLengthL);
@@ -126,7 +127,7 @@ void USB_EP0_SETUP(){
                             SetupLen = len;    // Limit length
                         }
                         len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen;                            //transmit length for this packet
-                        for (uint8_t i=0;i<len;i++){
+                        for (__data uint8_t i=0;i<len;i++){
                             Ep0Buffer[i] = pDescr[i];
                         }
                         SetupLen -= len;
@@ -323,8 +324,8 @@ void USB_EP0_IN(){
     {
         case USB_GET_DESCRIPTOR:
         {
-            uint8_t len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen;                                 //send length
-            for (uint8_t i=0;i<len;i++){
+            __data uint8_t len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen;                                 //send length
+            for (__data uint8_t i=0;i<len;i++){
                 Ep0Buffer[i] = pDescr[i];
             }
             //memcpy( Ep0Buffer, pDescr, len );                                  
@@ -359,7 +360,7 @@ void USB_EP0_OUT(){
 void USBInterrupt(void) {   //inline not really working in multiple files in SDCC
     if(UIF_TRANSFER) {
         // Dispatch to service functions
-        uint8_t callIndex=USB_INT_ST & MASK_UIS_ENDP;
+        __data uint8_t callIndex=USB_INT_ST & MASK_UIS_ENDP;
         switch (USB_INT_ST & MASK_UIS_TOKEN) {
             case UIS_TOKEN_OUT:
             {//SDCC will take IRAM if array of function pointer is used.
@@ -422,7 +423,11 @@ void USBInterrupt(void) {   //inline not really working in multiple files in SDC
         USB_DEV_AD = 0x00;
         UIF_SUSPEND = 0;
         UIF_TRANSFER = 0;
-        UIF_BUS_RST = 0;                                                        // Clear interrupt flag
+        UIF_BUS_RST = 0;
+        
+        UsbConfig = 0;
+        
+        // Clear interrupt flag
     }
     
     // USB bus suspend / wake up

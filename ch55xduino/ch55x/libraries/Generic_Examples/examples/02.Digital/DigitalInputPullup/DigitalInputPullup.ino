@@ -49,4 +49,6 @@ void loop() {
   } else {
     digitalWrite(33, HIGH);
   }
+
+  delay(10);
 }
