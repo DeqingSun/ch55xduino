@@ -176,8 +176,12 @@ void USB_EP1_OUT(){
     }
 }
 
-uint8_t USB_EP1_send(uint8_t reportID){
-    uint16_t waitWriteCount = 0;
+uint8_t USB_EP1_send(__data uint8_t reportID){
+    if (UsbConfig == 0){
+        return 0;
+    }
+
+    __data uint16_t waitWriteCount = 0;
     
     waitWriteCount = 0;
     while (UpPoint1_Busy){//wait for 250ms or give up
@@ -188,13 +192,13 @@ uint8_t USB_EP1_send(uint8_t reportID){
     
     if (reportID == 1){
         Ep1Buffer[64+0] = 1;
-        for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
+        for (__data uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
             Ep1Buffer[64+1+i] = HIDKey[i];
         }
         UEP1_T_LEN = 1+sizeof(HIDKey);                                             //data length
     }else if (reportID == 2){
         Ep1Buffer[64+0] = 2;
-        for (uint8_t i=0;i<sizeof(HIDConsumer);i++){                                  //load data for upload
+        for (__data uint8_t i=0;i<sizeof(HIDConsumer);i++){                                  //load data for upload
             Ep1Buffer[64+1+i] = ((uint8_t *)HIDConsumer)[i];
         }
         UEP1_T_LEN = 1+sizeof(HIDConsumer);                                             //data length
@@ -208,8 +212,8 @@ uint8_t USB_EP1_send(uint8_t reportID){
     return 1;
 }
 
-uint8_t Keyboard_press(uint8_t k) {
-	uint8_t i;
+uint8_t Keyboard_press(__data uint8_t k) {
+	__data uint8_t i;
 	if (k >= 136) {			// it's a non-printing key (not a modifier)
 		k = k - 136;
 	} else if (k >= 128) {	// it's a modifier key
@@ -248,8 +252,8 @@ uint8_t Keyboard_press(uint8_t k) {
 	return 1;
 }
 
-uint8_t Keyboard_release(uint8_t k) {
-	uint8_t i;
+uint8_t Keyboard_release(__data uint8_t k) {
+	__data uint8_t i;
 	if (k >= 136) {			// it's a non-printing key (not a modifier)
 		k = k - 136;
 	} else if (k >= 128) {	// it's a modifier key
@@ -279,14 +283,14 @@ uint8_t Keyboard_release(uint8_t k) {
 }
 
 void Keyboard_releaseAll(void){
-    for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
+    for (__data uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
         HIDKey[i] = 0;
     }
 	USB_EP1_send(1);
 }
 
-uint8_t Keyboard_write(uint8_t c){
-	uint8_t p = Keyboard_press(c);  // Keydown
+uint8_t Keyboard_write(__data uint8_t c){
+	__data uint8_t p = Keyboard_press(c);  // Keydown
 	Keyboard_release(c);            // Keyup
 	return p;              // just return the result of press() since release() almost always returns 1
 }
@@ -295,8 +299,8 @@ uint8_t Keyboard_getLEDStatus(){
     return Ep1Buffer[0];    //The only info we gets
 }
 
-uint8_t Consumer_press(uint16_t k) {
-    uint8_t i;
+uint8_t Consumer_press(__data uint16_t k) {
+    __data uint8_t i;
 
     // Add k to the consumer report only if it's not already present
     // and if there is an empty slot.
@@ -318,8 +322,8 @@ uint8_t Consumer_press(uint16_t k) {
     return 1;
 }
 
-uint8_t Consumer_release(uint16_t k) {
-    uint8_t i;
+uint8_t Consumer_release(__data uint16_t k) {
+    __data uint8_t i;
     
     // Test the consumer report to see if k is present.  Clear it if it exists.
     // Check all positions in case the key is present more than once (which it shouldn't be)
@@ -334,14 +338,14 @@ uint8_t Consumer_release(uint16_t k) {
 }
 
 void Consumer_releaseAll(void){
-    for (uint8_t i=0;i<4;i++){                                  //load data for upload
+    for (__data uint8_t i=0;i<4;i++){                                  //load data for upload
         HIDConsumer[i] = 0;
     }
     USB_EP1_send(2);
 }
 
-uint8_t Consumer_write(uint16_t c){
-    uint8_t p = Consumer_press(c);  // Keydown
+uint8_t Consumer_write(__data uint16_t c){
+    __data uint8_t p = Consumer_press(c);  // Keydown
     Consumer_release(c);            // Keyup
     return p;              // just return the result of press() since release() almost always returns 1
 }

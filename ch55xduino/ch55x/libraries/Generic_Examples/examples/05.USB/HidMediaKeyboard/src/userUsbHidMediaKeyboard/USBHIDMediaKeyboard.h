@@ -484,17 +484,17 @@ extern "C" {
 
 void USBInit(void);
 
-uint8_t Keyboard_press(uint8_t k);
-uint8_t Keyboard_release(uint8_t k);
+uint8_t Keyboard_press(__data uint8_t k);
+uint8_t Keyboard_release(__data uint8_t k);
 void Keyboard_releaseAll(void);
 
-uint8_t Keyboard_write(uint8_t c);
+uint8_t Keyboard_write(__data uint8_t c);
     
-uint8_t Consumer_press(uint16_t k);
-uint8_t Consumer_release(uint16_t k);
+uint8_t Consumer_press(__data uint16_t k);
+uint8_t Consumer_release(__data uint16_t k);
 void Consumer_releaseAll(void);
 
-uint8_t Consumer_write(uint16_t c);
+uint8_t Consumer_write(__data uint16_t c);
 
 uint8_t Keyboard_getLEDStatus();
 
