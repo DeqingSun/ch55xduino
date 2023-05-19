@@ -9,10 +9,14 @@
 extern __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[];
 extern __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[];
 
-extern uint16_t SetupLen;
-extern uint8_t SetupReq,UsbConfig;
+extern __data uint16_t SetupLen;
+extern __data uint8_t SetupReq;
+volatile extern __xdata uint8_t UsbConfig;
+
 extern const __code uint8_t *pDescr;
 
+void USB_EP1_IN();
+void USB_EP1_OUT();
 
 #define UsbSetupBuf     ((PUSB_SETUP_REQ)Ep0Buffer)
 
