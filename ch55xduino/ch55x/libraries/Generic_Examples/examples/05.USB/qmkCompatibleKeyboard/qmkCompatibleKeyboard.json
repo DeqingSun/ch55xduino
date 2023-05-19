@@ -1,0 +1,11 @@
+{
+  "name": "CH55xDuino qmk compatible",
+  "vendorId": "0x1209",
+  "productId": "0xC55D",
+  "matrix": {"rows": 1, "cols": 3},
+  "layouts": {
+    "keymap": [
+      ["0,0", "0,1", "0,2"]
+    ]
+  }
+}
