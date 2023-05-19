@@ -31,6 +31,7 @@ bool button1PressPrev = false;
 bool button2PressPrev = false;
 bool button3PressPrev = false;
 
+unsigned long previousHelloMillis = 0;        // will store last time LED was updated
 
 void setup() {
   USBInit();
@@ -38,37 +39,22 @@ void setup() {
   pinMode(BUTTON2_PIN, INPUT_PULLUP);
   pinMode(BUTTON3_PIN, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
+
+
+  Serial0_begin(9600);
+  Serial0_println("Hello WORLD");
 }
 
 void loop() {
-  //button 1 is mapped to letter 'a'
-  bool button1Press = !digitalRead(BUTTON1_PIN);
-  if (button1PressPrev != button1Press) {
-    button1PressPrev = button1Press;
-    if (button1Press) {
-      Keyboard_press('a');
-    } else {
-      Keyboard_release('a');
-    }
+  unsigned long currentMillis = millis();
+  if ((signed int)(currentMillis - previousHelloMillis) >= 2000) {
+    previousHelloMillis = currentMillis;
+    Serial0_println("Hello");
+    Serial0_println((int)detected_host_os());
+    
   }
 
-  //button 2 is mapped to left click
-  bool button2Press = !digitalRead(BUTTON2_PIN);
-  if (button2PressPrev != button2Press) {
-    button2PressPrev = button2Press;
-    if (button2Press) {
-      Mouse_click(MOUSE_LEFT);
-    }
-  }
 
-  //button 3 is mapped to move cursor
-  bool button3Press = !digitalRead(BUTTON3_PIN);
-  if (button3PressPrev != button3Press) {
-    button3PressPrev = button3Press;
-    if (button3Press) {
-      Mouse_move(10, 10);
-    }
-  }
 
   delay(50);  //naive debouncing
 

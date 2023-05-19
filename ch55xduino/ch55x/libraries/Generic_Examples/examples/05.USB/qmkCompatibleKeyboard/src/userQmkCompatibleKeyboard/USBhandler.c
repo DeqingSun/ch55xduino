@@ -2,6 +2,8 @@
 
 #include "USBconstant.h"
 
+#include "osDetection.h"
+
 //Keyboard functions:
 
 void USB_EP2_IN();
@@ -106,6 +108,7 @@ void USB_EP0_SETUP(){
                         {
                             len = 0xff;  
                         }
+                        OS_detect_process_wlength(SetupLen);
                         break;
                      case 0x22:
                         if(UsbSetupBuf->wValueL == 0){
