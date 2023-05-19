@@ -67,6 +67,11 @@ void OS_detect_process_wlength(__data uint16_t w_length){
 }
 
 os_variant_t detected_host_os(void) {
+    Serial0_println("debug");//!! TODO: remove after test
+    Serial0_print("02:");Serial0_println((int)setups_data.cnt_02);//!!
+    Serial0_print("04:");Serial0_println((int)setups_data.cnt_04);//!!
+    Serial0_print("ff:");Serial0_println((int)setups_data.cnt_ff);//!!
+    
     return setups_data.detected_os;
 }
 
