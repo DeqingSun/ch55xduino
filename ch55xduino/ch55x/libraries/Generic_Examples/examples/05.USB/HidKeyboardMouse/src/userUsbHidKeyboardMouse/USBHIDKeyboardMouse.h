@@ -67,19 +67,19 @@ extern "C" {
 
 void USBInit(void);
 
-uint8_t Keyboard_press(uint8_t k);
-uint8_t Keyboard_release(uint8_t k);
+uint8_t Keyboard_press(__data uint8_t k);
+uint8_t Keyboard_release(__data uint8_t k);
 void Keyboard_releaseAll(void);
 
-uint8_t Keyboard_write(uint8_t c);
+uint8_t Keyboard_write(__data uint8_t c);
 
 uint8_t Keyboard_getLEDStatus();
     
-uint8_t Mouse_press(uint8_t k);
-uint8_t Mouse_release(uint8_t k);
-uint8_t Mouse_click(uint8_t k);
-uint8_t Mouse_move(int8_t x, int8_t y);
-uint8_t Mouse_scroll(int8_t tilt);
+uint8_t Mouse_press(__data uint8_t k);
+uint8_t Mouse_release(__data uint8_t k);
+uint8_t Mouse_click(__data uint8_t k);
+uint8_t Mouse_move(__data int8_t x, __xdata int8_t y);
+uint8_t Mouse_scroll(__data int8_t tilt);
 
 #ifdef __cplusplus
 } // extern "C"

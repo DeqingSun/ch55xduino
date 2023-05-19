@@ -177,7 +177,11 @@ void USB_EP1_OUT(){
 }
 
 uint8_t USB_EP1_send(uint8_t reportID){
-    uint16_t waitWriteCount = 0;
+    if (UsbConfig == 0){
+        return 0;
+    }
+    
+    __data uint16_t waitWriteCount = 0;
     
     waitWriteCount = 0;
     while (UpPoint1_Busy){//wait for 250ms or give up
@@ -188,13 +192,13 @@ uint8_t USB_EP1_send(uint8_t reportID){
     
     if (reportID == 1){
         Ep1Buffer[64+0] = 1;
-        for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
+        for (__data uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
             Ep1Buffer[64+1+i] = HIDKey[i];
         }
         UEP1_T_LEN = 1+sizeof(HIDKey);                                             //data length
     }else if (reportID == 2){
         Ep1Buffer[64+0] = 2;
-        for (uint8_t i=0;i<sizeof(HIDMouse);i++){                                  //load data for upload
+        for (__data uint8_t i=0;i<sizeof(HIDMouse);i++){                                  //load data for upload
             Ep1Buffer[64+1+i] = ((uint8_t *)HIDMouse)[i];
         }
         UEP1_T_LEN = 1+sizeof(HIDMouse);                                             //data length
@@ -209,8 +213,8 @@ uint8_t USB_EP1_send(uint8_t reportID){
     return 1;
 }
 
-uint8_t Keyboard_press(uint8_t k) {
-	uint8_t i;
+uint8_t Keyboard_press(__data uint8_t k) {
+	__data uint8_t i;
 	if (k >= 136) {			// it's a non-printing key (not a modifier)
 		k = k - 136;
 	} else if (k >= 128) {	// it's a modifier key
@@ -249,8 +253,8 @@ uint8_t Keyboard_press(uint8_t k) {
 	return 1;
 }
 
-uint8_t Keyboard_release(uint8_t k) {
-	uint8_t i;
+uint8_t Keyboard_release(__data uint8_t k) {
+	__data uint8_t i;
 	if (k >= 136) {			// it's a non-printing key (not a modifier)
 		k = k - 136;
 	} else if (k >= 128) {	// it's a modifier key
@@ -280,14 +284,14 @@ uint8_t Keyboard_release(uint8_t k) {
 }
 
 void Keyboard_releaseAll(void){
-    for (uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
+    for (__data uint8_t i=0;i<sizeof(HIDKey);i++){                                  //load data for upload
         HIDKey[i] = 0;
     }
 	USB_EP1_send(1);
 }
 
-uint8_t Keyboard_write(uint8_t c){
-	uint8_t p = Keyboard_press(c);  // Keydown
+uint8_t Keyboard_write(__data uint8_t c){
+	__data uint8_t p = Keyboard_press(c);  // Keydown
 	Keyboard_release(c);            // Keyup
 	return p;              // just return the result of press() since release() almost always returns 1
 }
@@ -296,33 +300,33 @@ uint8_t Keyboard_getLEDStatus(){
     return Ep1Buffer[0];    //The only info we gets
 }
 
-uint8_t Mouse_press(uint8_t k) {
+uint8_t Mouse_press(__data uint8_t k) {
     HIDMouse[0] |= k;
     USB_EP1_send(2);
     return 1;
 }
 
-uint8_t Mouse_release(uint8_t k) {
+uint8_t Mouse_release(__data uint8_t k) {
     HIDMouse[0] &= ~k;
     USB_EP1_send(2);
     return 1;
 }
 
-uint8_t Mouse_click(uint8_t k){
+uint8_t Mouse_click(__data uint8_t k){
     Mouse_press(k);
     delayMicroseconds(10000);
     Mouse_release(k);
     return 1;
 }
 
-uint8_t Mouse_move(int8_t x, int8_t y){
+uint8_t Mouse_move(__data int8_t x, __xdata int8_t y){
     HIDMouse[1] = x;
     HIDMouse[2] = y;
     USB_EP1_send(2);
     return 1;
 }
 
-uint8_t Mouse_scroll(int8_t tilt){
+uint8_t Mouse_scroll(__data int8_t tilt){
     HIDMouse[3] = tilt;
     USB_EP1_send(2);
     return 1;
