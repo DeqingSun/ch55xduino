@@ -2,6 +2,7 @@
 #define __OS_DETECTION_H__
 
 //refer to https://qmk.fm/ project
+//https://github.com/qmk/qmk_firmware/blob/master/quantum/os_detection/tests/os_detection.cpp
 
 #include <stdint.h>
 
