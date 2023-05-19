@@ -21,6 +21,11 @@
 
 #include "src/userQmkCompatibleKeyboard/USBHIDKeyboardMouse.h"
 
+//these variables will be externally refered by the via library, they shall match the json file
+__xdata uint8_t keyboard_matrix_row_count = 1;
+__xdata uint8_t keyboard_matrix_col_count = 3;
+__xdata uint8_t keyboard_matrix_layer_count = 1;
+
 #define BUTTON1_PIN 30
 #define BUTTON2_PIN 31
 #define BUTTON3_PIN 32
