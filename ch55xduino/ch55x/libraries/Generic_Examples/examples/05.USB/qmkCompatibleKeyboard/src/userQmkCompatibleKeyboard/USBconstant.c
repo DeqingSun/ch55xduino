@@ -21,8 +21,8 @@ __code uint8_t CfgDesc[] ={
     // Interface 1 (HID) descriptor
     0x09,0x04,0x00,0x00,0x02,0x03,0x01,0x01,0x00,    // HID Keyboard, 2 endpoints
     0x09,0x21,0x10,0x01,0x21,0x01,0x22,sizeof(ReportDesc) & 0xff,sizeof(ReportDesc) >> 8,    //HID Descriptor
-    0x07,0x05,0x01,0x03,0x09,0x00,0x0A,                       //endpoint descriptor
-    0x07,0x05,0x81,0x03,0x09,0x00,0x0A,                       //endpoint descriptor
+    0x07,0x05,0x01,0x03,0x40,0x00,0x08,                       //endpoint descriptor, len=7, endpoint, ep1out, interrupt, 64byte, interval(8ms)
+    0x07,0x05,0x81,0x03,0x40,0x00,0x08,                       //endpoint descriptor, len=7, endpoint, ep1in, interrupt, 64byte, interval(8ms)
 };
 
 __code uint16_t ReportDescLen = sizeof(ReportDesc);
@@ -63,6 +63,7 @@ __code uint8_t ReportDesc[] ={
     0x75, 0x03,                    //   REPORT_SIZE (3)
     0x91, 0x03,                    //   OUTPUT (Cnst,Var,Abs)
     0xc0,                          // END_COLLECTION
+    // Mouse
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
     0x09, 0x02,                    // USAGE (Mouse)
     0xa1, 0x01,                    // COLLECTION (Application)
@@ -90,7 +91,28 @@ __code uint8_t ReportDesc[] ={
     0x95, 0x03,                    //     REPORT_COUNT (3)
     0x81, 0x06,                    //     INPUT (Data,Var,Rel)
     0xc0,                          //     END_COLLECTION
-    0xc0                           // END_COLLECTION
+    0xc0,                          // END_COLLECTION
+    //todo: add media control
+    // RAW HID
+    0x06, 0x60, 0xFF,               //todo: clean up https://github.com/qmk/qmk_firmware/blob/a4771e4fe4479869a997b130c1435ee072cbc2fa/tmk_core/protocol/vusb/vusb.c#L664
+    0x09, 0x61,
+    0xa1, 0x01,
+    0x85, 8,    // Report ID: 8
+    0x09, 0x62, 
+    0x15, 0x00, 
+    0x26, 0xFF, 0x00, 
+    0x95, 32,   // length: 32
+    0x75, 0x08, // size: 8
+    0x81, 0x06, // INPUT
+    0x09, 0x63, 
+    /*
+    0x15, 0x00, 
+    0x26, 0xFF, 0x00, 
+    0x95, 32,   //REPORT_COUNT(32)
+    0x75, 0x08, //REPORT_SIZE(8)
+    */
+    0x91, 0x83, // OUTPUT
+    0xC0        // End Collection (Application)
 };
 
 __code uint16_t CfgDescLen = sizeof(CfgDesc);
@@ -100,13 +122,13 @@ __code uint8_t LangDes[]={0x04,0x03,0x09,0x04};           //Language Descriptor
 __code uint16_t LangDesLen = sizeof(LangDes);
 __code uint8_t SerDes[]={                                 //Serial String Descriptor
     0x1c,0x03,
-    'C',0x00,'H',0x00,'5',0x00,'5',0x00,'x',0x00,' ',0x00,'k',0x00,'b',0x00,'d',0x00,' ',0x00,'m',0x00,'o',0x00,'s',0x00
+    'C',0x00,'H',0x00,'5',0x00,'5',0x00,'x',0x00,' ',0x00,'q',0x00,'m',0x00,'k',0x00,' ',0x00,'k',0x00,'b',0x00,'d',0x00
 };
 __code uint16_t SerDesLen = sizeof(SerDes);
 __code uint8_t Prod_Des[]={                                //Produce String Descriptor
-    0x16,0x03,
+    0x26,0x03,
     'C',0x00,'H',0x00,'5',0x00,'5',0x00,'x',0x00,'d',0x00,
-    'u',0x00,'i',0x00,'n',0x00,'o',0x00
+    'u',0x00,'i',0x00,'n',0x00,'o',0x00,' ',0x00,'q',0x00,'m',0x00,'k',0x00,' ',0x00,'k',0x00,'b',0x00,'d',0x00
 };
 __code uint16_t Prod_DesLen = sizeof(Prod_Des);
 
