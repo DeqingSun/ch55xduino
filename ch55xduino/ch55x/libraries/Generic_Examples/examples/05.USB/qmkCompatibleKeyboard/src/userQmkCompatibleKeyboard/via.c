@@ -41,6 +41,11 @@ void raw_hid_receive(void) {
     viaCmdReceived = 1;
 }
 
+uint16_t dynamic_keymap_get_keycode(__data uint8_t layer, __xdata uint8_t row, uint8_t col) {
+    __data uint8_t addr = ((layer*keyboard_matrix_row_count*keyboard_matrix_col_count) + row*keyboard_matrix_col_count + col)*2;
+    return eeprom_read_byte(addr)<<8 | eeprom_read_byte(addr+1);
+}
+
 void via_process(void) {
     if (viaCmdReceived == 0){
         return;
@@ -63,13 +68,9 @@ void via_process(void) {
             break;
         case ID_KEYMAP_GET_KEYCODE:
             {
-                __data uint8_t layer = viaBuffer[1];
-                __data uint8_t row   = viaBuffer[2];
-                __data uint8_t col   = viaBuffer[3];
-                __data uint8_t addr = (layer*keyboard_matrix_row_count*keyboard_matrix_col_count) + row*keyboard_matrix_col_count*2 + col*2;
-                //_data uint16_t keycode = eeprom_read_byte(addr)<<8 | eeprom_read_byte(addr+1);
-                Ep1Buffer[64+1+4] = eeprom_read_byte(addr);
-                Ep1Buffer[64+1+5] = eeprom_read_byte(addr+1);
+                __data uint16_t keycode = dynamic_keymap_get_keycode(viaBuffer[1], viaBuffer[2], viaBuffer[3]);
+                Ep1Buffer[64+1+4] = (keycode >> 8)&0xFF;
+                Ep1Buffer[64+1+5] = keycode&0xFF;
             }
             break;
         case ID_KEYMAP_SET_KEYCODE:
@@ -77,7 +78,7 @@ void via_process(void) {
                 __data uint8_t layer = viaBuffer[1];
                 __data uint8_t row   = viaBuffer[2];
                 __data uint8_t col   = viaBuffer[3];
-                __data uint8_t addr = (layer*keyboard_matrix_row_count*keyboard_matrix_col_count) + row*keyboard_matrix_col_count*2 + col*2;
+                __data uint8_t addr = ((layer*keyboard_matrix_row_count*keyboard_matrix_col_count) + row*keyboard_matrix_col_count + col)*2;
                 
                 eeprom_write_byte(addr, viaBuffer[4]);
                 eeprom_write_byte(addr+1, viaBuffer[5]);
