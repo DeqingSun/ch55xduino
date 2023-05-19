@@ -19,7 +19,7 @@
 #error "This example needs to be compiled with a USER USB setting"
 #endif
 
-#include "src/userUsbHidKeyboardMouse/USBHIDKeyboardMouse.h"
+#include "src/userQmkCompatibleKeyboard/USBHIDKeyboardMouse.h"
 
 #define BUTTON1_PIN 30
 #define BUTTON2_PIN 31
