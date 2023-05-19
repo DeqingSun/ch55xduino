@@ -67,11 +67,12 @@ void OS_detect_process_wlength(__data uint16_t w_length){
 }
 
 os_variant_t detected_host_os(void) {
-    Serial0_println("debug");//!! TODO: remove after test
-    Serial0_print("02:");Serial0_println((int)setups_data.cnt_02);//!!
-    Serial0_print("04:");Serial0_println((int)setups_data.cnt_04);//!!
-    Serial0_print("ff:");Serial0_println((int)setups_data.cnt_ff);//!!
+    //Serial0_println("debug");
+    //Serial0_print("02:");Serial0_println((int)setups_data.cnt_02);
+    //Serial0_print("04:");Serial0_println((int)setups_data.cnt_04);
+    //Serial0_print("ff:");Serial0_println((int)setups_data.cnt_ff);
     
+    //on some initial test, the windows 11 and win7 virtual machine got reported as linux, macbook reported as ios. But that should be fine for now
     return setups_data.detected_os;
 }
 
