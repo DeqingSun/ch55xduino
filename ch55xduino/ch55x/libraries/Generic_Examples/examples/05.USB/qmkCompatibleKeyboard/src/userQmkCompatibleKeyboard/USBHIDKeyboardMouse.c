@@ -4,6 +4,7 @@
 #include "include/ch5xx_usb.h"
 #include "USBconstant.h"
 #include "USBhandler.h"
+#include "via.h"
 
 extern __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[];
 extern __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[];
@@ -12,6 +13,8 @@ volatile __xdata uint8_t UpPoint1_Busy  = 0;   //Flag of whether upload pointer 
 
 __xdata uint8_t HIDKey[8] = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
 __xdata uint8_t HIDMouse[4] = {0x0,0x0,0x0,0x0};
+
+__xdata uint8_t statusLED = 0;
 
 #define SHIFT 0x80
 __code uint8_t _asciimap[128] =
@@ -172,7 +175,16 @@ void USB_EP1_IN(){
 void USB_EP1_OUT(){
     if ( U_TOG_OK )                                                     // Discard unsynchronized packets
     {
-
+		switch(Ep1Buffer[0]) {
+            case 1:
+                statusLED = Ep1Buffer[1];
+                break;
+            case 8:
+                raw_hid_receive();
+                break;
+            default:
+                break;
+		}
     }
 }
 
@@ -202,6 +214,9 @@ uint8_t USB_EP1_send(__data uint8_t reportID){
             Ep1Buffer[64+1+i] = ((uint8_t *)HIDMouse)[i];
         }
         UEP1_T_LEN = 1+sizeof(HIDMouse);                                             //data length
+    }else if (reportID == 8){
+        Ep1Buffer[64+0] = 8;
+        UEP1_T_LEN = 33;
     }else{
         UEP1_T_LEN = 0;
     }

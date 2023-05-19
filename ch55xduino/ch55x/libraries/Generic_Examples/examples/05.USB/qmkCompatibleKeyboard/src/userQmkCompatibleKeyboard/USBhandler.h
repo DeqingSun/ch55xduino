@@ -17,6 +17,7 @@ extern const __code uint8_t *pDescr;
 
 void USB_EP1_IN();
 void USB_EP1_OUT();
+uint8_t USB_EP1_send(__data uint8_t reportID);
 
 #define UsbSetupBuf     ((PUSB_SETUP_REQ)Ep0Buffer)
 

@@ -5,6 +5,7 @@
 #include "include/ch5xx.h"
 #include "include/ch5xx_usb.h"
 #include "osDetection.h"
+#include "via.h"
 
 
 #define KEY_LEFT_CTRL   0x80

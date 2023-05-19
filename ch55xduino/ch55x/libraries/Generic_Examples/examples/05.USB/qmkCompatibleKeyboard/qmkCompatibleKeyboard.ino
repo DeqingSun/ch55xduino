@@ -55,7 +55,7 @@ void loop() {
   }
 
 
-
-  delay(50);  //naive debouncing
+  via_process();
+  //delay(50);  //naive debouncing
 
 }
