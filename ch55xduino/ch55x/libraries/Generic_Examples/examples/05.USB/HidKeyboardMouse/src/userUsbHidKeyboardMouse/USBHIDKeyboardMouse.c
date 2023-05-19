@@ -176,7 +176,7 @@ void USB_EP1_OUT(){
     }
 }
 
-uint8_t USB_EP1_send(uint8_t reportID){
+uint8_t USB_EP1_send(__data uint8_t reportID){
     if (UsbConfig == 0){
         return 0;
     }
