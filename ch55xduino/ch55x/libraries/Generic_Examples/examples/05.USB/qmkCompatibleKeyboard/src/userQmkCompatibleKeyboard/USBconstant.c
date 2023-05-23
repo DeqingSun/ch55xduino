@@ -1,5 +1,5 @@
 #include "USBconstant.h"
-
+#include "../../keyboardConfig.h"
 
 //Device descriptor
 __code uint8_t DevDesc[] = {
@@ -7,7 +7,7 @@ __code uint8_t DevDesc[] = {
     0x10,0x01,  //USB spec release number in BCD format, USB1.1 (0x10, 0x01).
     0x00,0x00,0x00, //bDeviceClass, bDeviceSubClass, bDeviceProtocol 
     DEFAULT_ENDP0_SIZE, //bNumConfigurations
-    0x09,0x12,0x5D,0xC5, // VID PID 
+    (USB_VID)&0xFF,((USB_VID)>>8)&0xFF,(USB_PID)&0xFF,((USB_PID)>>8)&0xFF, // VID PID 
     0x00,0x01,  //version
     0x01,0x02,0x03, //bString
     0x01    //bNumConfigurations

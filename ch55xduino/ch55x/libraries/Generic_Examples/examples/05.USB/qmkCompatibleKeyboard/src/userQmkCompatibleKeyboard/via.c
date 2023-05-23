@@ -28,10 +28,6 @@ enum {
 
 __xdata uint8_t viaBuffer[32];
 volatile __xdata uint8_t viaCmdReceived = 0;
-
-extern __xdata uint8_t keyboard_matrix_row_count;
-extern __xdata uint8_t keyboard_matrix_col_count;
-extern __xdata uint8_t keyboard_matrix_layer_count;
     
 void raw_hid_send(){
     USB_EP1_send(8);
@@ -98,7 +94,7 @@ void via_process(void) {
             break;
             
         case ID_KEYMAP_GET_LAYER_COUNT: //0x11
-            Ep1Buffer[64+1+1] = keyboard_matrix_layer_count;
+            Ep1Buffer[64+1+1] = LAYER_COUNT;
             break;
         case ID_KEYMAP_GET_BUFFER:  //0x12
             {
