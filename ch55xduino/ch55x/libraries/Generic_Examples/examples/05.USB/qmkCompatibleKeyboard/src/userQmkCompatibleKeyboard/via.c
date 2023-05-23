@@ -1,6 +1,7 @@
 #include "via.h"
 #include "USBhandler.h"
 #include <Arduino.h>
+#include "../../keyboardConfig.h"
 
 enum {
     ID_GET_PROTOCOL_VERSION = 0x01,
@@ -42,7 +43,7 @@ void raw_hid_receive(void) {
 }
 
 uint16_t dynamic_keymap_get_keycode(__data uint8_t layer, __xdata uint8_t row, uint8_t col) {
-    __data uint8_t addr = ((layer*keyboard_matrix_row_count*keyboard_matrix_col_count) + row*keyboard_matrix_col_count + col)*2;
+    __data uint8_t addr = ((layer*ROWS_COUNT*COLS_COUNT) + row*COLS_COUNT + col)*2;
     return eeprom_read_byte(addr)<<8 | eeprom_read_byte(addr+1);
 }
 
@@ -78,7 +79,7 @@ void via_process(void) {
                 __data uint8_t layer = viaBuffer[1];
                 __data uint8_t row   = viaBuffer[2];
                 __data uint8_t col   = viaBuffer[3];
-                __data uint8_t addr = ((layer*keyboard_matrix_row_count*keyboard_matrix_col_count) + row*keyboard_matrix_col_count + col)*2;
+                __data uint8_t addr = ((layer*ROWS_COUNT*COLS_COUNT) + row*COLS_COUNT + col)*2;
                 
                 eeprom_write_byte(addr, viaBuffer[4]);
                 eeprom_write_byte(addr+1, viaBuffer[5]);
