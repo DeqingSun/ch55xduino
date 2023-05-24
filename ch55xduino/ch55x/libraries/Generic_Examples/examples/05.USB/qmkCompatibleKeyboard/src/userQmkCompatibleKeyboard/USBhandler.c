@@ -115,6 +115,10 @@ void USB_EP0_SETUP(){
                             pDescr = ReportDesc;
                             len = ReportDescLen;
                         }
+                        else if(UsbSetupBuf->wValueL == 1){
+                            pDescr = RawHIDReportDesc;
+                            len = RawHIDReportDescLen;
+                        }
                         else
                         {
                             len = 0xff;  
