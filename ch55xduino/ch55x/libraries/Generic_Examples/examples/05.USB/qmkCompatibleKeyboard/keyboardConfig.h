@@ -3,5 +3,6 @@
 #define COLS_COUNT 3
 #define LAYER_COUNT 2
 
-#define USB_VID 0x1209
-#define USB_PID 0xC55D
+//pretend we are BN003 to let via know we are compatible
+#define USB_VID 0x4249
+#define USB_PID 0x4287

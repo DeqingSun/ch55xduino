@@ -5,7 +5,10 @@
   created 2023
   by Deqing Sun for use with CH55xduino
 
-  This example code is in the public domain.
+  This is a keyboard firmware that you can use remap-keys.app to remap the keys.
+
+  The keyboard remap protocol is based on the QMK firmware
+  The via impelementation is based on the CH552duinoKeyboard from yswallow
 
   cli board options: usb_settings=user148
 
@@ -51,7 +54,7 @@ void setup() {
       }
     }
     if (allConfigFF){
-      //write the default keymap
+      //write the default keymap (layer 0: Ctrl-C, Ctrl-V, Tab, layer 1: Cmd-C, Cmd-V, Tab)
       const uint8_t defaultKeymap[] = {0x01,0x06,0x01,0x19,0x00,0x2B,0x08,0x06,0x08,0x19,0x00,0x2B};
       for (__data uint8_t i = 0; i < dataLength; i++) {
         eeprom_write_byte(i, defaultKeymap[i]);

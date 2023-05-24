@@ -50,6 +50,11 @@ void via_process(void) {
     viaCmdReceived = 0;
 
     memcpy(Ep1Buffer+64+1, viaBuffer, 32);
+
+    Serial0_println("via");
+    Serial0_println(viaBuffer[0], HEX);
+    Serial0_println(viaBuffer[1], HEX);
+    Serial0_println(viaBuffer[2], HEX);
     
     switch( viaBuffer[0] ) {
         case ID_GET_PROTOCOL_VERSION:
