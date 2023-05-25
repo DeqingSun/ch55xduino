@@ -6,13 +6,11 @@
 
 //Keyboard functions:
 
-void USB_EP2_IN();
-void USB_EP2_OUT();
-
 __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[8];     
 __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[128];       //on page 47 of data sheet, the receive buffer need to be min(possible packet size+2,64), IN and OUT buffer, must be even address
+__xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[128];
 
-#if (EP1_ADDR+128) > USER_USB_RAM
+#if (EP2_ADDR+128) > USER_USB_RAM
 #error "This example needs more USB ram. Increase this setting in menu."
 #endif
 
@@ -112,12 +110,15 @@ void USB_EP0_SETUP(){
                         break;
                      case 0x22:
                         if(UsbSetupBuf->wValueL == 0){
-                            pDescr = ReportDesc;
-                            len = ReportDescLen;
-                        }
-                        else if(UsbSetupBuf->wValueL == 1){
-                            pDescr = RawHIDReportDesc;
-                            len = RawHIDReportDescLen;
+                            if (UsbSetupBuf->wIndexL == 0){
+                                pDescr = ReportDesc;
+                                len = ReportDescLen;
+                            }else if(UsbSetupBuf->wIndexL == 1){
+                                pDescr = RawHIDReportDesc;
+                                len = RawHIDReportDescLen;
+                            }else{
+                                len = 0xff;
+                            }
                         }
                         else
                         {
@@ -426,6 +427,7 @@ void USBInterrupt(void) {   //inline not really working in multiple files in SDC
     if(UIF_BUS_RST) {
         UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
         UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;
+        UEP2_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;
         
         USB_DEV_AD = 0x00;
         UIF_SUSPEND = 0;
@@ -491,6 +493,8 @@ void USBDeviceEndPointCfg()
 {
     UEP1_DMA = (uint16_t) Ep1Buffer;                                                      //Endpoint 1 data transfer address
     UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;        //Endpoint 2 automatically flips the sync flag, IN transaction returns NAK, OUT returns ACK
+    UEP2_DMA = (uint16_t) Ep2Buffer;                                                      //Endpoint 2 data transfer address
+    UEP2_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;        //Endpoint 2 automatically flips the sync flag, IN transaction returns NAK, OUT returns ACK
     UEP0_DMA = (uint16_t) Ep0Buffer;                                                      //Endpoint 0 data transfer address
     UEP4_1_MOD = 0XC0;                                                         //endpoint1 TX RX enable
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;                //Manual flip, OUT transaction returns ACK, IN transaction returns NAK

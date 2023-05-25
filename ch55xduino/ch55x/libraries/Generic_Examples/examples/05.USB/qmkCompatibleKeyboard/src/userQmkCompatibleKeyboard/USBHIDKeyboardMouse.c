@@ -8,8 +8,10 @@
 
 extern __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[];
 extern __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[];
+extern __xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[];
 
 volatile __xdata uint8_t UpPoint1_Busy  = 0;   //Flag of whether upload pointer is busy
+volatile __xdata uint8_t UpPoint2_Busy  = 0;   //Flag of whether upload pointer is busy
 
 __xdata uint8_t HIDKey[8] = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
 __xdata uint8_t HIDMouse[4] = {0x0,0x0,0x0,0x0};
@@ -171,6 +173,12 @@ void USB_EP1_IN(){
     UpPoint1_Busy = 0;                                                  //Clear busy flag
 }
 
+void USB_EP2_IN(){
+    UEP2_T_LEN = 0;
+    UEP2_CTRL = UEP2_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_NAK;           // Default NAK
+    UpPoint2_Busy = 0;                                                  //Clear busy flag
+}
+
 
 void USB_EP1_OUT(){
     if ( U_TOG_OK )                                                     // Discard unsynchronized packets
@@ -179,12 +187,16 @@ void USB_EP1_OUT(){
             case 1:
                 statusLED = Ep1Buffer[1];
                 break;
-            case 8:
-                raw_hid_receive();
-                break;
             default:
                 break;
 		}
+    }
+}
+
+void USB_EP2_OUT(){
+    if ( U_TOG_OK )                                                     // Discard unsynchronized packets
+    {
+		raw_hid_receive();
     }
 }
 
@@ -224,6 +236,28 @@ uint8_t USB_EP1_send(__data uint8_t reportID){
     
     UpPoint1_Busy = 1;
     UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;                //upload data and respond ACK
+    
+    return 1;
+}
+
+uint8_t USB_EP2_send(){
+    if (UsbConfig == 0){
+        return 0;
+    }
+    
+    __data uint16_t waitWriteCount = 0;
+    
+    waitWriteCount = 0;
+    while (UpPoint2_Busy){//wait for 250ms or give up
+        waitWriteCount++;
+        delayMicroseconds(5);
+        if (waitWriteCount>=50000) return 0;
+    }
+    
+    UEP2_T_LEN = 32;
+    
+    UpPoint2_Busy = 1;
+    UEP2_CTRL = UEP2_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;                //upload data and respond ACK
     
     return 1;
 }
