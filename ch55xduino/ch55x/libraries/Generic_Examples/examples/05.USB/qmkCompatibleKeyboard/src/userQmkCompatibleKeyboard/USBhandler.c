@@ -497,6 +497,6 @@ void USBDeviceEndPointCfg()
     UEP2_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;        //Endpoint 2 automatically flips the sync flag, IN transaction returns NAK, OUT returns ACK
     UEP0_DMA = (uint16_t) Ep0Buffer;                                                      //Endpoint 0 data transfer address
     UEP4_1_MOD = 0XC0;                                                         //endpoint1 TX RX enable
-    UEP2_3_MOD = 0X0C;                                                         //endpoint1 TX RX enable
+    UEP2_3_MOD = 0X0C;                                                         //endpoint2 TX RX enable
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;                //Manual flip, OUT transaction returns ACK, IN transaction returns NAK
 }

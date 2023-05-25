@@ -58,7 +58,7 @@ void via_process(void) {
     
     switch( Ep2Buffer[0] ) {
         case ID_GET_PROTOCOL_VERSION:
-            Ep2Buffer[64+1] = 0;
+            Ep2Buffer[64+1] = 1;
             Ep2Buffer[64+2] = 0;
             break;
         case ID_GET_KEYBOARD_VALUE:
