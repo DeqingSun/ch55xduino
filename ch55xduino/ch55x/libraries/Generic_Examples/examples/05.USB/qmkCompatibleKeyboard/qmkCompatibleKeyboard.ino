@@ -5,7 +5,7 @@
   created 2023
   by Deqing Sun for use with CH55xduino
 
-  This is a keyboard firmware that you can use remap-keys.app to remap the keys.
+  This is a keyboard firmware that you can use usevia.app to remap the keys.
 
   The keyboard remap protocol is based on the QMK firmware
   The via impelementation is based on the CH552duinoKeyboard from yswallow
@@ -29,8 +29,8 @@
 //on ch552 there is 128 Byte of data flash, so we keep the row*col*layer to be less than 64 (2Byte each key)
 
 #define BUTTON1_PIN 15
-#define BUTTON2_PIN 14
-#define BUTTON3_PIN 16
+#define BUTTON2_PIN 16
+#define BUTTON3_PIN 14
 
 #define LED_BUILTIN 33
 
@@ -39,6 +39,7 @@ bool button2PressPrev = false;
 bool button3PressPrev = false;
 
 unsigned long previousHelloMillis = 0;        // will store last time LED was updated
+unsigned long previousKeyScanMillis = 0;
 
 uint8_t layerInUse = 0;
 
@@ -75,44 +76,42 @@ void setup() {
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-  if ((signed int)(currentMillis - previousHelloMillis) >= 2000) {
-    previousHelloMillis = currentMillis;
+  if ((signed int)(millis() - previousHelloMillis) >= 2000) {
+    previousHelloMillis = millis();
     Serial0_println("Hello");
     Serial0_println((int)detected_host_os());
-    
   }
 
 
   via_process();
 
-  __data uint8_t osDetected = detected_host_os();
-  if ((osDetected == OS_LINUX) || (osDetected == OS_WINDOWS)) {
-    layerInUse = 0;
-  }else if ((osDetected == OS_MACOS) || (osDetected == OS_IOS)) {
-    layerInUse = 1;
+  if ((signed int)(millis() - previousKeyScanMillis) >= 50) { //naive debouncing
+    previousKeyScanMillis = millis();
+
+    __data uint8_t osDetected = detected_host_os();
+    if ((osDetected == OS_LINUX) || (osDetected == OS_WINDOWS)) {
+      layerInUse = 0;
+    }else if ((osDetected == OS_MACOS) || (osDetected == OS_IOS)) {
+      layerInUse = 1;
+    }
+
+    bool button1Press = !digitalRead(BUTTON1_PIN);
+    if (button1PressPrev != button1Press) {
+      button1PressPrev = button1Press;
+      press_qmk_key(0,0,layerInUse,button1Press);
+    }
+
+    bool button2Press = !digitalRead(BUTTON2_PIN);
+    if (button2PressPrev != button2Press) {
+      button2PressPrev = button2Press;
+      press_qmk_key(0,1,layerInUse,button2Press);
+    }
+
+    bool button3Press = !digitalRead(BUTTON3_PIN);
+    if (button3PressPrev != button3Press) {
+      button3PressPrev = button3Press;
+      press_qmk_key(0,2,layerInUse,button3Press);
+    }
   }
-
-  bool button1Press = !digitalRead(BUTTON1_PIN);
-  if (button1PressPrev != button1Press) {
-    button1PressPrev = button1Press;
-    press_qmk_key(0,0,layerInUse,button1Press);
-  }
-
-  /*bool button2Press = !digitalRead(BUTTON2_PIN);
-  if (button2PressPrev != button2Press) {
-    button2PressPrev = button2Press;
-    press_qmk_key(0,1,layerInUse,button2Press);
-  }
-
-  bool button3Press = !digitalRead(BUTTON3_PIN);
-  if (button3PressPrev != button3Press) {
-    button3PressPrev = button3Press;
-    press_qmk_key(0,2,layerInUse,button3Press);
-  }*/
-
-
-  
-  delay(50);  //naive debouncing
 
 }

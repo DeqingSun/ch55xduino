@@ -130,39 +130,35 @@ void press_qmk_key(__data uint8_t row, __xdata uint8_t col, __xdata uint8_t laye
 {
     __data uint16_t keycode = dynamic_keymap_get_keycode(layer,row,col);
     __data uint8_t application = (keycode>>8) & 0x00FF;
+    __data uint8_t code = keycode & 0x00FF;
     
-    if( application ){
-        switch( application & 0xF0 ){
-            case 0x00:
-                for(uint8_t i=0;i<4;i++){
-                    if( application & (1<<i) ){
-                        if( press ){
-                            Keyboard_press( 0x80+i );
-                        } else {
-                            Keyboard_release( 0x80+i );
-                        }
+    if( application>=0x01 && application<=0x1F ){   //QMK: quantum.c, case QK_MODS ... QK_MODS_MAX:
+        if (application & 0x10) {   //QMK: quantum.c if (code & QK_RMODS_MIN) { // Right mod flag is set
+            for(__data uint8_t i=0;i<4;i++){   //QK_LCTL:0x01 QK_LSFT QK_LALT QK_LGUI:0x08
+                if( application & (1<<i) ){
+                    if( press ){
+                        Keyboard_quantum_modifier_press(1<<(4+i));
+                    } else {
+                        Keyboard_quantum_modifier_release(1<<(4+i));
                     }
                 }
-                break;
-            case 0x10:
-                for(uint8_t i=0;i<4;i++){
-                    if( application & (1<<i) ){
-                        if( press ){
-                            Keyboard_press( 0x84+i );
-                        } else {
-                            Keyboard_release( 0x84+i );
-                        }
+            }
+        }else{
+            for(__data uint8_t i=0;i<4;i++){   //QK_LCTL:0x01 QK_LSFT QK_LALT QK_LGUI:0x08
+                if( application & (1<<i) ){
+                    if( press ){
+                        Keyboard_quantum_modifier_press(1<<(0+i));
+                    } else {
+                        Keyboard_quantum_modifier_release(1<<(0+i));
                     }
                 }
-                break;
-            default:
-                break;
+            }
         }
     }
     
     if( press ){
-        Keyboard_press(keycode & 0x00FF);
+        Keyboard_quantum_regular_press(keycode & 0x00FF);
     } else {
-        Keyboard_release(keycode & 0x00FF);
+        Keyboard_quantum_regular_release(keycode & 0x00FF);
     }
 }

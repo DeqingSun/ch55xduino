@@ -262,25 +262,19 @@ uint8_t USB_EP2_send(){
     return 1;
 }
 
-uint8_t Keyboard_press(__data uint8_t k) {
+uint8_t Keyboard_quantum_modifier_press(__data uint8_t k){
+	HIDKey[0] |= k;
+	USB_EP1_send(1);
+	return 1;
+}
+uint8_t Keyboard_quantum_modifier_release(__data uint8_t k){
+	HIDKey[0] &= ~k;
+	USB_EP1_send(1);
+	return 1;
+}
+
+uint8_t Keyboard_quantum_regular_press(__data uint8_t k) {
 	__data uint8_t i;
-	if (k >= 136) {			// it's a non-printing key (not a modifier)
-		k = k - 136;
-	} else if (k >= 128) {	// it's a modifier key
-		HIDKey[0] |= (1<<(k-128));
-		k = 0;
-	} else {				// it's a printing key
-		k = _asciimap[k];
-		if (!k) {
-			//setWriteError();
-			return 0;
-		}
-		if (k & 0x80) {						// it's a capital letter or other character reached with shift
-			HIDKey[0] |= 0x02;	// the left shift modifier
-			k &= 0x7F;
-		}
-	}
-	
 	// Add k to the key report only if it's not already present
 	// and if there is an empty slot.
 	if (HIDKey[2] != k && HIDKey[3] != k && 
@@ -302,24 +296,8 @@ uint8_t Keyboard_press(__data uint8_t k) {
 	return 1;
 }
 
-uint8_t Keyboard_release(__data uint8_t k) {
+uint8_t Keyboard_quantum_regular_release(__data uint8_t k) {
 	__data uint8_t i;
-	if (k >= 136) {			// it's a non-printing key (not a modifier)
-		k = k - 136;
-	} else if (k >= 128) {	// it's a modifier key
-		HIDKey[0] &= ~(1<<(k-128));
-		k = 0;
-	} else {				// it's a printing key
-		k = _asciimap[k];
-		if (!k) {
-			return 0;
-		}
-		if (k & 0x80) {							// it's a capital letter or other character reached with shift
-			HIDKey[0] &= ~(0x02);	// the left shift modifier
-			k &= 0x7F;
-		}
-	}
-	
 	// Test the key report to see if k is present.  Clear it if it exists.
 	// Check all positions in case the key is present more than once (which it shouldn't be)
 	for (i=2; i<8; i++) {
@@ -337,12 +315,6 @@ void Keyboard_releaseAll(void){
         HIDKey[i] = 0;
     }
 	USB_EP1_send(1);
-}
-
-uint8_t Keyboard_write(__data uint8_t c){
-	__data uint8_t p = Keyboard_press(c);  // Keydown
-	Keyboard_release(c);            // Keyup
-	return p;              // just return the result of press() since release() almost always returns 1
 }
 
 uint8_t Keyboard_getLEDStatus(){
