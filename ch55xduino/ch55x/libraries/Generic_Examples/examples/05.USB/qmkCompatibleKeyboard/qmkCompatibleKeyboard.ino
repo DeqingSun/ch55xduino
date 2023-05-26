@@ -28,9 +28,9 @@
 //these variables will be externally refered by the via library, they shall match the json file
 //on ch552 there is 128 Byte of data flash, so we keep the row*col*layer to be less than 64 (2Byte each key)
 
-#define BUTTON1_PIN 30
-#define BUTTON2_PIN 31
-#define BUTTON3_PIN 32
+#define BUTTON1_PIN 15
+#define BUTTON2_PIN 14
+#define BUTTON3_PIN 16
 
 #define LED_BUILTIN 33
 
@@ -39,6 +39,8 @@ bool button2PressPrev = false;
 bool button3PressPrev = false;
 
 unsigned long previousHelloMillis = 0;        // will store last time LED was updated
+
+uint8_t layerInUse = 0;
 
 void setup() {
   USBInit();
@@ -83,6 +85,34 @@ void loop() {
 
 
   via_process();
-  //delay(50);  //naive debouncing
+
+  __data uint8_t osDetected = detected_host_os();
+  if ((osDetected == OS_LINUX) || (osDetected == OS_WINDOWS)) {
+    layerInUse = 0;
+  }else if ((osDetected == OS_MACOS) || (osDetected == OS_IOS)) {
+    layerInUse = 1;
+  }
+
+  bool button1Press = !digitalRead(BUTTON1_PIN);
+  if (button1PressPrev != button1Press) {
+    button1PressPrev = button1Press;
+    press_qmk_key(0,0,layerInUse,button1Press);
+  }
+
+  /*bool button2Press = !digitalRead(BUTTON2_PIN);
+  if (button2PressPrev != button2Press) {
+    button2PressPrev = button2Press;
+    press_qmk_key(0,1,layerInUse,button2Press);
+  }
+
+  bool button3Press = !digitalRead(BUTTON3_PIN);
+  if (button3PressPrev != button3Press) {
+    button3PressPrev = button3Press;
+    press_qmk_key(0,2,layerInUse,button3Press);
+  }*/
+
+
+  
+  delay(50);  //naive debouncing
 
 }

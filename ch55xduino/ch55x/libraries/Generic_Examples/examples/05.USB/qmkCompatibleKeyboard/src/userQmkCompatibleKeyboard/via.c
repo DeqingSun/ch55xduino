@@ -2,6 +2,7 @@
 #include "USBhandler.h"
 #include <Arduino.h>
 #include "../../keyboardConfig.h"
+#include "USBHIDKeyboardMouse.h"
 
 enum {
     ID_GET_PROTOCOL_VERSION = 0x01,
@@ -27,8 +28,6 @@ enum {
 };
 
 volatile __xdata uint8_t viaCmdReceived = 0;
-
-void USB_EP2_send();
     
 void raw_hid_send(){
     USB_EP2_send();
@@ -127,3 +126,43 @@ void via_process(void) {
     raw_hid_send();
 }
                 
+void press_qmk_key(__data uint8_t row, __xdata uint8_t col, __xdata uint8_t layer, __xdata uint8_t press)
+{
+    __data uint16_t keycode = dynamic_keymap_get_keycode(layer,row,col);
+    __data uint8_t application = (keycode>>8) & 0x00FF;
+    
+    if( application ){
+        switch( application & 0xF0 ){
+            case 0x00:
+                for(uint8_t i=0;i<4;i++){
+                    if( application & (1<<i) ){
+                        if( press ){
+                            Keyboard_press( 0x80+i );
+                        } else {
+                            Keyboard_release( 0x80+i );
+                        }
+                    }
+                }
+                break;
+            case 0x10:
+                for(uint8_t i=0;i<4;i++){
+                    if( application & (1<<i) ){
+                        if( press ){
+                            Keyboard_press( 0x84+i );
+                        } else {
+                            Keyboard_release( 0x84+i );
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    
+    if( press ){
+        Keyboard_press(keycode & 0x00FF);
+    } else {
+        Keyboard_release(keycode & 0x00FF);
+    }
+}

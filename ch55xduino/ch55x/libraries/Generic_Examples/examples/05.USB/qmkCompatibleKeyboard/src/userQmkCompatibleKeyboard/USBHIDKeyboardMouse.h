@@ -69,6 +69,9 @@ extern "C" {
 
 void USBInit(void);
 
+uint8_t USB_EP1_send(__data uint8_t reportID);
+void USB_EP2_send();
+
 uint8_t Keyboard_press(__data uint8_t k);
 uint8_t Keyboard_release(__data uint8_t k);
 void Keyboard_releaseAll(void);
