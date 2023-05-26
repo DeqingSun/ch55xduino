@@ -10,7 +10,12 @@
   The keyboard remap protocol is based on the QMK firmware
   The via impelementation is based on the CH552duinoKeyboard from yswallow
 
-  cli board options: usb_settings=user148
+  In this example, the CH552 works as 3 key keyboard without matrix scanning. 
+  There are 2 layers. If the host system is linux or windows, the first layer is used.
+  If the host system is macos or ios, the second layer is used.
+  When the dataflash is empty, the default keymap is used. Which is copy, paste and tab.
+
+  cli board options: usb_settings=user266
 
 */
 
@@ -65,27 +70,20 @@ void setup() {
     }
   }
 
-  pinMode(BUTTON1_PIN, INPUT_PULLUP);
-  pinMode(BUTTON2_PIN, INPUT_PULLUP);
-  pinMode(BUTTON3_PIN, INPUT_PULLUP);
-  pinMode(LED_BUILTIN, OUTPUT);
-
-
-  Serial0_begin(9600);
-  Serial0_println("Hello WORLD");
+  { //initialize the keys or matrix. 
+    pinMode(BUTTON1_PIN, INPUT_PULLUP);
+    pinMode(BUTTON2_PIN, INPUT_PULLUP);
+    pinMode(BUTTON3_PIN, INPUT_PULLUP);
+    pinMode(LED_BUILTIN, OUTPUT);
+  }
 }
 
 void loop() {
-  if ((signed int)(millis() - previousHelloMillis) >= 2000) {
-    previousHelloMillis = millis();
-    Serial0_println("Hello");
-    Serial0_println((int)detected_host_os());
-  }
-
 
   via_process();
 
   if ((signed int)(millis() - previousKeyScanMillis) >= 50) { //naive debouncing
+    // scan the keys or matrix. 
     previousKeyScanMillis = millis();
 
     __data uint8_t osDetected = detected_host_os();
