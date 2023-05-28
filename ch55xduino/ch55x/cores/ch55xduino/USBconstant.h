@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "include/ch5xx.h"
 #include "include/ch5xx_usb.h"
-#include "usbCommonDescriptors/StdUSBDescriptors.h"
+#include "usbCommonDescriptors/StdDescriptors.h"
 
 #define  SET_LINE_CODING                0X20            // Configures DTE rate, stop-bits, parity, and number-of-character
 #define  GET_LINE_CODING                0X21            // This request allows the host to find out the currently configured line coding.
