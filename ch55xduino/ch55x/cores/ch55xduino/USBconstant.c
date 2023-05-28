@@ -8,18 +8,26 @@
 
 
 //Device descriptor
-__code uint8_t DevDesc[] = {
-    0x12,0x01,
-    0x10,0x01,  //USB spec release number in BCD format, USB1.1 (0x10, 0x01).
-    0xEF,0x02,0x01, //bDeviceClass, bDeviceSubClass, bDeviceProtocol 
-    DEFAULT_ENDP0_SIZE, //bNumConfigurations
-    0x09,0x12,0x50,0xC5, // VID PID 
-    0x01,0x01,  //version
-    0x01,0x02,0x03, //bString
-    0x01    //bNumConfigurations
-};
+__code USB_Descriptor_Device_t DevDesc = {
+    .Header                 = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
 
-__code uint16_t DevDescLen = sizeof(DevDesc);
+	.USBSpecification       = VERSION_BCD(1,1,0),
+	.Class                  = 0xEF, //Miscellaneous
+	.SubClass               = 0x02,
+	.Protocol               = 0x01, //Interface Association Descriptor
+
+	.Endpoint0Size          = DEFAULT_ENDP0_SIZE,
+
+	.VendorID               = 0x1209,
+	.ProductID              = 0xc550,
+	.ReleaseNumber          = VERSION_BCD(1,0,1),
+
+	.ManufacturerStrIndex   = 1,
+	.ProductStrIndex        = 2,
+	.SerialNumStrIndex      = 3,
+
+	.NumberOfConfigurations = 1
+};
 
 __code uint8_t CfgDesc[] ={
     0x09,0x02,sizeof(CfgDesc) & 0xff,sizeof(CfgDesc) >> 8,
