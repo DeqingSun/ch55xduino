@@ -30,7 +30,8 @@ void eeprom_write_byte (__data uint8_t addr, __xdata uint8_t val){
     SAFE_MOD = 0;                                                              //Exit Safe mode
     
 #else
-    addr_val;   //TBD
+    addr;   //TBD
+    val;
     return;
 #endif
 }
