@@ -22,10 +22,5 @@ extern __code uint16_t Manuf_Des[];
 
 
 extern __code uint16_t CfgDescLen;
-extern __code uint16_t LangDesLen;
-extern __code uint16_t SerDesLen;
-extern __code uint16_t Prod_DesLen;
-extern __code uint16_t CDC_DesLen;
-extern __code uint16_t Manuf_DesLen;
 
 #endif

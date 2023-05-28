@@ -53,28 +53,23 @@ __code uint16_t CfgDescLen = sizeof(CfgDesc);
 
 //String Descriptors
 __code uint8_t LangDes[]={0x04,0x03,0x09,0x04};           //Language Descriptor
-__code uint16_t LangDesLen = sizeof(LangDes);
 __code uint16_t SerDes[]={                                 //Serial String Descriptor
     0x030C,
     'C','H','5','5','x',
 };
-__code uint16_t SerDesLen = sizeof(SerDes);
 __code uint16_t Prod_Des[]={                                //Produce String Descriptor
     0x0316,
     'C','H','5','5','x','d','u','i','n','o',
 };
-__code uint16_t Prod_DesLen = sizeof(Prod_Des);
 
 __code uint16_t CDC_Des[]={
     0x0316,
     'C','D','C',' ','S','e','r','i','a','l',
 };
-__code uint16_t CDC_DesLen = sizeof(CDC_Des);
 
 __code uint16_t Manuf_Des[]={    //SDCC is little endian
     0x030E,
     'D','e','q','i','n','g',
 };
-__code uint16_t Manuf_DesLen = sizeof(Manuf_Des);
 
 #endif

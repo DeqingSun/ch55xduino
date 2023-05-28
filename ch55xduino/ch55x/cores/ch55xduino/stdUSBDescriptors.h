@@ -208,23 +208,6 @@
 				               */
 			} USB_Descriptor_Header_t;
 
-			/** \brief Standard USB Descriptor Header (USB-IF naming conventions).
-			 *
-			 *  Type define for all descriptors' standard header, indicating the descriptor's length and type. This structure
-			 *  uses the relevant standard's given element names to ensure compatibility with the standard.
-			 *
-			 *  \see \ref USB_Descriptor_Header_t for the version of this type with non-standard LUFA specific element names.
-			 *
-			 *  \note Regardless of CPU architecture, these values should be stored as little endian.
-			 */
-			typedef struct
-			{
-				uint8_t bLength; /**< Size of the descriptor, in bytes. */
-				uint8_t bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a value
-				                          *   given by the specific class.
-				                          */
-			} USB_StdDescriptor_Header_t;
-
 			/** \brief Standard USB Device Descriptor (LUFA naming conventions).
 			 *
 			 *  Type define for a standard Device Descriptor. This structure uses LUFA-specific element names to make each
@@ -278,62 +261,6 @@
 				                             */
 				uint8_t  NumberOfConfigurations; /**< Total number of configurations supported by the device.*/
 			} USB_Descriptor_Device_t;
-
-	// 		/** \brief Standard USB Device Descriptor (USB-IF naming conventions).
-	// 		 *
-	// 		 *  Type define for a standard Device Descriptor. This structure uses the relevant standard's given element names
-	// 		 *  to ensure compatibility with the standard.
-	// 		 *
-	// 		 *  \see \ref USB_Descriptor_Device_t for the version of this type with non-standard LUFA specific element names.
-	// 		 *
-	// 		 *  \note Regardless of CPU architecture, these values should be stored as little endian.
-	// 		 */
-	// 		typedef struct
-	// 		{
-	// 			uint8_t  bLength; /**< Size of the descriptor, in bytes. */
-	// 			uint8_t  bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a value
-	// 			                              *   given by the specific class.
-	// 			                              */
-	// 			uint16_t bcdUSB; /**< BCD of the supported USB specification.
-	// 			                  *
-	// 			                  *   \see \ref VERSION_BCD() utility macro.
-	// 			                  */
-	// 			uint8_t  bDeviceClass; /**< USB device class. */
-	// 			uint8_t  bDeviceSubClass; /**< USB device subclass. */
-	// 			uint8_t  bDeviceProtocol; /**< USB device protocol. */
-	// 			uint8_t  bMaxPacketSize0; /**< Size of the control (address 0) endpoint's bank in bytes. */
-	// 			uint16_t idVendor; /**< Vendor ID for the USB product. */
-	// 			uint16_t idProduct; /**< Unique product ID for the USB product. */
-	// 			uint16_t bcdDevice; /**< Product release (version) number.
-	// 			                     *
-	// 			                     *   \see \ref VERSION_BCD() utility macro.
-	// 			                     */
-	// 			uint8_t  iManufacturer; /**< String index for the manufacturer's name. The
-	// 			                         *   host will request this string via a separate
-	// 			                         *   control request for the string descriptor.
-	// 			                         *
-	// 			                         *   \note If no string supplied, use \ref NO_DESCRIPTOR.
-	// 			                         */
-	// 			uint8_t  iProduct; /**< String index for the product name/details.
-	// 			                    *
-	// 			                    *  \see ManufacturerStrIndex structure entry.
-	// 			                    */
-	// 			uint8_t iSerialNumber; /**< String index for the product's globally unique hexadecimal
-	// 			                        *   serial number, in uppercase Unicode ASCII.
-	// 			                        *
-	// 			                        *  \note On some microcontroller models, there is an embedded serial number
-	// 			                        *        in the chip which can be used for the device serial number.
-	// 			                        *        To use this serial number, set this to \c USE_INTERNAL_SERIAL.
-	// 			                        *        On unsupported devices, this will evaluate to \ref NO_DESCRIPTOR
-	// 			                        *        and will cause the host to generate a pseudo-unique value for the
-	// 			                        *        device upon insertion.
-	// 			                        *
-	// 			                        *  \see \c ManufacturerStrIndex structure entry.
-	// 			                        */
-	// 			uint8_t  bNumConfigurations; /**< Total number of configurations supported by
-	// 			                              *   the device.
-	// 			                              */
-	// 		} ATTR_PACKED USB_StdDescriptor_Device_t;
 
 	// 		/** \brief Standard USB Device Qualifier Descriptor (LUFA naming conventions).
 	// 		 *
@@ -627,42 +554,38 @@
 	// 			                     */
 	// 		} ATTR_PACKED USB_StdDescriptor_Endpoint_t;
 
-	// 		/** \brief Standard USB String Descriptor (LUFA naming conventions).
-	// 		 *
-	// 		 *  Type define for a standard string descriptor. Unlike other standard descriptors, the length
-	// 		 *  of the descriptor for placement in the descriptor header must be determined by the \ref USB_STRING_LEN()
-	// 		 *  macro rather than by the size of the descriptor structure, as the length is not fixed.
-	// 		 *
-	// 		 *  This structure should also be used for string index 0, which contains the supported language IDs for
-	// 		 *  the device as an array.
-	// 		 *
-	// 		 *  This structure uses LUFA-specific element names to make each element's purpose clearer.
-	// 		 *
-	// 		 *  \see \ref USB_StdDescriptor_String_t for the version of this type with standard element names.
-	// 		 *
-	// 		 *  \note Regardless of CPU architecture, these values should be stored as little endian.
-	// 		 */
-	// 		typedef struct
-	// 		{
-	// 			USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
+			/** \brief Standard USB String Descriptor (LUFA naming conventions).
+			 *
+			 *  Type define for a standard string descriptor. Unlike other standard descriptors, the length
+			 *  of the descriptor for placement in the descriptor header must be determined by the \ref USB_STRING_LEN()
+			 *  macro rather than by the size of the descriptor structure, as the length is not fixed.
+			 *
+			 *  This structure should also be used for string index 0, which contains the supported language IDs for
+			 *  the device as an array.
+			 *
+			 *  This structure uses LUFA-specific element names to make each element's purpose clearer.
+			 *
+			 *  \see \ref USB_StdDescriptor_String_t for the version of this type with standard element names.
+			 *
+			 *  \note Regardless of CPU architecture, these values should be stored as little endian.
+			 */
+			typedef struct
+			{
+				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
-	// 			#if (((ARCH == ARCH_AVR8) || (ARCH == ARCH_XMEGA)) && !defined(__DOXYGEN__))
-	// 			wchar_t  UnicodeString[];
-	// 			#else
-	// 			uint16_t UnicodeString[]; /**< String data, as unicode characters (alternatively,
-	// 			                           *   string language IDs). If normal ASCII characters are
-	// 			                           *   to be used, they must be added as an array of characters
-	// 			                           *   rather than a normal C string so that they are widened to
-	// 			                           *   Unicode size.
-	// 			                           *
-	// 			                           *   Under GCC, strings prefixed with the "L" character (before
-	// 			                           *   the opening string quotation mark) are considered to be
-	// 			                           *   Unicode strings, and may be used instead of an explicit
-	// 			                           *   array of ASCII characters on little endian devices with
-	// 			                           *   UTF-16-LE \c wchar_t encoding.
-	// 			                           */
-	// 			#endif
-	// 		} ATTR_PACKED USB_Descriptor_String_t;
+				uint16_t UnicodeString[]; /**< String data, as unicode characters (alternatively,
+				                           *   string language IDs). If normal ASCII characters are
+				                           *   to be used, they must be added as an array of characters
+				                           *   rather than a normal C string so that they are widened to
+				                           *   Unicode size.
+				                           *
+				                           *   Under GCC, strings prefixed with the "L" character (before
+				                           *   the opening string quotation mark) are considered to be
+				                           *   Unicode strings, and may be used instead of an explicit
+				                           *   array of ASCII characters on little endian devices with
+				                           *   UTF-16-LE \c wchar_t encoding.
+				                           */
+			} USB_Descriptor_String_t;
 
 	// 		/** \brief Standard USB String Descriptor (USB-IF naming conventions).
 	// 		 *

@@ -97,33 +97,28 @@ void USB_EP0_SETUP(){
                         if(UsbSetupBuf->wValueL == 0)
                         {
                             pDescr = LangDes;
-                            len = LangDesLen;
                         }
                         else if(UsbSetupBuf->wValueL == 1)
                         {
                             pDescr = (__code uint8_t *)Manuf_Des;
-                            len = Manuf_DesLen;
                         }
                         else if(UsbSetupBuf->wValueL == 2)
                         {
                             pDescr = (__code uint8_t *)Prod_Des;
-                            len = Prod_DesLen;
                         }
                         else if(UsbSetupBuf->wValueL == 3)
                         {
                             pDescr = (__code uint8_t *)SerDes;
-                            len = SerDesLen;
                         }
                         else if(UsbSetupBuf->wValueL == 4)
                         {
                             pDescr = (__code uint8_t *)CDC_Des;
-                            len = CDC_DesLen;
                         }
                         else
                         {
                             pDescr = (__code uint8_t *)SerDes;
-                            len = SerDesLen;
                         }
+                        len = pDescr[0];
                         break;
                     default:
                         len = 0xff;                                                // Unsupported descriptors or error
