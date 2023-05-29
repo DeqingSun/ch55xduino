@@ -86,12 +86,12 @@ void USB_EP0_SETUP(){
                     switch(UsbSetupBuf->wValueH)
                 {
                     case 1:                                                       //Device Descriptor
-                        pDescr = (__code uint8_t *)DevDesc;                                         //Put Device Descriptor into outgoing buffer
+                        pDescr = (__code uint8_t *)DeviceDescriptor;                                         //Put Device Descriptor into outgoing buffer
                         len = sizeof(USB_Descriptor_Device_t);
                         break;
                     case 2:                                                        //Configure Descriptor
-                        pDescr = CfgDesc;                                       
-                        len = CfgDescLen;
+                        pDescr = (__code uint8_t *)ConfigurationDescriptor;                                       
+                        len = sizeof(USB_Descriptor_Configuration_t);
                         break;
                     case 3:
                         if(UsbSetupBuf->wValueL == 0)
@@ -159,7 +159,7 @@ void USB_EP0_SETUP(){
                     {
                         if( ( ( ( uint16_t )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x01 )
                         {
-                            if( CfgDesc[ 7 ] & 0x20 )
+                            if( ConfigurationDescriptor.Config.ConfigAttributes & 0x20 )
                             {
                                 // wake up
                             }
@@ -216,7 +216,7 @@ void USB_EP0_SETUP(){
                     {
                         if( ( ( ( uint16_t )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x01 )
                         {
-                            if( CfgDesc[ 7 ] & 0x20 )
+                            if( ConfigurationDescriptor.Config.ConfigAttributes & 0x20 )
                             {
                                 // suspend
 
