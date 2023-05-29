@@ -155,22 +155,22 @@ __code USB_Descriptor_Configuration_t ConfigurationDescriptor =
 };
 
 //String Descriptors
-__code uint8_t LangDes[]={0x04,0x03,0x09,0x04};           //Language Descriptor
-__code uint16_t SerDes[]={                                 //Serial String Descriptor
+__code uint8_t LanguageDescriptor[]={0x04,0x03,0x09,0x04};           //Language Descriptor
+__code uint16_t SerialDescriptor[]={                                 //Serial String Descriptor
     (((5+1)*2)|(DTYPE_String<<8)),
     'C','H','5','5','x',
 };
-__code uint16_t Prod_Des[]={                                //Produce String Descriptor
+__code uint16_t ProductDescriptor[]={                                //Produce String Descriptor
     (((10+1)*2)|(DTYPE_String<<8)),
     'C','H','5','5','x','d','u','i','n','o',
 };
 
-__code uint16_t CDC_Des[]={
+__code uint16_t CDCDescriptor[]={
     (((10+1)*2)|(DTYPE_String<<8)),
     'C','D','C',' ','S','e','r','i','a','l',
 };
 
-__code uint16_t Manuf_Des[]={    //SDCC is little endian
+__code uint16_t ManufacturerDescriptor[]={    //SDCC is little endian
     (((6+1)*2)|(DTYPE_String<<8)),
     'D','e','q','i','n','g',
 };

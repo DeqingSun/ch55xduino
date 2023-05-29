@@ -96,27 +96,27 @@ void USB_EP0_SETUP(){
                     case 3:
                         if(UsbSetupBuf->wValueL == 0)
                         {
-                            pDescr = LangDes;
+                            pDescr = LanguageDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 1)
                         {
-                            pDescr = (__code uint8_t *)Manuf_Des;
+                            pDescr = (__code uint8_t *)ManufacturerDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 2)
                         {
-                            pDescr = (__code uint8_t *)Prod_Des;
+                            pDescr = (__code uint8_t *)ProductDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 3)
                         {
-                            pDescr = (__code uint8_t *)SerDes;
+                            pDescr = (__code uint8_t *)SerialDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 4)
                         {
-                            pDescr = (__code uint8_t *)CDC_Des;
+                            pDescr = (__code uint8_t *)CDCDescriptor;
                         }
                         else
                         {
-                            pDescr = (__code uint8_t *)SerDes;
+                            pDescr = (__code uint8_t *)SerialDescriptor;
                         }
                         len = pDescr[0];
                         break;
