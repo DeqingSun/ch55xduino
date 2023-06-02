@@ -1,3 +1,7 @@
+/*
+ created by Deqing Sun for use with CH55xduino
+ */
+
 #include "USBhandler.h"
 
 #include "USBconstant.h"
@@ -22,9 +26,7 @@ __data uint16_t SetupLen;
 __data uint8_t SetupReq;
 volatile __xdata uint8_t UsbConfig;
 
-__code uint8_t *pDescr;
-
-volatile __data uint8_t usbMsgFlags=0;    // uint8_t usbMsgFlags copied from VUSB
+__code uint8_t * __data pDescr;
 
 inline void NOP_Process(void) {}
 
@@ -35,7 +37,6 @@ void USB_EP0_SETUP(){
         SetupLen = ((uint16_t)UsbSetupBuf->wLengthH<<8) | (UsbSetupBuf->wLengthL);
         len = 0;                                                      // Default is success and upload 0 length
         SetupReq = UsbSetupBuf->bRequest;
-        usbMsgFlags = 0;
         if ( ( UsbSetupBuf->bRequestType & USB_REQ_TYP_MASK ) != USB_REQ_TYP_STANDARD )//Not standard request
         {
             
@@ -87,44 +88,39 @@ void USB_EP0_SETUP(){
                     switch(UsbSetupBuf->wValueH)
                 {
                     case 1:                                                       //Device Descriptor
-                        pDescr = DevDesc;                                         //Put Device Descriptor into outgoing buffer
-                        len = DevDescLen;
+                        pDescr = (__code uint8_t *)DeviceDescriptor;                                         //Put Device Descriptor into outgoing buffer
+                        len = sizeof(USB_Descriptor_Device_t);
                         break;
                     case 2:                                                        //Configure Descriptor
-                        pDescr = CfgDesc;                                       
-                        len = CfgDescLen;
+                        pDescr = (__code uint8_t *)ConfigurationDescriptor;                                       
+                        len = sizeof(USB_Descriptor_Configuration_t);
                         break;
                     case 3:
                         if(UsbSetupBuf->wValueL == 0)
                         {
-                            pDescr = LangDes;
-                            len = LangDesLen;
+                            pDescr = LanguageDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 1)
                         {
-                            pDescr = (__code uint8_t *)Manuf_Des;
-                            len = Manuf_DesLen;
+                            pDescr = (__code uint8_t *)ManufacturerDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 2)
                         {
-                            pDescr = (__code uint8_t *)Prod_Des;
-                            len = Prod_DesLen;
+                            pDescr = (__code uint8_t *)ProductDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 3)
                         {
-                            pDescr = (__code uint8_t *)SerDes;
-                            len = SerDesLen;
+                            pDescr = (__code uint8_t *)SerialDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 4)
                         {
-                            pDescr = (__code uint8_t *)CDC_Des;
-                            len = CDC_DesLen;
+                            pDescr = (__code uint8_t *)CDCDescriptor;
                         }
                         else
                         {
-                            pDescr = (__code uint8_t *)SerDes;
-                            len = SerDesLen;
+                            pDescr = (__code uint8_t *)SerialDescriptor;
                         }
+                        len = pDescr[0];
                         break;
                     default:
                         len = 0xff;                                                // Unsupported descriptors or error
@@ -165,7 +161,7 @@ void USB_EP0_SETUP(){
                     {
                         if( ( ( ( uint16_t )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x01 )
                         {
-                            if( CfgDesc[ 7 ] & 0x20 )
+                            if( ConfigurationDescriptor.Config.ConfigAttributes & 0x20 )
                             {
                                 // wake up
                             }
@@ -222,7 +218,7 @@ void USB_EP0_SETUP(){
                     {
                         if( ( ( ( uint16_t )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x01 )
                         {
-                            if( CfgDesc[ 7 ] & 0x20 )
+                            if( ConfigurationDescriptor.Config.ConfigAttributes & 0x20 )
                             {
                                 // suspend
 
@@ -485,6 +481,7 @@ void USBDeviceCfg()
     //     UDEV_CTRL |= bUD_LOW_SPEED;                                                //Run for 1.5M
     USB_CTRL &= ~bUC_LOW_SPEED;
     UDEV_CTRL &= ~bUD_LOW_SPEED;                                             //Select full speed 12M mode, default mode
+
 #if defined(CH551) || defined(CH552) || defined(CH549)
     UDEV_CTRL = bUD_PD_DIS;                                                     // Disable DP/DM pull-down resistor
 #endif

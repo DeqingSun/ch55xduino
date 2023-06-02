@@ -1,3 +1,7 @@
+/*
+ created by Deqing Sun for use with CH55xduino
+ */
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "include/ch5xx.h"
@@ -88,12 +92,22 @@ void setControlLineStateHandler(){
     
 }
 
+uint8_t USBSerial_wait_UpPoint2BusyFlag_clear(){
+    __data uint16_t waitWriteCount = 0;
+    while (UpPoint2BusyFlag){//wait for 250ms or give up, on my mac it takes about 256us
+        waitWriteCount++;
+        delayMicroseconds(5);
+        if (waitWriteCount>=50000) return 0;
+    }
+    return 1;
+}
+
 bool USBSerial(){
     __data bool result = false;
-	if (controlLineState > 0) 
-		result = true;
-	//delay(10); not doing it for now
-	return result;
+    if (controlLineState > 0)
+        result = true;
+    //delay(10); not doing it for now
+    return result;
 }
 
 
@@ -102,20 +116,22 @@ void USBSerial_flush(void){
         UEP2_T_LEN = usbWritePointer;                                                   
         UEP2_CTRL = UEP2_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;            //Respond ACK
         UpPoint2BusyFlag = 1;
+        
+        if (usbWritePointer == MAX_PACKET_SIZE){    //write empty packet for end transmission. Needed for windows.
+            if (USBSerial_wait_UpPoint2BusyFlag_clear()){
+                UEP2_T_LEN = 0;
+                UEP2_CTRL = UEP2_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;            //Respond ACK
+                UpPoint2BusyFlag = 1;
+            }
+        }
         usbWritePointer = 0;
     }
 }
 
 uint8_t USBSerial_write(__data char c){  //3 bytes generic pointer
-    __data uint16_t waitWriteCount;
     if (controlLineState > 0) {
         while (true){
-            waitWriteCount = 0;
-            while (UpPoint2BusyFlag){//wait for 250ms or give up, on my mac it takes about 256us
-                waitWriteCount++;
-                delayMicroseconds(5);
-                if (waitWriteCount>=50000) return 0;
-            }
+            if (USBSerial_wait_UpPoint2BusyFlag_clear()==0) return 0;
             if (usbWritePointer<MAX_PACKET_SIZE){
                 Ep2Buffer[MAX_PACKET_SIZE+usbWritePointer] = c;
                 usbWritePointer++;
@@ -129,15 +145,9 @@ uint8_t USBSerial_write(__data char c){  //3 bytes generic pointer
 }
 
 uint8_t USBSerial_print_n(uint8_t * __xdata buf, __xdata int len){  //3 bytes generic pointer, not using USBSerial_write for a bit efficiency
-    __data uint16_t waitWriteCount;
     if (controlLineState > 0) {
         while (len>0){
-            waitWriteCount = 0;
-            while (UpPoint2BusyFlag){//wait for 250ms or give up, on my mac it takes about 256us
-                waitWriteCount++;
-                delayMicroseconds(5);   
-                if (waitWriteCount>=50000) return 0;
-            }
+            if (USBSerial_wait_UpPoint2BusyFlag_clear()==0) return 0;
             while (len>0){
                 if (usbWritePointer<MAX_PACKET_SIZE){
                     Ep2Buffer[MAX_PACKET_SIZE+usbWritePointer] = *buf++;
@@ -182,4 +192,3 @@ void USB_EP2_OUT(){
         if (USBByteCountEP2)    UEP2_CTRL = UEP2_CTRL & ~ MASK_UEP_R_RES | UEP_R_RES_NAK;       //Respond NAK after a packet. Let main code change response after handling.
     }
 }
-
