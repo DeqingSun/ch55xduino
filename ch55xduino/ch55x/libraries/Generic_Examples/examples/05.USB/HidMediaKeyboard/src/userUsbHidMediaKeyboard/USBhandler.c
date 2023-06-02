@@ -1,3 +1,7 @@
+/*
+ created by Deqing Sun for use with CH55xduino
+ */
+
 #include "USBhandler.h"
 
 #include "USBconstant.h"
@@ -18,7 +22,7 @@ __data uint16_t SetupLen;
 __data uint8_t SetupReq;
 volatile __xdata uint8_t UsbConfig;
 
-__code uint8_t *pDescr;
+__code uint8_t * __data pDescr;
 
 volatile uint8_t usbMsgFlags=0;    // uint8_t usbMsgFlags copied from VUSB
 
@@ -74,43 +78,41 @@ void USB_EP0_SETUP(){
                     switch(UsbSetupBuf->wValueH)
                 {
                     case 1:                                                       //Device Descriptor
-                        pDescr = DevDesc;                                         //Put Device Descriptor into outgoing buffer
-                        len = DevDescLen;
+                        pDescr = (__code uint8_t *)DeviceDescriptor;                                         //Put Device Descriptor into outgoing buffer
+                        len = sizeof(USB_Descriptor_Device_t);
                         break;
                     case 2:                                                        //Configure Descriptor
-                        pDescr = CfgDesc;                                       
-                        len = CfgDescLen;
+                        pDescr = (__code uint8_t *)ConfigurationDescriptor;                                       
+                        len = sizeof(USB_Descriptor_Configuration_t);
                         break;
                     case 3:
                         if(UsbSetupBuf->wValueL == 0)
                         {
-                            pDescr = LangDes;
-                            len = LangDesLen;
+                            pDescr = LanguageDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 1)
                         {
-                            pDescr = Manuf_Des;
-                            len = Manuf_DesLen;
+                            pDescr = (__code uint8_t *)ManufacturerDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 2)
                         {
-                            pDescr = Prod_Des;
-                            len = Prod_DesLen;
+                            pDescr = (__code uint8_t *)ProductDescriptor;
                         }
                         else if(UsbSetupBuf->wValueL == 3)
                         {
-                            pDescr = SerDes;
-                            len = SerDesLen;
+                            pDescr = (__code uint8_t *)SerialDescriptor;
                         }
                         else
                         {
-                            len = 0xff;  
+                            len = 0xff;
+                            break;
                         }
+                        len = pDescr[0];
                         break;
                      case 0x22:
                         if(UsbSetupBuf->wValueL == 0){
-                            pDescr = ReportDesc;
-                            len = ReportDescLen;
+                            pDescr = (__code uint8_t *)ReportDescriptor;
+                            len = ConfigurationDescriptor.HID_KeyboardHID.HIDReportLength;
                         }
                         else
                         {
@@ -156,7 +158,7 @@ void USB_EP0_SETUP(){
                     {
                         if( ( ( ( uint16_t )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x01 )
                         {
-                            if( CfgDesc[ 7 ] & 0x20 )
+                            if( ConfigurationDescriptor.Config.ConfigAttributes & 0x20 )
                             {
                                 // wake up
                             }
@@ -213,7 +215,7 @@ void USB_EP0_SETUP(){
                     {
                         if( ( ( ( uint16_t )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x01 )
                         {
-                            if( CfgDesc[ 7 ] & 0x20 )
+                            if( ConfigurationDescriptor.Config.ConfigAttributes & 0x20 )
                             {
                                 // suspend
 
@@ -482,9 +484,18 @@ void USBDeviceIntCfg()
 
 void USBDeviceEndPointCfg()
 {
-    UEP1_DMA = (uint16_t) Ep1Buffer;                                                      //Endpoint 1 data transfer address
-    UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;        //Endpoint 2 automatically flips the sync flag, IN transaction returns NAK, OUT returns ACK
+#if defined(CH559)
+    //CH559 use differend endianness for these registers
+    UEP0_DMA_H = ((uint16_t)Ep0Buffer >> 8);                                                      //Endpoint 0 data transfer address
+    UEP0_DMA_L = ((uint16_t)Ep0Buffer >> 0);                                                      //Endpoint 0 data transfer address
+    UEP1_DMA_H = ((uint16_t)Ep1Buffer >> 8);                                                      //Endpoint 1 data transfer address
+    UEP1_DMA_L = ((uint16_t)Ep1Buffer >> 0);                                                      //Endpoint 1 data transfer address
+#else
     UEP0_DMA = (uint16_t) Ep0Buffer;                                                      //Endpoint 0 data transfer address
+    UEP1_DMA = (uint16_t) Ep1Buffer;                                                      //Endpoint 1 data transfer address
+#endif
+
+    UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;        //Endpoint 2 automatically flips the sync flag, IN transaction returns NAK, OUT returns ACK
     UEP4_1_MOD = 0XC0;                                                         //endpoint1 TX RX enable
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;                //Manual flip, OUT transaction returns ACK, IN transaction returns NAK
 }
