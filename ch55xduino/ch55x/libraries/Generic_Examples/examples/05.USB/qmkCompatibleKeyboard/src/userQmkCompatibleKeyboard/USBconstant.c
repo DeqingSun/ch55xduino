@@ -2,37 +2,145 @@
 #include "../../keyboardConfig.h"
 
 //Device descriptor
-__code uint8_t DevDesc[] = {
-    0x12,0x01,
-    0x10,0x01,  //USB spec release number in BCD format, USB1.1 (0x10, 0x01).
-    0x00,0x00,0x00, //bDeviceClass, bDeviceSubClass, bDeviceProtocol 
-    DEFAULT_ENDP0_SIZE, //bNumConfigurations
-    (USB_VID)&0xFF,((USB_VID)>>8)&0xFF,(USB_PID)&0xFF,((USB_PID)>>8)&0xFF, // VID PID 
-    0x00,0x01,  //version
-    0x01,0x02,0x03, //bString
-    0x01    //bNumConfigurations
+__code USB_Descriptor_Device_t DeviceDescriptor = {
+    .Header                 = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
+
+	.USBSpecification       = VERSION_BCD(1,1,0),
+	.Class                  = 0x00,
+	.SubClass               = 0x00,
+	.Protocol               = 0x00,
+
+	.Endpoint0Size          = DEFAULT_ENDP0_SIZE,
+
+	.VendorID               = USB_VID,
+	.ProductID              = USB_PID,
+	.ReleaseNumber          = VERSION_BCD(0,0,1),
+
+	.ManufacturerStrIndex   = 1,
+	.ProductStrIndex        = 2,
+	.SerialNumStrIndex      = 3,
+
+	.NumberOfConfigurations = 1
 };
 
-__code uint16_t DevDescLen = sizeof(DevDesc);
+/** Configuration descriptor structure. This descriptor, located in FLASH memory, describes the usage
+ *  of the device in one of its supported configurations, including information about any device interfaces
+ *  and endpoints. The descriptor is read out by the USB host during the enumeration process when selecting
+ *  a configuration so that the host may correctly communicate with the USB device.
+ */
+__code USB_Descriptor_Configuration_t ConfigurationDescriptor =
+{
+	.Config =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
 
-__code uint8_t CfgDesc[] ={
-    0x09,0x02,sizeof(CfgDesc) & 0xff,sizeof(CfgDesc) >> 8,
-    0x02,0x01,0x00,0x80,0x64,             //Configuration descriptor (2 interface)
-    // Interface 1 (HID) descriptor
-    0x09,0x04,0x00,0x00,0x02,0x03,0x01,0x01,0x00,    // HID Keyboard, 2 endpoints
-    0x09,0x21,0x10,0x01,0x21,0x01,0x22,sizeof(ReportDesc) & 0xff,sizeof(ReportDesc) >> 8,    //HID Descriptor
-    0x07,0x05,0x01,0x03,0x09,0x00,0x0A,                       //endpoint descriptor
-    0x07,0x05,0x81,0x03,0x09,0x00,0x0A,                       //endpoint descriptor
-    // Interface 2 (RAWHID) descriptor
-    0x09,0x04,0x01,0x00,0x02,0x03,0x00,0x00,0x00,    // RawHID, 2 endpoints
-    0x09,0x21,0x10,0x01,0x00,0x01,0x22,sizeof(RawHIDReportDesc) & 0xff,sizeof(RawHIDReportDesc) >> 8,    //HID Descriptor
-    0x07,0x05,0x02,0x03,0x20,0x00,0x08,                       //endpoint descriptor, len=7, endpoint, ep1out, interrupt, 32byte, interval(8ms)
-    0x07,0x05,0x82,0x03,0x20,0x00,0x08,                       //endpoint descriptor, len=7, endpoint, ep1in, interrupt, 32byte, interval(8ms)
+			.TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
+			.TotalInterfaces        = 2,
+
+			.ConfigurationNumber    = 1,
+			.ConfigurationStrIndex  = NO_DESCRIPTOR,
+
+			.ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED),
+
+			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(200)
+		},
+
+	.HID_Interface =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+
+			.InterfaceNumber        = 0,
+			.AlternateSetting       = 0x00,
+
+			.TotalEndpoints         = 2,
+
+			.Class                  = HID_CSCP_HIDClass,
+			.SubClass               = HID_CSCP_BootSubclass,
+			.Protocol               = HID_CSCP_KeyboardBootProtocol,
+
+			.InterfaceStrIndex      = NO_DESCRIPTOR
+		},
+
+	.HID_KeyboardHID =
+		{
+			.Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
+
+			.HIDSpec                = VERSION_BCD(1,1,0),
+			.CountryCode            = 0x00,
+			.TotalReportDescriptors = 1,
+			.HIDReportType          = HID_DTYPE_Report,
+			.HIDReportLength        = sizeof(ReportDescriptor)
+		},
+
+	.HID_ReportINEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = KEYBOARD_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = KEYBOARD_MOUSE_EPSIZE,
+			.PollingIntervalMS      = 10
+		},
+    
+	.HID_ReportOUTEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = KEYBOARD_LED_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = KEYBOARD_MOUSE_EPSIZE,
+			.PollingIntervalMS      = 10
+		},
+    
+    .HID_RawInterface =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+
+			.InterfaceNumber        = 1,
+			.AlternateSetting       = 0x00,
+
+			.TotalEndpoints         = 2,
+
+			.Class                  = HID_CSCP_HIDClass,
+			.SubClass               = HID_CSCP_NonBootSubclass,
+			.Protocol               = HID_CSCP_NonBootProtocol,
+
+			.InterfaceStrIndex      = NO_DESCRIPTOR
+		},
+
+	.HID_RawDescriptor =
+		{
+			.Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
+
+			.HIDSpec                = VERSION_BCD(1,1,0),
+			.CountryCode            = 0x00,
+			.TotalReportDescriptors = 1,
+			.HIDReportType          = HID_DTYPE_Report,
+			.HIDReportLength        = sizeof(RawHIDReportDescriptor)
+		},
+
+	.HID_RawReportINEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = RAW_IN_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = RAW_EPSIZE,
+			.PollingIntervalMS      = 8
+		},
+    
+	.HID_RawReportOUTEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = RAW_OUT_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = RAW_EPSIZE,
+			.PollingIntervalMS      = 8
+		},
 };
 
-__code uint16_t ReportDescLen = sizeof(ReportDesc);
-
-__code uint8_t ReportDesc[] ={
+__code uint8_t ReportDescriptor[] ={
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
     0x09, 0x06,                    // USAGE (Keyboard)
     0xa1, 0x01,                    // COLLECTION (Application)
@@ -100,9 +208,7 @@ __code uint8_t ReportDesc[] ={
     // //todo: add media control
 };
 
-__code uint16_t RawHIDReportDescLen = sizeof(RawHIDReportDesc);
-
-__code uint8_t RawHIDReportDesc[] ={
+__code uint8_t RawHIDReportDescriptor[] ={
     // // RAW HID need more check
     0x06, 0x60, 0xFF,               //todo: clean up https://github.com/qmk/qmk_firmware/blob/a4771e4fe4479869a997b130c1435ee072cbc2fa/tmk_core/protocol/vusb/vusb.c#L664
     0x09, 0x61,
@@ -125,25 +231,17 @@ __code uint8_t RawHIDReportDesc[] ={
 
 };
 
-__code uint16_t CfgDescLen = sizeof(CfgDesc);
-
 //String Descriptors
-__code uint8_t LangDes[]={0x04,0x03,0x09,0x04};           //Language Descriptor
-__code uint16_t LangDesLen = sizeof(LangDes);
-__code uint8_t SerDes[]={                                 //Serial String Descriptor
-    0x1c,0x03,
-    'C',0x00,'H',0x00,'5',0x00,'5',0x00,'x',0x00,' ',0x00,'q',0x00,'m',0x00,'k',0x00,' ',0x00,'k',0x00,'b',0x00,'d',0x00
+__code uint8_t LanguageDescriptor[]={0x04,0x03,0x09,0x04};           //Language Descriptor
+__code uint16_t SerialDescriptor[]={                                 //Serial String Descriptor
+    (((13+1)*2)|(DTYPE_String<<8)),
+    'C','H','5','5','x',' ','q','m','k',' ','k','b','d',
 };
-__code uint16_t SerDesLen = sizeof(SerDes);
-__code uint8_t Prod_Des[]={                                //Produce String Descriptor
-    0x26,0x03,
-    'C',0x00,'H',0x00,'5',0x00,'5',0x00,'x',0x00,'d',0x00,
-    'u',0x00,'i',0x00,'n',0x00,'o',0x00,' ',0x00,'q',0x00,'m',0x00,'k',0x00,' ',0x00,'k',0x00,'b',0x00,'d',0x00
+__code uint16_t ProductDescriptor[]={                                //Produce String Descriptor
+    (((18+1)*2)|(DTYPE_String<<8)),
+    'C','H','5','5','x','d','u','i','n','o',' ','q','m','k',' ','k','b','d',
 };
-__code uint16_t Prod_DesLen = sizeof(Prod_Des);
-
-__code uint8_t Manuf_Des[]={
-    0x0E,0x03,
-    'D',0x00,'e',0x00,'q',0x00,'i',0x00,'n',0x00,'g',0x00,
+__code uint16_t ManufacturerDescriptor[]={    //SDCC is little endian
+    (((6+1)*2)|(DTYPE_String<<8)),
+    'D','e','q','i','n','g',
 };
-__code uint16_t Manuf_DesLen = sizeof(Manuf_Des);
