@@ -86,6 +86,7 @@ void USB_EP0_SETUP(){
                         len = sizeof(USB_Descriptor_Configuration_t);
                         break;
                     case 3:
+                        OS_detect_process_wlength(SetupLen);
                         if(UsbSetupBuf->wValueL == 0)
                         {
                             pDescr = LanguageDescriptor;
