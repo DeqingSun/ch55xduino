@@ -116,7 +116,8 @@ void USB_EP0_SETUP(){
                         }
                         else
                         {
-                            pDescr = (__code uint8_t *)SerialDescriptor;
+                            len = 0xff;
+                            break;
                         }
                         len = pDescr[0];
                         break;
