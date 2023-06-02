@@ -58,8 +58,4 @@ extern __code uint16_t ProductDescriptor[];
 extern __code uint16_t CDCDescriptor[];
 extern __code uint16_t ManufacturerDescriptor[];
 
-
-
-extern __code uint16_t CfgDescLen;
-
 #endif
