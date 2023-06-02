@@ -13,7 +13,7 @@ extern __data uint16_t SetupLen;
 extern __data uint8_t SetupReq;
 volatile extern __xdata uint8_t UsbConfig;
 
-extern const __code uint8_t *pDescr;
+extern const __code uint8_t * __data pDescr;
 
 void USB_EP1_IN();
 void USB_EP1_OUT();
@@ -48,18 +48,10 @@ void USB_EP1_OUT();
 #define EP3_SETUP_Callback NOP_Process
 #define EP4_SETUP_Callback NOP_Process
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void USBInterrupt(void);
 void USBDeviceCfg();
 void USBDeviceIntCfg();
 void USBDeviceEndPointCfg();
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 #endif
 
