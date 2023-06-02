@@ -142,7 +142,7 @@ tools.vnproch55x_usb.path.macosx={runtime.tools.MCS51Tools.path}/macosx
 
 tools.vnproch55x_usb.upload.params.verbose=
 tools.vnproch55x_usb.upload.params.quiet=
-tools.vnproch55x_usb.upload.pattern="{path}/{cmd}" -r 2 "{build.path}/{build.project_name}.hex"
+tools.vnproch55x_usb.upload.pattern="{path}/{cmd}" -r 2 -t {build.mcu} "{build.path}/{build.project_name}.hex"
 
 # ----
 
@@ -153,5 +153,5 @@ tools.vnproch55x_serial.path.macosx={runtime.tools.MCS51Tools.path}/macosx
 
 tools.vnproch55x_serial.upload.params.verbose=
 tools.vnproch55x_serial.upload.params.quiet=
-tools.vnproch55x_serial.upload.pattern="{path}/{cmd}" -s{serial.port} "{build.path}/{build.project_name}.hex"
+tools.vnproch55x_serial.upload.pattern="{path}/{cmd}" -s {serial.port} -t {build.mcu} "{build.path}/{build.project_name}.hex"
 
