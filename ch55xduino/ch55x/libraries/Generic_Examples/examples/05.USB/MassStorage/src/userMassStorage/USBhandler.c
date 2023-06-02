@@ -430,6 +430,8 @@ void USBInterrupt(void) {   //inline not really working in multiple files in SDC
         UIF_SUSPEND = 0;
         UIF_TRANSFER = 0;
         UIF_BUS_RST = 0;                                                        // Clear interrupt flag
+    
+        UsbConfig = 0;
     }
     
     // USB bus suspend / wake up
