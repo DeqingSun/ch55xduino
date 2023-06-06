@@ -445,6 +445,117 @@ __asm__ (
              "    addc a, r5                               \n"
              
              );
+#elif F_CPU == 6000000
+    // 6M CLK
+
+    /*1m = 250t 1t=2us (m*250+t)*2
+
+     t=(t<<1);
+     m=m<<8 + m*244;
+
+     return ( m+t );*/
+
+    // assembly has better support for multiplication
+
+    __asm__(
+        ";1m = 250t 1t=1us (m*250+t)    t is 0~249    \n"
+        ";we need to return m*250+t                   \n"
+
+        ";t=t<<1;                                     \n"
+        "    mov a, r4                                \n"
+        "    clr c                                    \n"
+        "    rl a                                    \n"
+        "    mov r4, a                                \n"
+
+        ";m=m*244;                                    \n"
+        "    mov a, r0                                \n"
+        "    mov r6, a                                \n"
+        "    mov a, r1                                \n"
+        "    mov r7, a                                \n"
+        "    push ar3                                 \n"
+        "    push ar2                                 \n"
+
+        "    mov b, #244                              \n"
+        "    mov a, r0                                \n"
+        "    mul ab                                   \n"
+        "    mov r0, a                                \n"
+        "    mov r5, b                                \n"
+
+        "    mov b, #244                              \n"
+        "    mov a, r1                                \n"
+        "    mul ab                                   \n"
+        "    add a, r5                                \n"
+        "    mov r1, a                                \n"
+        "    clr a                                    \n"
+        "    addc a, b                                \n"
+        "    mov r5, a                                \n"
+
+        "    mov b, #244                              \n"
+        "    mov a, r2                                \n"
+        "    mul ab                                   \n"
+        "    add a, r5                                \n"
+        "    mov r2, a                                \n"
+        "    clr a                                    \n"
+        "    addc a, b                                \n"
+        "    mov r5, a                                \n"
+
+        "    mov b, #244                              \n"
+        "    mov a, r3                                \n"
+        "    mul ab                                   \n"
+        "    add a, r5                                \n"
+        "    mov r3, a                                \n"
+        "    clr a                                    \n"
+        "    addc a, b                                \n"
+        "    mov r5, a                                \n"
+
+        ";m=m+m<<8;                                   \n"
+
+        "    mov a, r6                                \n"
+        "    add a, r1                                \n"
+        "    mov r1, a                                \n"
+        "    mov a, r7                                \n"
+        "    addc a, r2                               \n"
+        "    mov r2, a                                \n"
+        "    pop a                                    \n"
+        "    addc a, r3                               \n"
+        "    mov r3, a                                \n"
+        "    pop a                                    \n"
+        "    addc a, r5                               \n"
+        "    mov r5, a                                \n"
+
+        ";get m+t                                     \n"
+        "    mov r7, #0                               \n"
+        "    mov a, r4                                \n"
+        "    add a, r0                                \n"
+        "    mov r0, a                                \n"
+        "    mov a, r6                                \n"
+        "    addc a, r1                               \n"
+        "    mov r1, a                                \n"
+        "    mov a, r7                                \n"
+        "    addc a, r2                               \n"
+        "    mov r2, a                                \n"
+        "    mov a, r7                                \n"
+        "    addc a, r3                               \n"
+        "    mov r3, a                                \n"
+        "    mov a, r7                                \n"
+        "    addc a, r5                               \n"
+        "    mov r5, a                                \n"
+
+        ";return m+t                                  \n"
+        "    mov r5, #0                               \n"
+        "    mov a, r4                                \n"
+        "    add a, r0                                \n"
+        "    mov dpl, a                               \n"
+        "    mov a, r1                                \n"
+        "    addc a, r5                               \n"
+        "    mov dph, a                               \n"
+        "    mov a, r2                                \n"
+        "    addc a, r5                               \n"
+        "    mov b, a                                 \n"
+        "    mov a, r3                                \n"
+        "    addc a, r5                               \n"
+
+    );
 #else
 #error "clock not supported yet"
 
@@ -707,6 +818,47 @@ uint32_t millis()
              ";calculation finished, a already in place    \n"
              "    mov b, r1                                \n"
              );
+#elif F_CPU == 6000000
+    __asm__(";return timer0_overflow_count>>1             \n"
+            ";Or: return (timer0_overflow_count<<7)>>8    \n"
+            ";Or: return (timer0_overflow_count*128)>>8   \n"
+            "    mov b, #128                              \n"
+            "    mov a, r0                                \n"
+            "    mul ab                                   \n"
+            "    mov r0, b                                \n"
+            ";lowest 8 bit not used (a), r0 free to use   \n"
+            "    mov b, #128                              \n"
+            "    mov a, r1                                \n"
+            "    mul ab                                   \n"
+            "    add a, r0                                \n"
+            ";carry won't be set, if I calculated right   \n"
+            "    mov dpl, a                               \n"
+            "    mov r0, b                                \n"
+
+            "    mov b, #128                              \n"
+            "    mov a, r2                                \n"
+            "    mul ab                                   \n"
+            "    add a, r0                                \n"
+            ";carry won't be set, if I calculated right   \n"
+            "    mov dph, a                               \n"
+            "    mov r0, b                                \n"
+
+            "    mov b, #128                              \n"
+            "    mov a, r3                                \n"
+            "    mul ab                                   \n"
+            "    add a, r0                                \n"
+            ";carry won't be set, if I calculated right   \n"
+            "    mov r1, a                                \n"
+            "    mov r0, b                                \n"
+
+            "    mov b, #128                              \n"
+            "    mov a, r4                                \n"
+            "    mul ab                                   \n"
+            "    add a, r0                                \n"
+            ";carry won't be set, if I calculated right   \n"
+
+            ";calculation finished, a already in place    \n"
+            "    mov b, r1                                \n");
 #else
     #error "clock not supported yet"
 
@@ -715,14 +867,29 @@ uint32_t millis()
 
 void delay(__data uint32_t ms)
 {
+
+#if F_CPU != 6000000
     __data uint32_t start = micros();
-    
-    while (ms > 0) {
-        //yield();
-        while ( ms > 0 && (micros() - start) >= 1000) {
+#endif
+
+    while (ms > 0)
+    {
+#if F_CPU == 6000000
+        ms--;
+        /*
+            Despite the micros() function working,
+            the normal strategy does not work for 6M clock,
+            so we use this instead.
+        */
+        delayMicroseconds(981);
+#else
+        // yield();
+        while (ms > 0 && (micros() - start) >= 1000)
+        {
             ms--;
             start += 1000;
         }
+#endif
     }
 }
 
@@ -898,6 +1065,42 @@ void delayMicroseconds(__data uint16_t us){
              "    cjne r7, #0,loop12m_us_2$            \n"
              "    nop                                  \n"
              );
+#elif F_CPU >= 6000000UL
+    __asm__(".even                                    \n"
+            "    mov  r6, dpl                         \n" // low 8-bit
+            "    mov  r7, dph                         \n" // high 8-bit
+            "    clr  c                               \n"
+            "    mov  a,#0x04                         \n"
+            "    subb a, r6                           \n"
+            "    clr  a                               \n"
+            "    subb a, r7                           \n"
+            "    jc skip_0us$                         \n"
+            "    ret                                  \n" // return if 0 1 2 3 4 us  about 4.5us total
+            "    nop                                  \n"
+            "skip_0us$:                               \n"
+            "    clr c                                \n" // do some loop init, not useful for 5-7us but better here
+            "    mov  a, #0x07                        \n"
+            "    subb a, r6                           \n"
+            "    mov  r6, a                           \n"
+            "    mov  a, #0x00                        \n"
+            "    subb a, r7                           \n"
+            "    mov  r7, a                           \n"
+
+            "    nop                                  \n" // keep even            
+            "    cjne r7,#0x00,loop6m_us$             \n"
+            "    cjne r6,#0x01,skip_5to7us$           \n"
+            "    cjne r6,#0x02,skip_5to7us$           \n"
+            "    cjne r6,#0x00,loop6m_us$             \n"
+            "skip_5to7us$:                            \n"
+            "    nop                                  \n"
+            "    ret                                  \n" // return if 5-7us 
+            // We want to do 6 cycle loops, but the best we can do is 7 cycles
+            "loop6m_us$:                              \n" // need more test
+            "    inc r6                               \n"  // 1 cycle
+            "    cjne r6, #0,loop6m_us$               \n"  // 6 cycle
+            "    inc r7                               \n"  // there will be extra 1 cycles for every 256us
+            "    cjne r7, #0,loop6m_us$               \n"
+            "    nop                                  \n");
 #else
 #error "clock not supported yet"
     
@@ -983,7 +1186,7 @@ void init()
     
     SAFE_MOD = 0x00;
     
-    delayMicroseconds(5000); //needed to stablize internal RC
+    delayMicroseconds(15000); //needed to stablize internal RC
     
 #ifndef USER_USB_RAM
     //init USB
