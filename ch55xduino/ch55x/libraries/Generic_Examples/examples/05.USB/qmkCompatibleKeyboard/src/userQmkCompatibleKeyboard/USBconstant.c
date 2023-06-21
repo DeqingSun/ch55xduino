@@ -204,7 +204,7 @@ __code uint8_t RawHIDReportDescriptor[] = {
     // // RAW HID need more check
     0x06, 0x60,
     0xFF, // todo: clean up
-          // https://github.com/qmk/qmk_firmware/blob/a4771e4fe4479869a997b130c1435ee072cbc2fa/tmk_core/protocol/vusb/vusb.c#L664
+    // https://github.com/qmk/qmk_firmware/blob/a4771e4fe4479869a997b130c1435ee072cbc2fa/tmk_core/protocol/vusb/vusb.c#L664
     0x09, 0x61, 0xa1, 0x01, 0x09, 0x62, 0x15, 0x00, 0x26, 0xFF, 0x00, 0x95,
     32,         // length: 32
     0x75, 0x08, // size: 8
