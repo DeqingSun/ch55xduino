@@ -1,8 +1,10 @@
+// clang-format off
 #include "via.h"
 #include "USBhandler.h"
 #include <Arduino.h>
 #include "../../keyboardConfig.h"
 #include "USBHIDKeyboardMouse.h"
+// clang-format on
 
 enum {
     ID_GET_PROTOCOL_VERSION = 0x01,

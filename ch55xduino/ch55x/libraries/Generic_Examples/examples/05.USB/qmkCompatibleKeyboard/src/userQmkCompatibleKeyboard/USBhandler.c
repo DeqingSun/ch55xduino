@@ -2,17 +2,19 @@
  created by Deqing Sun for use with CH55xduino
  */
 
+// clang-format off
 #include "USBhandler.h"
-
 #include "USBconstant.h"
-
 #include "osDetection.h"
+// clang-format on
 
 //Keyboard functions:
 
-__xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[8];     
-__xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[128];       //on page 47 of data sheet, the receive buffer need to be min(possible packet size+2,64), IN and OUT buffer, must be even address
-__xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[128];
+// clang-format off
+__xdata __at (EP0_ADDR) uint8_t Ep0Buffer[8];     
+__xdata __at (EP1_ADDR) uint8_t Ep1Buffer[128];
+__xdata __at (EP2_ADDR) uint8_t Ep2Buffer[128];
+// clang-format on
 
 #if (EP2_ADDR+128) > USER_USB_RAM
 #error "This example needs more USB ram. Increase this setting in menu."

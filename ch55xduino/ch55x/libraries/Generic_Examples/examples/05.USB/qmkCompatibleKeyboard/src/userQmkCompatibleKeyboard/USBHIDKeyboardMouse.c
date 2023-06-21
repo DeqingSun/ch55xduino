@@ -1,3 +1,4 @@
+// clang-format off
 #include <stdint.h>
 #include <stdbool.h>
 #include "include/ch5xx.h"
@@ -5,10 +6,13 @@
 #include "USBconstant.h"
 #include "USBhandler.h"
 #include "via.h"
+// clang-format on
 
-extern __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[];
-extern __xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[];
-extern __xdata __at (EP2_ADDR) uint8_t  Ep2Buffer[];
+// clang-format off
+extern __xdata __at (EP0_ADDR) uint8_t Ep0Buffer[];
+extern __xdata __at (EP1_ADDR) uint8_t Ep1Buffer[];
+extern __xdata __at (EP2_ADDR) uint8_t Ep2Buffer[];
+// clang-format on
 
 volatile __xdata uint8_t UpPoint1_Busy  = 0;   //Flag of whether upload pointer is busy
 volatile __xdata uint8_t UpPoint2_Busy  = 0;   //Flag of whether upload pointer is busy
