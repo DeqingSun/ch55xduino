@@ -10,7 +10,7 @@
   The keyboard remap protocol is based on the QMK firmware
   The via impelementation is based on the CH552duinoKeyboard from yswallow
 
-  In this example, the CH552 works as 3 key keyboard without matrix scanning. 
+  In this example, the CH552 works as 3 key keyboard without matrix scanning.
   There are 2 layers. If the host system is linux or windows, the first layer is used.
   If the host system is macos or ios, the second layer is used.
   When the dataflash is empty, the default keymap is used. Which is copy, paste and tab.
@@ -66,16 +66,16 @@ void setup() {
         break;
       }
     }
-    if (allConfigFF){
+    if (allConfigFF) {
       //write the default keymap (layer 0: Ctrl-C, Ctrl-V, Tab, layer 1: Cmd-C, Cmd-V, Tab)
-      const uint8_t defaultKeymap[] = {0x01,0x06,0x01,0x19,0x00,0x2B,0x08,0x06,0x08,0x19,0x00,0x2B};
+      const uint8_t defaultKeymap[] = {0x01, 0x06, 0x01, 0x19, 0x00, 0x2B, 0x08, 0x06, 0x08, 0x19, 0x00, 0x2B};
       for (__data uint8_t i = 0; i < dataLength; i++) {
         eeprom_write_byte(i, defaultKeymap[i]);
       }
     }
   }
 
-  { //initialize the keys or matrix. 
+  { //initialize the keys or matrix.
     pinMode(BUTTON1_PIN, INPUT_PULLUP);
     pinMode(BUTTON2_PIN, INPUT_PULLUP);
     pinMode(BUTTON3_PIN, INPUT_PULLUP);
@@ -88,32 +88,32 @@ void loop() {
   via_process();
 
   if ((signed int)(millis() - previousKeyScanMillis) >= 50) { //naive debouncing
-    // scan the keys or matrix. 
+    // scan the keys or matrix.
     previousKeyScanMillis = millis();
 
     __data uint8_t osDetected = detected_host_os();
     if ((osDetected == OS_LINUX) || (osDetected == OS_WINDOWS)) {
       layerInUse = 0;
-    }else if ((osDetected == OS_MACOS) || (osDetected == OS_IOS)) {
+    } else if ((osDetected == OS_MACOS) || (osDetected == OS_IOS)) {
       layerInUse = 1;
     }
 
     bool button1Press = !digitalRead(BUTTON1_PIN);
     if (button1PressPrev != button1Press) {
       button1PressPrev = button1Press;
-      press_qmk_key(0,0,layerInUse,button1Press);
+      press_qmk_key(0, 0, layerInUse, button1Press);
     }
 
     bool button2Press = !digitalRead(BUTTON2_PIN);
     if (button2PressPrev != button2Press) {
       button2PressPrev = button2Press;
-      press_qmk_key(0,1,layerInUse,button2Press);
+      press_qmk_key(0, 1, layerInUse, button2Press);
     }
 
     bool button3Press = !digitalRead(BUTTON3_PIN);
     if (button3PressPrev != button3Press) {
       button3PressPrev = button3Press;
-      press_qmk_key(0,2,layerInUse,button3Press);
+      press_qmk_key(0, 2, layerInUse, button3Press);
     }
   }
 
