@@ -15,6 +15,11 @@
   If the host system is macos or ios, the second layer is used.
   When the dataflash is empty, the default keymap is used. Which is copy, paste and tab.
 
+  The remap can be done on the via website directly:
+  https://usevia.app/
+  Or remap-keys with the json file in the same folder:
+  https://remap-keys.app/
+
   cli board options: usb_settings=user266
 
 */
@@ -33,8 +38,8 @@
 //these variables will be externally refered by the via library, they shall match the json file
 //on ch552 there is 128 Byte of data flash, so we keep the row*col*layer to be less than 64 (2Byte each key)
 
-#define BUTTON1_PIN 15
-#define BUTTON2_PIN 16
+#define BUTTON1_PIN 16
+#define BUTTON2_PIN 15
 #define BUTTON3_PIN 14
 
 #define LED_BUILTIN 33
