@@ -1,9 +1,11 @@
 #ifndef __USB_HID_H__
 #define __USB_HID_H__
 
+// clang-format off
 #include <stdint.h>
 #include "include/ch5xx.h"
 #include "include/ch5xx_usb.h"
+// clang-format on
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,4 +18,3 @@ void USBInit(void);
 #endif
 
 #endif
-

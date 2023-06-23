@@ -3,9 +3,9 @@
  * Copyright (c) 2014 by Paul Stoffregen <paul@pjrc.com> (Transaction API)
  * Copyright (c) 2014 by Matthijs Kooijman <matthijs@stdin.nl> (SPISettings AVR)
  * Copyright (c) 2014 by Andrew J. Kroll <xxxajk@gmail.com> (atomicity fixes)
- * Copyright (c) 2016 by Michael Mayer <michael-mayer@gmx.de> (c version for STM8 port)
- * Copyright (c) 2020 by Deqing Sun <ds@thinkcreate.us> (c version for CH552 port)
- * SPI Master library for arduino.
+ * Copyright (c) 2016 by Michael Mayer <michael-mayer@gmx.de> (c version for
+ * STM8 port) Copyright (c) 2020 by Deqing Sun <ds@thinkcreate.us> (c version
+ * for CH552 port) SPI Master library for arduino.
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -16,7 +16,7 @@
 #ifndef _SPI_H_INCLUDED
 #define _SPI_H_INCLUDED
 
-//#include <wiring_private.h>
+// #include <wiring_private.h>
 #include <Arduino.h>
 
 // SPI_HAS_TRANSACTION means SPI has beginTransaction(), endTransaction(),
@@ -37,7 +37,7 @@
 // A mismatch occurs if other libraries fail to use SPI.endTransaction() for
 // each SPI.beginTransaction().  Connect an LED to this pin.  The LED will turn
 // on if any mismatch is ever detected.
-//#define SPI_TRANSACTION_MISMATCH_LED 5
+// #define SPI_TRANSACTION_MISMATCH_LED 5
 
 #ifndef LSBFIRST
 #define LSBFIRST 0
@@ -47,8 +47,8 @@
 #endif
 
 #define SPI_MODE0 0x00
-//#define SPI_MODE1 0x01
-//#define SPI_MODE2 0x02
+// #define SPI_MODE1 0x01
+// #define SPI_MODE2 0x02
 #define SPI_MODE3 0x03
 
 // instead of a SPISettings class object just use a 16 bit integer value.
@@ -56,8 +56,8 @@
 // bit 8: bitOrder
 // bit 9: dataMode
 
-#define SPISettings(C,O,M) ( ((F_CPU/(C))&0xFF) | ((O)?1<<8:0) | ((M)?1<<9:0) )
-
+#define SPISettings(C, O, M)                                                   \
+  (((F_CPU / (C)) & 0xFF) | ((O) ? 1 << 8 : 0) | ((M) ? 1 << 9 : 0))
 
 void SPI_begin(void);
 

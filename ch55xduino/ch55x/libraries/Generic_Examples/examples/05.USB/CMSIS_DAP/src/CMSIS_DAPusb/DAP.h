@@ -28,10 +28,12 @@
 #ifndef __DAP_H__
 #define __DAP_H__
 
+// clang-format off
 #include "include/ch5xx.h"
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
+// clang-format on
 
 // DAP Firmware Version
 #define DAP_FW_VER "1.0.0"
@@ -198,13 +200,13 @@
 #define SWD_SEQUENCE_DIN 0x80U // SWDIO capture
 
 #define DAP_PACKET_COUNT 1
-#define DAP_PACKET_SIZE 64 //THIS_ENDP0_SIZE
+#define DAP_PACKET_SIZE 64 // THIS_ENDP0_SIZE
 #define DAP_DEFAULT_PORT DAP_PORT_SWD
 
-#define RST  P3_0
-#define SWK  P3_1
-#define SWD  P3_2
-#define LED  P3_3
+#define RST P3_0
+#define SWK P3_1
+#define SWD P3_2
+#define LED P3_3
 
 extern __xdata uint8_t Ep0Buffer[];
 extern __xdata uint8_t Ep1Buffer[];

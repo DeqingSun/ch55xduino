@@ -1,20 +1,22 @@
 #ifndef __USB_HANDLER_H__
 #define __USB_HANDLER_H__
 
+// clang-format off
 #include <stdint.h>
 #include "include/ch5xx.h"
 #include "include/ch5xx_usb.h"
 #include "USBconstant.h"
+// clang-format on
 
 extern __data uint16_t SetupLen;
 extern __data uint8_t SetupReq;
 
-extern const __code uint8_t * __data pDescr;
+extern const __code uint8_t *__data pDescr;
 
-void Mass_Storage_In (void);
-void Mass_Storage_Out (void);
+void Mass_Storage_In(void);
+void Mass_Storage_Out(void);
 
-#define UsbSetupBuf     ((PUSB_SETUP_REQ)Ep0Buffer)
+#define UsbSetupBuf ((PUSB_SETUP_REQ)Ep0Buffer)
 
 // Out
 #define EP0_OUT_Callback USB_EP0_OUT
@@ -50,4 +52,3 @@ void USBDeviceIntCfg();
 void USBDeviceEndPointCfg();
 
 #endif
-

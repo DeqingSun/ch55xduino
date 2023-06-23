@@ -1,13 +1,13 @@
 #ifndef WiringPrivate_h
 #define WiringPrivate_h
 
+// clang-format off
 #include <stdint.h>
 #include <stdio.h>
 #include "include/ch5xx.h"
 #include "include/ch5xx_usb.h"
-
 #include "Arduino.h"
-
+// clang-format on
 
 typedef void (*voidFuncPtr)(void);
 
