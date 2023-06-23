@@ -178,6 +178,8 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val) {
     }
   }
 #else
+  pin;
+  val;
   return;
 #endif
 }

@@ -238,6 +238,7 @@ static void turnOffPWM(__data uint8_t pwm) {
     break;
   }
 #else
+  pwm;
   return;
 #endif
   // todo: PWM mode for CH559
