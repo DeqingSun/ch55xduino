@@ -18,34 +18,34 @@ __xdata uint8_t Connect_Status;
 void PD_Init( )
 {
   P1_MOD_OC &= ~(bUCC2 | bUCC1);
-  P1_DIR_PU &= ~(bUCC2 | bUCC1);                                                   //UCC1 UCC2 ÉèÖÃ¸¡¿ÕÊäÈë
+  P1_DIR_PU &= ~(bUCC2 | bUCC1);                                                   //UCC1 UCC2 Set to float input
 
-  P2_MOD_OC &= ~(5 << 2);                                                          //LED1 LED2ÍÆÍìÊä³ö
+  P2_MOD_OC &= ~(5 << 2);                                                          //LED1 LED2 Push pull output
   P2_DIR_PU |= (5 << 2);
 
-  USB_C_CTRL |= bUCC1_PD_EN;                                                       //CC1Òý½ÅÏÂÀ­5.1K£¨Ê¹ÓÃÍâ²¿ÏÂÀ­µç×è£©
-  CCSel = 1;                                                                       //Ñ¡ÔñCC1½Å
-  USB_C_CTRL |= bUCC_PD_MOD;                                                       //BMCÊä³öÊ¹ÄÜ
+  USB_C_CTRL |= bUCC1_PD_EN;                                                       //CC1 pulldown 5.1K (ext?)
+  CCSel = 1;                                                                       //choose CC1
+  USB_C_CTRL |= bUCC_PD_MOD;                                                       //BMC Output enable
 
-  ADC_CFG |= (bADC_EN | bADC_AIN_EN | bVDD_REF_EN | bCMP_EN);                      //¿ªÆôADCÄ£¿éµçÔ´,¿ªÆôÍâ²¿Í¨µÀ,¿ªÆô±È½ÏÆ÷Óë²Î¿¼µçÔ´£¨±È½ÏÆ÷·´Ïò¶ËÑ¡Ôñ1/8VDD£©
-  ADC_CFG = ADC_CFG & ~(bADC_CLK0 | bADC_CLK1);                                    //Ñ¡ÔñADC²Î¿¼Ê±ÖÓ 750K
-  ADC_CTRL = bADC_IF;                                                              //Çå³ýADC×ª»»Íê³É±êÖ¾£¬Ð´1ÇåÁã
-  delayMicroseconds(2);                                                                     //µÈ´ýADCµçÔ´ÎÈ¶¨
+  ADC_CFG |= (bADC_EN | bADC_AIN_EN | bVDD_REF_EN | bCMP_EN);                      //enable ADC power, open ext channel, open comparator and reference power, NEG of comp using 1/8VDD
+  ADC_CFG = ADC_CFG & ~(bADC_CLK0 | bADC_CLK1);                                    //ADC lock set to 750K
+  ADC_CTRL = bADC_IF;                                                              //Clear ADC conversion finish flag
+  delayMicroseconds(2);                                                                     //wait till ADC power to be stablea
   delayMicroseconds(2);
 }
 
 uint8_t Connect_Check( void )
 {
-  uint16_t UCC1_Value;
+  uint16_t UCCn_Value;
 
-  ADC_CHAN = 4;                                                                   //CC1Òý½ÅÁ¬½ÓÖÁAIN4(P14)
-  ADC_CTRL = bADC_START;                                                          //Æô¶¯²ÉÑù
-  while ((ADC_CTRL & bADC_IF) == 0);                                              //²éÑ¯µÈ´ý±êÖ¾ÖÃÎ»
-  ADC_CTRL = bADC_IF;                                                             //Çå±êÖ¾
-  UCC1_Value = ADC_DAT & 0xFFF;
+  ADC_CHAN = 4;                                                                   //CC1 connect to AIN4(P14)
+  ADC_CTRL = bADC_START;                                                          //start sampling
+  while ((ADC_CTRL & bADC_IF) == 0);                                              //check finish flag
+  ADC_CTRL = bADC_IF;                                                             //clear flag
+  UCCn_Value = ADC_DAT & 0xFFF;
   //  printf("UCC1=%d\n",(UINT16)UCC1_Value);
 
-  if (UCC1_Value > DefaultPowerMin)
+  if (UCCn_Value > DefaultPowerMin)
   {
     return DFP_PD_CONNECT;
   }
@@ -62,7 +62,7 @@ uint8_t ReceiveHandle(uint8_t ccsel){
 }
 
 void setup() {
-  delay(1000);
+  //delay(1000);
   PD_Init();
   Serial0_begin(115200);
   delay(20);
