@@ -23,7 +23,7 @@ void PD_Init( )
   P2_MOD_OC &= ~(5 << 2);                                                          //LED1 LED2 Push pull output
   P2_DIR_PU |= (5 << 2);
 
-  USB_C_CTRL |= bUCC1_PD_EN;                                                       //CC1 pulldown 5.1K (ext?)
+  USB_C_CTRL |= bUCC1_PD_EN | bUCC2_PD_EN;                                         //CC1 pulldown 5.1K (ext?)
   CCSel = 1;                                                                       //choose CC1
   USB_C_CTRL |= bUCC_PD_MOD;                                                       //BMC Output enable
 
@@ -36,26 +36,26 @@ void PD_Init( )
 
 uint8_t Connect_Check( void )
 {
-  uint16_t UCCn_Value;
+  __data uint16_t UCCn_Value;
+  for (__data uint8_t i = 1; i <= 2; i++) {
+    ADC_CTRL = bADC_IF;
+    ADC_CHAN = 4 - 1 + i;                                                               //CC1 connect to AIN4(P14)
+    ADC_CTRL = bADC_START;                                                          //start sampling
+    while ((ADC_CTRL & bADC_IF) == 0);                                              //check finish flag
+    ADC_CTRL = bADC_IF;                                                             //clear flag
+    UCCn_Value = ADC_DAT & 0xFFF;
+    //  printf("UCC1=%d\n",(UINT16)UCC1_Value);
 
-  ADC_CHAN = 4;                                                                   //CC1 connect to AIN4(P14)
-  ADC_CTRL = bADC_START;                                                          //start sampling
-  while ((ADC_CTRL & bADC_IF) == 0);                                              //check finish flag
-  ADC_CTRL = bADC_IF;                                                             //clear flag
-  UCCn_Value = ADC_DAT & 0xFFF;
-  //  printf("UCC1=%d\n",(UINT16)UCC1_Value);
-
-  if (UCCn_Value > DefaultPowerMin)
-  {
-    return DFP_PD_CONNECT;
+    if (UCCn_Value > DefaultPowerMin)
+    {
+      CCSel = i;
+      return DFP_PD_CONNECT;
+    }
   }
-  else
-  {
-    return DFP_PD_DISCONNECT;
-  }
+  return DFP_PD_DISCONNECT;
 }
 
-uint8_t ReceiveHandle(uint8_t ccsel){
+uint8_t ReceiveHandle(uint8_t ccsel) {
   ADC_CHAN = ccsel + 3 | 0x30;
   delay(1);
   return 1;
@@ -78,7 +78,8 @@ void loop() {
     ERR = 0;
     if (Connect_Status == 0)
     {
-      Serial0_println("Con\n");
+      Serial0_print("Con");
+      Serial0_print(CCSel);
       Connect_Status = 1;
     }
   }
