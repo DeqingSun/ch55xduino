@@ -168,6 +168,7 @@ void CMP_Interrupt() {
 
 uint8_t ReceiveHandle() {
   __xdata uint16_t TimeOutCount;
+  __xdata uint8_t RecvSop;
   //DAT_INTMEM_65 = CC_Sel;
   ADC_CHAN = CCSel + 3 | 0x30;
   TimeOutCount = 0;
@@ -181,10 +182,58 @@ uint8_t ReceiveHandle() {
   E_DIS = 1;
   CMP_Interrupt();
   E_DIS = 0;
+  if (RcvDataCount == 0) {
+    return 1;
+  }
+  //start with Sync-1 11000 and end with EOP 01101
+  if ((RcvDataBuf[0] == 0x03) && (RcvDataBuf[RcvDataCount - 1] == 0x16)) {
+    if (RcvDataBuf[1] == 0x0C) {
+      //Sync-3 00110
+      if ((RcvDataBuf[2] == 0x03) && (RcvDataBuf[3] == 0x0C)) {
+        //SOP’’ :Sync-1 Sync-3 Sync-1 Sync-3
+        //Communication to USB Type-C Plug Side B
+        RecvSop = 2;
+      } else {
+        return 2;
+      }
+    } else if (RcvDataBuf[1] == 0x13) {
+      //RST-2 11001
+      if ((RcvDataBuf[2] == 0x13) && (RcvDataBuf[3] == 0x0C)) {
+        //SOP’_Debug :Sync-1 RST-2 RST-2 Sync-3
+        //Used for debug of USB Type-C Plug Side A
+        RecvSop = 3;
+      }
+      else if ((RcvDataBuf[2] == 0x0C) && (RcvDataBuf[3] == 0x11)) {
+        //Sync-2 10001
+        //SOP’’_Debug :Sync-1 RST-2 Sync-3 Sync-2
+        //Used for debug of USB Type-C Plug Side B
+        RecvSop = 4;
+      } else {
+        return 2;
+      }
+    } else {
+      if (RcvDataBuf[1] == 0x03) {
+        //Sync-1 Sync-1
+        if ((RcvDataBuf[2] == 0x03) && (RcvDataBuf[3] == 0x11)) {
+          //SOP :Sync-1 Sync-1 Sync-1 Sync-2
+          //Communication to UFP
+          RecvSop = 0;
+        } else if ((RcvDataBuf[2] == 0x0C) && (RcvDataBuf[3] == 0x0C)) {
+          //SOP’ :Sync-1 Sync-1 Sync-3 Sync-3
+          //Communication to USB Type-C Plug Side A
+          RecvSop = 1;
+        } else {
+          return 2;
+        }
+      } else {
+        return 2;
+      }
+    }
 
-
-  //delay(1);
-  return 1;
+    Serial0_print("G");
+    Serial0_println(RecvSop);
+  }
+  return 2;
 }
 
 void setup() {
@@ -196,7 +245,7 @@ void setup() {
 
   pinMode(16, OUTPUT);
   pinMode(17, OUTPUT);
-  P1_7 = 0;
+  P1_7 = 0; //!!!!!!
 }
 
 void loop() {
@@ -228,7 +277,7 @@ void loop() {
 
   if (Connect_Status)                                                    //when connected, process data receiving
   {
-    P1_6 = 1;
+    P1_6 = 1;//!!!!!!
 
     {
       //set T0
@@ -252,7 +301,7 @@ void loop() {
       TR0 = 1;
     }
 
-    P1_6 = 0;
+    P1_6 = 0;//!!!!!!
 
     if (RcvDataCount > 0) {
       for (uint8_t i = 0; i < RcvDataCount; i++) {
