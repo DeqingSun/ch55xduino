@@ -20,6 +20,9 @@ __xdata uint8_t RcvMsgID;
 __xdata uint8_t SndMsgID;
 __xdata uint8_t SendingGoodCRCFlag;
 
+///pointer physically in data ram pointing to xdata
+__xdata _Union_Header * __data Union_Header;
+
 __code uint8_t Cvt5B4B[32]={
     0xff,0xff,0xff,0xff,0xff,0x02,0xff,0x0e,
     0xff,0x08,0x04,0x0c,0xff,0x0a,0x06,0x00,
@@ -84,7 +87,7 @@ uint8_t SendHandle(){
   
 }
 
-
+// using comparator to receive BMC data over CC
 void CMP_Interrupt() {
   //clear RcvDataBuf[73]
   __asm__(
@@ -189,15 +192,17 @@ void CMP_Interrupt() {
 }
 
 void ResetSndHeader() {
-  //the original code clear SndDataBuf[0]&[1] then did some logic, maybe leftover of test code?
-  SndDataBuf[1] = 0x40;
-  SndDataBuf[0] = (SndMsgID & 7) << 1;
+  Union_Header = (__xdata _Union_Header * __data)SndDataBuf;
+  Union_Header->HeaderData[0] = 0;
+  Union_Header->HeaderData[1] = 0;
+  Union_Header->HeaderStruct.SpecRev = 2;
+  Union_Header->HeaderStruct.MsgID = SndMsgID;
 }
 
 
 uint8_t ReceiveHandle() {
   __xdata uint16_t TimeOutCount;
-  //DAT_INTMEM_65 = CC_Sel;
+  // setting comparator channel to receive CC data 
   ADC_CHAN = CCSel + 3 | 0x30;
   TimeOutCount = 0;
   ADC_CTRL = bCMP_IF;
@@ -261,34 +266,34 @@ uint8_t ReceiveHandle() {
     //the SOP is no longer needed, reuse the space for decoded data
     RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
     RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
-    //bit 11...9
-    RcvMsgID = (RcvDataBuf[0] >> 1) & 7;
+
+    Union_Header = (__xdata _Union_Header * __data)RcvDataBuf;
+    RcvMsgID = Union_Header->HeaderStruct.MsgID;
     ResetSndHeader();
-    //Port Power Role or Cable Plug
-    //Not sure why it is here ???
-    if ((RcvDataBuf[0] & 1) == 0) {
-      RcvDataBuf[0] |= 1;
-    } else {
-      RcvDataBuf[0] &= ~1;
+
+    if (((_Msg_Header_Struct *)(RcvDataBuf))->PortPwrRole){
+        //reverse power role between Sink & Source
+        //pointer Union_Header has been modified by ResetSndHeader()
+        Union_Header->HeaderStruct.PortPwrRole = 0;
+    }else{
+        Union_Header->HeaderStruct.PortPwrRole = 1;
     }
 
-    //Port Data Role
-    //Not sure why it is here ???
-    if ((RcvDataBuf[1] & (1 << 5)) == 0) {
-      RcvDataBuf[1] |= 1 << 5;
-    }
-    else {
-      RcvDataBuf[0] &= ~(1 << 5);
+    if (((_Msg_Header_Struct *)(RcvDataBuf))->PortDataRole){
+        //reverse PortDataRole between UFP & DFP
+        //pointer Union_Header has been modified by ResetSndHeader()
+        Union_Header->HeaderStruct.PortDataRole = 0;
+    }else{
+        Union_Header->HeaderStruct.PortDataRole = 1;
     }
 
-    //bit 11...9
-    //Rewrite RcvMsgID?
-    RcvDataBuf[0] = RcvDataBuf[0] & 0xF1 | ((RcvMsgID & 7) << 1);
+    Union_Header->HeaderStruct.MsgID = RcvMsgID;
+    Union_Header->HeaderStruct.MsgType = GoodCRC;
 
-    //4...0 Message Type
-    //00001 GoodCRC
-    RcvDataBuf[1] = RcvDataBuf[1] & 0xe0 | 1;
+    //note: Do we check CRC here? !!!!!!!!
+
     SendingGoodCRCFlag = 1;
+    //TODO:
     SendHandle();
 
     Serial0_print("G");
