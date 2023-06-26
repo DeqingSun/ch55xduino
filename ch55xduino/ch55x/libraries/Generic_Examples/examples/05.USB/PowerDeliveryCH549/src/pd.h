@@ -75,8 +75,104 @@
 #define  DFP_PD_CONNECT    0x00
 #define  DFP_PD_DISCONNECT 0x01
 
+// Header
+typedef struct  {
+//	Extended	  1		0
+//	NDO			  3
+//	MsgID		  3
+//	PortPwrRole	  1		0:Sink  1:Source
+//	SpecRev		  2		01 Rev2.0
+//	PortDataRole  1		0:UFP  1:DFP
+//	MessageType	  5
+
+	uint8_t PortPwrRole:1;
+	uint8_t MsgID:3;
+	uint8_t NDO:3;
+	uint8_t Extended:1;
+	
+	uint8_t MsgType:5;
+	uint8_t PortDataRole:1;
+	uint8_t SpecRev:2;
+	
+} _Msg_Header_Struct;
+
+// header
+typedef union {
+	_Msg_Header_Struct  HeaderStruct;
+	uint8_t HeaderData[2];
+} _Union_Header;
+
+// voltage current parsing
+typedef struct  {
+//	Data	12bit		
+//	Volt	10bit		Voltage *0.05V
+//	Curr	10bit		Current *0.01A
+
+	uint16_t VoltH4:4;
+	uint16_t Data:12;
+
+	uint16_t  Current:10;
+	uint16_t  VoltL6:6;
+
+} _SRC_Cap_Struct;
+
+typedef union {				                                              /* Src Cap */
+	_SRC_Cap_Struct  SrcCapStruct;
+	uint8_t SrcCapData[4];
+} _Union_SrcCap;
+
+// VDM Header
+typedef struct  {
+//	SVID			16		0xFF01: DisplayPort
+//
+//	StructuredVDM	1
+//	SVDMVer			2		00: Ver.1
+//	----			5
+//	CommandType		2		00: REQ		01: ACK
+//	----			1
+//	Command			5
+	
+	uint16_t SVID:16;
+	
+	uint16_t Command:5;
+	uint16_t :1;
+	uint16_t CommandType:2;
+	uint16_t ModeIndex:3;
+	uint16_t :2;
+	uint16_t SVDMVer:2;
+	uint16_t StructuredVDM:1;
+	
+} _VDM_Hdr_Struct;
+typedef union {
+	_VDM_Hdr_Struct  VDMHdrStruct;
+	uint8_t VDMHdrData[4];
+} _Union_VDM_Hdr;
+
+// external reference
+// select cc pin: 1:cc1 2:cc2
+extern __xdata uint8_t CCSel;
+// current SOP type received
+extern __xdata uint8_t RecvSop;
+// pointer to header
+//extern _Union_Header xdata *Union_Header;
+// pointer to voltage current pair structure
+//extern _Union_SrcCap xdata *Union_SrcCap;
+// VDM header pointer
+//extern _Union_VDM_Hdr xdata *Union_VDM_Hdr;
+
+extern uint8_t RcvDataBuf[];
+extern uint8_t RcvDataCount;
+
+extern uint8_t SndDataBuf[];
+extern uint8_t SndDataCount;
+
 extern __code uint8_t Cvt5B4B[];
 extern __code uint8_t Cvt4B5B[];
 extern __code uint32_t CRC32_Table[];
 
-void SendHandle();
+// initialize sending header (PD2.0 version, MsgID initialized，PortDataRole,PortPwrRole customizable)
+void  ResetSndHeader ();
+//send content of SndDataBuf
+uint8_t SendHandle ();
+//check receving，0x00:packet received；0x01:packet not received；0x02:packet not valid. Data stored in RcvDataBuf
+uint8_t ReceiveHandle () ;                           
