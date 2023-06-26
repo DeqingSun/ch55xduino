@@ -83,8 +83,25 @@ __code uint32_t CRC32_Table[256] = {
 	0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
+void CalculateCRC(){
+    //https://web.mit.edu/freebsd/head/sys/libkern/crc32.c
+    /*uint32_t
+ *	crc32(const void *buf, size_t size)
+ *	{
+ *		const uint8_t *p = buf;
+ *		uint32_t crc;
+ *
+ *		crc = ~0U;
+ *		while (size--)
+ *			crc = crc32_tab[(crc ^ *p++) & 0xFF] ^ (crc >> 8);
+ *		return crc ^ ~0U;
+ *	}*/
+}
+
 uint8_t SendHandle(){
-  
+  SndDataCount = Union_Header->HeaderStruct.NDO * 4 + 2;
+  CalculateCRC();
+  return 0;
 }
 
 // using comparator to receive BMC data over CC
