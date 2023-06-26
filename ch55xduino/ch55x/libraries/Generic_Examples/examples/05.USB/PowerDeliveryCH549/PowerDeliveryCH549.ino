@@ -2,17 +2,7 @@
 #error "This only run for 32M clock"
 #endif
 
-/* Á¬½Ó×´Ì¬ */
-#define  DFP_PD_CONNECT    0x00
-#define  DFP_PD_DISCONNECT 0x01
-
-/* CC½Å¼ì²âµ½µÄADCÖµÅÐ¶Ï¹©µçÄÜÁ¦ */
-#define  DefaultPowerMin  (342-137)
-#define  DefaultPowerMax  (342+158)
-#define  Power1_5AMin     (771-198)
-#define  Power1_5AMax     (771+180)
-#define  Power3_0AMin     (1383-310)
-#define  Power3_0AMax     (1383+288)
+#include "src/pd.h"
 
 __data uint8_t CCSel;
 __xdata uint8_t status;
@@ -20,6 +10,11 @@ __xdata uint16_t ERR;
 __xdata uint8_t Connect_Status;
 __xdata uint8_t RcvDataBuf[73];
 __xdata uint8_t RcvDataCount;
+__xdata uint8_t RcvMsgID;
+__xdata uint8_t SndDataBuf[73];
+__xdata uint8_t SndMsgID;
+__xdata uint8_t SendingGoodCRCFlag;
+
 
 
 
@@ -61,6 +56,12 @@ uint8_t Connect_Check( void )
     }
   }
   return DFP_PD_DISCONNECT;
+}
+
+void ResetSndHeader() {
+  //the original code clear SndDataBuf[0]&[1] then did some logic, maybe leftover of test code?
+  SndDataBuf[1] = 0x40;
+  SndDataBuf[0] = (SndMsgID & 7) << 1;
 }
 
 void CMP_Interrupt() {
@@ -229,12 +230,46 @@ uint8_t ReceiveHandle() {
         return 2;
       }
     }
+    //now we deal with header
+    //the SOP is no longer needed, reuse the space for decoded data
+    RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
+    RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
+    //bit 11...9
+    RcvMsgID = (RcvDataBuf[0] >> 1) & 7;
+    ResetSndHeader();
+    //Port Power Role or Cable Plug
+    //Not sure why it is here ???
+    if ((RcvDataBuf[0] & 1) == 0) {
+      RcvDataBuf[0] |= 1;
+    } else {
+      RcvDataBuf[0] &= ~1;
+    }
+
+    //Port Data Role
+    //Not sure why it is here ???
+    if ((RcvDataBuf[1] & (1 << 5)) == 0) {
+      RcvDataBuf[1] |= 1 << 5;
+    }
+    else {
+      RcvDataBuf[0] &= ~(1 << 5);
+    }
+
+    //bit 11...9
+    //Rewrite RcvMsgID?
+    RcvDataBuf[0] = RcvDataBuf[0] & 0xF1 | ((RcvMsgID & 7) << 1);
+
+    //4...0 Message Type
+    //00001 GoodCRC
+    RcvDataBuf[1] = RcvDataBuf[1] & 0xe0 | 1;
+    SendingGoodCRCFlag = 1;
+    SendHandle();
 
     Serial0_print("G");
     Serial0_println(RecvSop);
   }
   return 2;
 }
+
 
 void setup() {
   //delay(1000);
@@ -246,6 +281,7 @@ void setup() {
   pinMode(16, OUTPUT);
   pinMode(17, OUTPUT);
   P1_7 = 0; //!!!!!!
+  SndMsgID = 0;//!!!!???????
 }
 
 void loop() {
