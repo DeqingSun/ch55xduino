@@ -83,29 +83,27 @@ __code uint32_t CRC32_Table[256] = {
 	0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
-void CalculateCRC(){
-    //https://web.mit.edu/freebsd/head/sys/libkern/crc32.c
-    /*uint32_t
- *	crc32(const void *buf, size_t size)
- *	{
- *		const uint8_t *p = buf;
- *		uint32_t crc;
- *
- *		crc = ~0U;
- *		while (size--)
- *			crc = crc32_tab[(crc ^ *p++) & 0xFF] ^ (crc >> 8);
- *		return crc ^ ~0U;
- *	}*/
+uint32_t CalculateCRC(uint32_t dataPtrAndLen){
+  //'dpl' (LSB),'dph','b' & 'acc'
+  //DPTR is the array address, B is the low byte of length
+  //https://web.mit.edu/freebsd/head/sys/libkern/crc32.c
+  __xdata uint8_t * __data dataPtr = (__xdata uint8_t * __data)(dataPtrAndLen&0xFFFF);
+  __data uint8_t len = (dataPtrAndLen>>16)&0xFF;
+
+  __data uint32_t crc;
+
+    crc = 0xFFFFFFFF;
+    while (len--)
+      crc = CRC32_Table[(crc ^ (*dataPtr++)) & 0xFF] ^ (crc >> 8);
+    crc = crc ^ 0xffffffff;
+
+  return crc;
 }
 
 uint8_t SendHandle(){
   SndDataCount = Union_Header->HeaderStruct.NDO * 4 + 2;
-  CalculateCRC();
+  //CalculateCRC();
   return 0;
-}
-
-void CheckReceivedCRC(){
-  CalculateCRC();
 }
 
 // using comparator to receive BMC data over CC
@@ -321,6 +319,8 @@ uint8_t ReceiveHandle() {
       RcvDataBuf[2*i+3] = Cvt5B4B[RcvDataBuf[8+i*4+2]] + (Cvt5B4B[RcvDataBuf[8+i*4+3]] << 4);
     }
 
+    //passing ptr in DPTR and length in B
+    __data uint32_t crc = CalculateCRC(((uint32_t)RcvDataBuf)|( ((uint32_t)(2+((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4))<<16 ));
 
 
 
