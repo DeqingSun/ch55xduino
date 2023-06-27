@@ -104,6 +104,10 @@ uint8_t SendHandle(){
   return 0;
 }
 
+void CheckReceivedCRC(){
+  CalculateCRC();
+}
+
 // using comparator to receive BMC data over CC
 void CMP_Interrupt() {
   //clear RcvDataBuf[73]
@@ -306,6 +310,24 @@ uint8_t ReceiveHandle() {
 
     Union_Header->HeaderStruct.MsgID = RcvMsgID;
     Union_Header->HeaderStruct.MsgType = GoodCRC;
+
+    //something different from the original code
+    //covert all received data from 5b to 4b
+    //NDO is the number of data objects, each data object is 4 bytes, and 4 byte CRC. each byte is 2 5b
+    __data uint8_t leftOverData = (((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4+4)*2; 
+    for (__data uint8_t i = 0; i < leftOverData; i++) {
+      //header is already converted
+      RcvDataBuf[2*i+2] = Cvt5B4B[RcvDataBuf[8+i*4+0]] + (Cvt5B4B[RcvDataBuf[8+i*4+1]] << 4);
+      RcvDataBuf[2*i+3] = Cvt5B4B[RcvDataBuf[8+i*4+2]] + (Cvt5B4B[RcvDataBuf[8+i*4+3]] << 4);
+    }
+
+
+
+
+  for (__data uint8_t i = 0; i < (((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4+4); i++) {
+    Serial0_write(RcvDataBuf[2+i]);
+    delayMicroseconds(200);
+  }
 
     //note: Do we check CRC here? !!!!!!!!
 
