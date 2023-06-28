@@ -83,6 +83,54 @@ __code uint32_t CRC32_Table[256] = {
 	0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
+
+#pragma callee_saves sendCharDebug
+void sendCharDebug17(__data char c) // 8Mbps under 24M clk
+{
+  c; // avoid unreferenced function argument warning
+  // uint8_t interruptOn = EA;
+  // EA = 0;
+  __asm__("  mov c,_EA         \n"
+          "  clr a             \n"
+          "  rlc a             \n"
+          "  mov b,a           \n"
+          "  clr _EA           \n");
+
+  // using P1.4
+  __asm__( // any branch will cause unpredictable timing due to code alignment
+      "  mov a,dpl         \n" // the parameter of func
+
+      "  clr c             \n"
+      "  mov _P1_7,c       \n"
+      "  rrc a             \n"
+      "  mov _P1_7,c       \n"
+      "  rrc a             \n"
+      "  mov _P1_7,c       \n"
+      "  rrc a             \n"
+      "  mov _P1_7,c       \n"
+      "  rrc a             \n"
+      "  mov _P1_7,c       \n"
+      "  rrc a             \n"
+      "  mov _P1_7,c       \n"
+      "  rrc a             \n"
+      "  mov _P1_7,c       \n"
+      "  rrc a             \n"
+      "  mov _P1_7,c       \n"
+      "  rrc a             \n"
+      "  mov _P1_7,c       \n"
+      "  setb c            \n"
+      "  mov _P1_7,c       \n");
+  // if (interruptOn) EA = 1;
+
+  __asm__("  mov a,b           \n"
+          "  jz skipSetEADebug$\n"
+          "  setb _EA          \n"
+          "skipSetEADebug$:    \n");
+
+
+          
+}
+
 uint32_t CalculateCRC(uint32_t dataPtrAndLen){
   //'dpl' (LSB),'dph','b' & 'acc'
   //DPTR is the array address, B is the low byte of length
@@ -183,11 +231,128 @@ uint32_t CalculateCRC(uint32_t dataPtrAndLen){
 
 }
 
+void SEND_INTERRUPT(){
+  if ( (CCSel == 1) || (CCSel == 2) ){
+    __data uint8_t toggleMask = 1<<(3+CCSel);
+    __bit sendBit = 1;
+    TR0 = 0;
+    TF0 = 0;
+    TH0 = 0x96;
+    TL0 = 0x96;
+    __data uint8_t sendCounter = 63;
+    //sending 01010101.... end of 1
+    //send 63 bits of 10101....01
+    
+    P1 &= ~toggleMask;
+    P1_MOD_OC &= ~toggleMask;
+    P1_DIR_PU |= toggleMask;
+
+    TR0 = 1;
+    do{
+      //wait till overflow */
+      while(TF0==0); 
+      P1^=toggleMask;
+      TF0 = 0;
+      //1.435us (196-150)@32M
+      //toggle in middle if we have 1
+      while(TL0<196); 
+      if (sendBit){
+        P1^=toggleMask;
+      }
+      sendBit = !sendBit;
+      sendCounter--; 
+    }while(sendCounter != 0);
+    //now we send data
+    __data uint8_t dataSendMask = 1;
+    do{
+      //wait till overflow */
+      while(TF0==0); 
+      P1^=toggleMask;
+      TF0 = 0;
+      // use a mask to get a bit
+      sendBit = (SndDataBuf[sendCounter]&dataSendMask)!=0;
+      dataSendMask<<=1;
+      while(TL0<196); 
+      if (sendBit){
+        P1^=toggleMask;
+      }
+      // check if we already done 5 bits
+      if (dataSendMask == (1<<5)){
+        dataSendMask = 1;
+        sendCounter++;
+      }
+    }while( SndDataCount != sendCounter);
+    while(TF0==0); 
+    TF0 = 0;
+    P1^=toggleMask;
+    delayMicroseconds(2); //need fine tune delay  !!!!!
+    P1|=toggleMask;
+    delayMicroseconds(1);
+
+    P1_MOD_OC &= ~toggleMask;
+    P1_DIR_PU &= ~toggleMask;
+
+  }
+}
+
 uint8_t SendHandle(){
   SndDataCount = Union_Header->HeaderStruct.NDO * 4 + 2;
-  //CalculateCRC();
+  *((uint32_t *)(&SndDataBuf[SndDataCount])) = CalculateCRC(((uint32_t)SndDataBuf)|( ((uint32_t)SndDataCount) <<16) );
+
+  // 4b5b encoding
+  __data uint8_t i = SndDataCount+4;
+  do{
+    i--;
+    SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
+    SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
+  }while(i!=0);
+  SndDataCount = (SndDataCount+4)*2+4;
+  SndDataBuf[0] = 0x18;
+  switch (RecvSop){
+    case 0:
+      //got SOP :Sync-1 Sync-1 Sync-1 Sync-2
+      SndDataBuf[1] = 0x18;
+      SndDataBuf[2] = 0x18;
+      SndDataBuf[3] = 0x11;
+      break;
+    case 1:
+      //got SOP’ :Sync-1 Sync-1 Sync-3 Sync-3
+      SndDataBuf[1] = 0x18;
+      SndDataBuf[2] = 0x06;
+      SndDataBuf[3] = 0x06;
+      break;
+    case 2:
+      //got SOP’’ :Sync-1 Sync-3 Sync-1 Sync-3
+      SndDataBuf[1] = 0x06;
+      SndDataBuf[2] = 0x18;
+      SndDataBuf[3] = 0x06;
+      break;
+    case 3:
+      //got SOP’_Debug :Sync-1 RST-2 RST-2 Sync-3
+      SndDataBuf[1] = 0x19;
+      SndDataBuf[2] = 0x19;
+      SndDataBuf[3] = 0x06;
+      break;
+    case 4:
+      //got SOP’’_Debug :Sync-1 RST-2 Sync-3 Sync-2
+      SndDataBuf[1] = 0x19;
+      SndDataBuf[2] = 0x06;
+      SndDataBuf[3] = 0x11;
+      break;
+    default:
+      break;
+  }
+
+  //just send, no retry balala.....!!!!!!
+  E_DIS = 1;
+  SEND_INTERRUPT();
+  E_DIS = 0;
+
+
   return 0;
 }
+
+
 
 // using comparator to receive BMC data over CC
 void CMP_Interrupt() {
@@ -299,6 +464,7 @@ void ResetSndHeader() {
   Union_Header->HeaderData[1] = 0;
   Union_Header->HeaderStruct.SpecRev = 2;
   Union_Header->HeaderStruct.MsgID = SndMsgID;
+  //by default, NDO is 0
 }
 
 
@@ -364,10 +530,12 @@ uint8_t ReceiveHandle() {
         return 2;
       }
     }
+
     //now we deal with header
     //the SOP is no longer needed, reuse the space for decoded data
-    RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
-    RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
+    
+    RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
+    RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
 
     Union_Header = (__xdata _Union_Header * __data)RcvDataBuf;
     RcvMsgID = Union_Header->HeaderStruct.MsgID;
@@ -403,23 +571,18 @@ uint8_t ReceiveHandle() {
     }
 
     //passing ptr in DPTR and length in B
-    __data uint32_t crc = CalculateCRC(((uint32_t)RcvDataBuf)|( ((uint32_t)(2+((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4))<<16 ));
-
-
-
-  for (__data uint8_t i = 0; i < (((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4+4); i++) {
-    Serial0_write(RcvDataBuf[2+i]);
-    delayMicroseconds(200);
-  }
-
-    //note: Do we check CRC here? !!!!!!!!
+    __data uint8_t dataBeforeCRC = (2+((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4);
+    __data uint32_t crc = CalculateCRC(((uint32_t)RcvDataBuf)|( ((uint32_t)dataBeforeCRC) <<16) );
+    if (crc != *((uint32_t *)(&RcvDataBuf[dataBeforeCRC]))) {
+      //CRC error
+      return 2;
+    }
 
     SendingGoodCRCFlag = 1;
     //TODO:
     SendHandle();
 
-    Serial0_print("G");
-    Serial0_println(RecvSop);
+    
   }
   return 2;
 }

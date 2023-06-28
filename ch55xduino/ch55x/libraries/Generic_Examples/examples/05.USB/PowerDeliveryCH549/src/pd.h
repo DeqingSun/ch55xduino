@@ -85,14 +85,14 @@ typedef struct  {
 //	PortDataRole  1		0:UFP  1:DFP
 //	MessageType	  5
 
+	uint8_t MsgType:5;
+	uint8_t PortDataRole:1;
+	uint8_t SpecRev:2;
+
 	uint8_t PortPwrRole:1;
 	uint8_t MsgID:3;
 	uint8_t NDO:3;
 	uint8_t Extended:1;
-	
-	uint8_t MsgType:5;
-	uint8_t PortDataRole:1;
-	uint8_t SpecRev:2;
 	
 } _Msg_Header_Struct;
 
