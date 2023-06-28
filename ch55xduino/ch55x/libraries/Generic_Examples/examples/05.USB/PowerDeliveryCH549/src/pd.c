@@ -166,7 +166,7 @@ uint32_t CalculateCRC(uint32_t dataPtrAndLen){
     "    mov a,#3                                 \n"
     "    movc a,@a+dptr                           \n"
     "    mov r3,a                                 \n"
-    "    djnz r7,loop_clr_RcvDataBuf$             \n"
+    "    djnz r7,loop_crc_calc$             \n"
     " ; now r0~r3 has the CRC result, do an inv   \n"
     "    mov a,#0xFF                              \n"
     "    xrl a,r0                                 \n"
