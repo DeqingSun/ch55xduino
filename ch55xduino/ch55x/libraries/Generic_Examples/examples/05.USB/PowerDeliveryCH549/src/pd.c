@@ -87,17 +87,100 @@ uint32_t CalculateCRC(uint32_t dataPtrAndLen){
   //'dpl' (LSB),'dph','b' & 'acc'
   //DPTR is the array address, B is the low byte of length
   //https://web.mit.edu/freebsd/head/sys/libkern/crc32.c
-  __xdata uint8_t * __data dataPtr = (__xdata uint8_t * __data)(dataPtrAndLen&0xFFFF);
-  __data uint8_t len = (dataPtrAndLen>>16)&0xFF;
+  // __xdata uint8_t * __data dataPtr = (__xdata uint8_t * __data)(dataPtrAndLen&0xFFFF);
+  // __data uint8_t len = (dataPtrAndLen>>16)&0xFF;
 
-  __data uint32_t crc;
+  // __data uint32_t crc;
 
-    crc = 0xFFFFFFFF;
-    while (len--)
-      crc = CRC32_Table[(crc ^ (*dataPtr++)) & 0xFF] ^ (crc >> 8);
-    crc = crc ^ 0xffffffff;
+  //   crc = 0xFFFFFFFF;
+  //   while (len--)
+  //     crc = CRC32_Table[(crc ^ (*dataPtr++)) & 0xFF] ^ (crc >> 8);
+  //   crc = crc ^ 0xffffffff;
 
-  return crc;
+  // return crc;
+
+  //sdcc is small-endian, so lowest byte is first in memory
+
+  //B = CRC32_Table[(dataPtrAndLen&0xff)*4];
+  dataPtrAndLen;
+  __asm__(
+    "; put data ptr to DPTR1                      \n"
+    "    mov r0,dpl                               \n"
+    "    mov r1,dph                               \n"
+    "    inc _XBUS_AUX                            \n"
+    "    mov dpl,r0                               \n"
+    "    mov dph,r1                               \n"
+    "    dec _XBUS_AUX                            \n"
+    "    mov r7,b                                 \n"
+    "; init crc (r0~r3,r0 lsb)                    \n"
+    "    mov a,#0xff                              \n"
+    "    mov r0,a                                 \n"
+    "    mov r1,a                                 \n"
+    "    mov r2,a                                 \n"
+    "    mov r3,a                                 \n"
+
+    "loop_crc_calc$:                              \n"
+    "; prepare r5,r6 as LUT offset                \n"
+    "    clr a                                    \n"
+    "    mov r6,a                                 \n"
+    "    mov r5,a                                 \n"
+    "    inc _XBUS_AUX                            \n"
+    "    movx a,@dptr                             \n"
+    "    inc dptr                                 \n"
+    "    dec _XBUS_AUX                            \n"
+    "    xrl a,r0                                 \n"
+    "; now a has the index of CRC table           \n"
+    "    clr c                                    \n"
+    "    rlc a                                    \n"
+    "    mov r5,a                                 \n"
+    "    mov a,r6                                 \n"
+    "    rlc a                                    \n"
+    "    mov r6,a                                 \n"
+    "    clr c                                    \n"
+    "    mov a,r5                                 \n"
+    "    rlc a                                    \n"
+    "    mov r5,a                                 \n"
+    "    mov a,r6                                 \n"
+    "    rlc a                                    \n"
+    "    mov r6,a                                 \n"
+    "; now a has the offser of CRC table          \n"
+    "    mov dptr,#(_CRC32_Table)                 \n"
+    "    mov a,dpl                                \n"
+    "    add a,r5                                 \n"
+    "    mov dpl,a                                \n"
+    "    mov a,dph                                \n"
+    "    addc a,r6                                \n"
+    "    mov dph,a                                \n"
+    "    clr a                                    \n"
+    "    movc a,@a+dptr                           \n"
+    "    xrl a,r1                                 \n"
+    "    mov r0,a                                 \n"
+    "    mov a,#1                                 \n"
+    "    movc a,@a+dptr                           \n"
+    "    xrl a,r2                                 \n"
+    "    mov r1,a                                 \n"
+    "    mov a,#2                                 \n"
+    "    movc a,@a+dptr                           \n"
+    "    xrl a,r3                                 \n"
+    "    mov r2,a                                 \n"
+    "    mov a,#3                                 \n"
+    "    movc a,@a+dptr                           \n"
+    "    mov r3,a                                 \n"
+    "    djnz r7,loop_clr_RcvDataBuf$             \n"
+    " ; now r0~r3 has the CRC result, do an inv   \n"
+    "    mov a,#0xFF                              \n"
+    "    xrl a,r0                                 \n"
+    "    mov dpl,a                                \n"
+    "    mov a,#0xFF                               \n"
+    "    xrl a,r1                                 \n"
+    "    mov dph,a                                \n"
+    "    mov a,#0xFF                               \n"
+    "    xrl a,r2                                 \n"
+    "    mov b,a                                  \n"
+    "    mov a,#0xFF                               \n"
+    "    xrl a,r3                                 \n"
+  );
+
 }
 
 uint8_t SendHandle(){
