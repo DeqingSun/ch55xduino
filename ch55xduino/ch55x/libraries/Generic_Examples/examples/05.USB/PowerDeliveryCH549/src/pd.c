@@ -490,7 +490,10 @@ uint8_t SendHandle(){
     SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
     SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
   }while(i!=0);
-  SndDataCount = (SndDataCount+4)*2+4;
+  // (data+crc)*2 + SOP + EOP 
+  SndDataCount = (SndDataCount+4)*2+4+1;
+  // EOP 01101
+  SndDataBuf[SndDataCount-1] = 0x0d;
   SndDataBuf[0] = 0x18;
   switch (RecvSop){
     case 0:
