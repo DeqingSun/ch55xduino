@@ -108,11 +108,13 @@ typedef struct  {
 //	Volt	10bit		Voltage *0.05V
 //	Curr	10bit		Current *0.01A
 
-	uint16_t VoltH4:4;
+	uint16_t  Current:10;
+	uint8_t  VoltL6:6;
+	uint8_t  VoltH4:4;
 	uint16_t Data:12;
 
-	uint16_t  Current:10;
-	uint16_t  VoltL6:6;
+	
+	
 
 } _SRC_Cap_Struct;
 
@@ -154,9 +156,9 @@ extern __xdata uint8_t CCSel;
 // current SOP type received
 extern __xdata uint8_t RecvSop;
 // pointer to header
-//extern _Union_Header xdata *Union_Header;
+extern __xdata _Union_Header * __data Union_Header;
 // pointer to voltage current pair structure
-//extern _Union_SrcCap xdata *Union_SrcCap;
+extern __xdata _Union_SrcCap * __data Union_SrcCap;
 // VDM header pointer
 //extern _Union_VDM_Hdr xdata *Union_VDM_Hdr;
 

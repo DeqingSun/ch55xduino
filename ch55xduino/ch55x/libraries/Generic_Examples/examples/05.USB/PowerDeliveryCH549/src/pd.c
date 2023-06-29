@@ -23,6 +23,7 @@ __xdata uint8_t SndDone;
 
 ///pointer physically in data ram pointing to xdata
 __xdata _Union_Header * __data Union_Header;
+__xdata _Union_SrcCap * __data Union_SrcCap;
 
 __code uint8_t Cvt5B4B[32]={
     0xff,0xff,0xff,0xff,0xff,0x02,0xff,0x0e,
