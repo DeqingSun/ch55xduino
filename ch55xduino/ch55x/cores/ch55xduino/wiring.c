@@ -947,6 +947,47 @@ void delayMicroseconds(__data uint16_t us) {
       "    inc  r7                              \n" // there will be extra 1
                                                     // cycles for every 256us
       "    cjne r7, #0,loop56m_us_2$            \n");
+#elif F_CPU >= 32000000UL      
+__asm__(
+    ".even                                    \n"
+    "    mov  r6, dpl                         \n" // low 8-bit
+    "    mov  r7, dph                         \n" // high 8-bit
+
+    "    clr  c                               \n"
+    "    mov  a,#0x00                         \n"
+    "    subb a, r6                           \n"
+    "    clr  a                               \n"
+    "    subb a, r7                           \n"
+    "    jc skip_0us$                         \n"
+    "    ret                                  \n" // return if 0 us,about 0.85us total
+    "    nop                                  \n"
+    "skip_0us$:                               \n"
+    "    clr  c                               \n"
+    "    mov  a, #0x01                        \n"
+    "    subb a, r6                           \n"
+    "    mov  r6, a                           \n"
+    "    mov  a, #0x00                        \n"
+    "    subb a, r7                           \n"
+    "    mov  r7, a                           \n"
+    "    jc skip_1us$                         \n"
+    "    ret                                  \n" // return if 1 us, about 1.25 us total
+    "    nop                                  \n" //adjust alignment
+
+    "loop32m_us$:                             \n" // about nus
+    "    nop \n nop \n nop \n nop \n nop \n    " // 6+19 cycle
+    "    nop \n "
+    "loop32m_us_2$:                          \n" // need more test
+    "    nop \n nop \n nop \n nop \n nop \n    "
+    "skip_1us$:                              \n"  //1st loop shorter than others
+    "    nop \n nop \n nop \n nop \n nop \n    "
+    "    nop \n nop \n nop \n nop \n nop \n    "
+    "    nop \n nop \n nop \n nop \n           "
+    "    inc  r6                              \n" // 1 cycle
+    "    cjne r6, #0,loop32m_us$              \n" // 6 cycle
+    "    inc  r7                              \n" // there will be extra 1
+    // cycles for every 256us
+    "    cjne r7, #0,loop32m_us_2$            \n"
+    "    nop                                  \n");
 #elif F_CPU >= 24000000UL
   __asm__(
       ".even                                    \n"
