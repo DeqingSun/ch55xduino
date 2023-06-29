@@ -111,12 +111,39 @@ typedef struct  {
 	uint16_t  Current:10;
 	uint8_t  VoltL6:6;
 	uint8_t  VoltH4:4;
-	uint16_t Data:12;
 
-	
-	
+	uint8_t  PeakCurrent:2;
+	uint8_t  Reserved:2;
+	uint8_t  UnchunkedExtended:1;
+	uint8_t  DualRole:1;
+	uint8_t  USBCommunicationsCapable:1;
+	uint8_t  UnconstrainedPower:1;
+	uint8_t  USBSuspendSupported:1;
+	uint8_t  DualRolePower:1;
+	uint8_t  Fixedsupply:2;
 
 } _SRC_Cap_Struct;
+
+// voltage current request
+typedef struct  {
+
+	uint16_t MaxCurrent:10;
+	uint8_t  CurrentL6:6;
+	uint8_t  CurrentH4:4;
+
+	uint8_t  Reserved:3;
+
+	uint8_t  UnchunkedExtended:1;
+	uint8_t  NoUSBSuspend:1;
+	uint8_t  USBCommunicationsCapable:1;
+	uint8_t  CapabilityMismatch:1;
+	uint8_t  GiveBackFlag:1;
+	
+	uint8_t  ObjectPosition:3;
+
+	uint8_t  Reserved2:1;
+
+} _Sink_Request_Data_Struct;
 
 typedef union {				                                              /* Src Cap */
 	_SRC_Cap_Struct  SrcCapStruct;

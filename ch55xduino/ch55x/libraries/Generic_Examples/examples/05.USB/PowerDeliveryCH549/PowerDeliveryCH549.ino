@@ -8,8 +8,26 @@ __xdata uint8_t status;
 __xdata uint16_t ERR;
 __xdata uint8_t Connect_Status;
 
-#define TARGET_VOLT_MV 12000
+#define TARGET_VOLT_MV (12000)
 
+void setT0ForCC() {
+  TR0 = 0;
+  ET0 = 0;
+  T2MOD |= (bTMR_CLK) | (bT0_CLK);
+  TMOD = (TMOD & ~0x0F) | (bT0_M1); // mode 2 for autoreload
+  TH0 = 0x96;
+  TL0 = 0x96;
+}
+
+void restoreT0ForTiming() {
+  TR0 = 0;
+  TMOD = (TMOD & ~0x0F) | (bT0_M1); // mode 2 for autoreload
+  T2MOD = T2MOD & ~bT0_CLK;         // bT0_CLK=0;clk Div by 12
+  TH0 = 255 - 250 + 1;
+  TF0 = 0;
+  ET0 = 1;
+  TR0 = 1;
+}
 
 
 void PD_Init( )
@@ -100,27 +118,9 @@ void loop() {
   {
     P1_6 = 1;//!!!!!!
 
-    {
-      //set T0
-      TR0 = 0;
-      ET0 = 0;
-      T2MOD |= (bTMR_CLK) | (bT0_CLK);
-      TMOD = (TMOD & ~0x0F) | (bT0_M1); // mode 2 for autoreload
-      TH0 = 0x96;
-      TL0 = 0x96;
-
-    }
+    setT0ForCC();
     status = ReceiveHandle();
-
-    { //restore T0
-      TR0 = 0;
-      TMOD = (TMOD & ~0x0F) | (bT0_M1); // mode 2 for autoreload
-      T2MOD = T2MOD & ~bT0_CLK;         // bT0_CLK=0;clk Div by 12
-      TH0 = 255 - 250 + 1;
-      TF0 = 0;
-      ET0 = 1;
-      TR0 = 1;
-    }
+    restoreT0ForTiming();
 
     if ( status == 0 ) {
       switch (Union_Header->HeaderStruct.MsgType) {
@@ -128,29 +128,42 @@ void loop() {
           {
             __data uint8_t searchIndex = 0xFF;
             __data uint8_t voltageSettingCount = Union_Header->HeaderStruct.NDO;
+            __xdata uint16_t matchCurrent = 0;
             Serial0_print("VA:");
-            for (__data uint8_t i=0;i<voltageSettingCount;i++){
-              Union_SrcCap = (__xdata _Union_SrcCap * __data)(&RcvDataBuf[2+4*i]);
+            for (__data uint8_t i = 0; i < voltageSettingCount; i++) {
+              Union_SrcCap = (__xdata _Union_SrcCap * __data)(&RcvDataBuf[2 + 4 * i]);
               //B9...0 Maximum Current in 10mA units
-              __xdata uint16_t current = (Union_SrcCap->SrcCapStruct.Current)*10;
+              __xdata uint16_t current = (Union_SrcCap->SrcCapStruct.Current) * 10;
               //B19...10 Voltage in 50mV units
-              __xdata uint16_t voltage = (((Union_SrcCap->SrcCapStruct.VoltH4)<<6)|(Union_SrcCap->SrcCapStruct.VoltL6))*50;
+              __xdata uint16_t voltage = (((Union_SrcCap->SrcCapStruct.VoltH4) << 6) | (Union_SrcCap->SrcCapStruct.VoltL6)) * 50;
               Serial0_print(voltage);
               Serial0_print(",");
               Serial0_print(current);
               Serial0_print(";");
-              if (voltage == TARGET_VOLT_MV){
-                searchIndex == i;
+              if (voltage == TARGET_VOLT_MV) {
+                searchIndex = i;
+                matchCurrent = current/10;
               }
             }
-            if (searchIndex!=0xFF){
+            if (searchIndex != 0xFF) {
               // prepare package to request high voltage
               ResetSndHeader();
               Union_Header->HeaderStruct.PortPwrRole = PwrRoleSink;
               Union_Header->HeaderStruct.PortDataRole = DataRoleUFP;
               Union_Header->HeaderStruct.NDO = 1;
               Union_Header->HeaderStruct.MsgType = SinkSendRequest;
-            }else{
+              //clear data buffer
+              for (uint8_t i = 0; i < 4; i++) {
+                SndDataBuf[2 + i] = 0;
+              }
+              ((_Sink_Request_Data_Struct *)(&SndDataBuf[2]))->MaxCurrent = matchCurrent;
+              ((_Sink_Request_Data_Struct *)(&SndDataBuf[2]))->CurrentL6 = matchCurrent & (0x3F);
+              ((_Sink_Request_Data_Struct *)(&SndDataBuf[2]))->CurrentH4 = (matchCurrent >> 6) & (0xF);
+              ((_Sink_Request_Data_Struct *)(&SndDataBuf[2]))->ObjectPosition = searchIndex + 1;
+              setT0ForCC();
+              SendHandle();
+              restoreT0ForTiming();
+            } else {
               Serial0_println("No Matched Volt.");
             }
           }
