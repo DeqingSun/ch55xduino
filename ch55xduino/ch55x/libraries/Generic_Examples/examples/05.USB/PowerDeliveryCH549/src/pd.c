@@ -19,6 +19,7 @@ __xdata uint8_t SndDataCount;
 __xdata uint8_t RcvMsgID;
 __xdata uint8_t SndMsgID;
 __xdata uint8_t SendingGoodCRCFlag;
+__xdata uint8_t SndDone;
 
 ///pointer physically in data ram pointing to xdata
 __xdata _Union_Header * __data Union_Header;
@@ -231,128 +232,81 @@ uint32_t CalculateCRC(uint32_t dataPtrAndLen){
 
 }
 
-void SEND_INTERRUPT(){
-  if ( (CCSel == 1) || (CCSel == 2) ){
-    __data uint8_t toggleMask = 1<<(3+CCSel);
-    __bit sendBit = 1;
-    TR0 = 0;
-    TF0 = 0;
-    TH0 = 0x96;
-    TL0 = 0x96;
-    __data uint8_t sendCounter = 63;
-    //sending 01010101.... end of 1
-    //send 63 bits of 10101....01
-    
-    P1 &= ~toggleMask;
-    P1_MOD_OC &= ~toggleMask;
-    P1_DIR_PU |= toggleMask;
+void ResetSndHeader() {
+  Union_Header = (__xdata _Union_Header * __data)SndDataBuf;
+  Union_Header->HeaderData[0] = 0;
+  Union_Header->HeaderData[1] = 0;
+  Union_Header->HeaderStruct.SpecRev = 2;
+  Union_Header->HeaderStruct.MsgID = SndMsgID;
+  //by default, NDO is 0
+}
 
-    TR0 = 1;
-    do{
-      //wait till overflow */
-      while(TF0==0); 
-      P1^=toggleMask;
-      TF0 = 0;
-      //1.435us (196-150)@32M
-      //toggle in middle if we have 1
-      while(TL0<196); 
-      if (sendBit){
-        P1^=toggleMask;
-      }
-      sendBit = !sendBit;
-      sendCounter--; 
-    }while(sendCounter != 0);
-    //now we send data
-    __data uint8_t dataSendMask = 1;
-    do{
-      //wait till overflow */
-      while(TF0==0); 
-      P1^=toggleMask;
-      TF0 = 0;
-      // use a mask to get a bit
-      sendBit = (SndDataBuf[sendCounter]&dataSendMask)!=0;
-      dataSendMask<<=1;
-      while(TL0<196); 
-      if (sendBit){
-        P1^=toggleMask;
-      }
-      // check if we already done 5 bits
-      if (dataSendMask == (1<<5)){
-        dataSendMask = 1;
-        sendCounter++;
-      }
-    }while( SndDataCount != sendCounter);
-    while(TF0==0); 
-    TF0 = 0;
-    P1^=toggleMask;
-    delayMicroseconds(2); //need fine tune delay  !!!!!
-    P1|=toggleMask;
-    delayMicroseconds(1);
+void RcvBufDecode5B4B(){
+  //now we deal with header
+  //the SOP is no longer needed, reuse the space for decoded data
+  
+  RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
+  RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
 
-    P1_MOD_OC &= ~toggleMask;
-    P1_DIR_PU &= ~toggleMask;
-
+  //something different from the original code
+  //covert all received data from 5b to 4b
+  //NDO is the number of data objects, each data object is 4 bytes, and 4 byte CRC. each byte is 2 5b
+  __data uint8_t leftOverData = (((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4+4)*2; 
+  for (__data uint8_t i = 0; i < leftOverData; i++) {
+    //header is already converted
+    RcvDataBuf[2*i+2] = Cvt5B4B[RcvDataBuf[8+i*4+0]] + (Cvt5B4B[RcvDataBuf[8+i*4+1]] << 4);
+    RcvDataBuf[2*i+3] = Cvt5B4B[RcvDataBuf[8+i*4+2]] + (Cvt5B4B[RcvDataBuf[8+i*4+3]] << 4);
   }
 }
 
-uint8_t SendHandle(){
-  SndDataCount = Union_Header->HeaderStruct.NDO * 4 + 2;
-  *((uint32_t *)(&SndDataBuf[SndDataCount])) = CalculateCRC(((uint32_t)SndDataBuf)|( ((uint32_t)SndDataCount) <<16) );
-
-  // 4b5b encoding
-  __data uint8_t i = SndDataCount+4;
-  do{
-    i--;
-    SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
-    SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
-  }while(i!=0);
-  SndDataCount = (SndDataCount+4)*2+4;
-  SndDataBuf[0] = 0x18;
-  switch (RecvSop){
-    case 0:
-      //got SOP :Sync-1 Sync-1 Sync-1 Sync-2
-      SndDataBuf[1] = 0x18;
-      SndDataBuf[2] = 0x18;
-      SndDataBuf[3] = 0x11;
-      break;
-    case 1:
-      //got SOP’ :Sync-1 Sync-1 Sync-3 Sync-3
-      SndDataBuf[1] = 0x18;
-      SndDataBuf[2] = 0x06;
-      SndDataBuf[3] = 0x06;
-      break;
-    case 2:
-      //got SOP’’ :Sync-1 Sync-3 Sync-1 Sync-3
-      SndDataBuf[1] = 0x06;
-      SndDataBuf[2] = 0x18;
-      SndDataBuf[3] = 0x06;
-      break;
-    case 3:
-      //got SOP’_Debug :Sync-1 RST-2 RST-2 Sync-3
-      SndDataBuf[1] = 0x19;
-      SndDataBuf[2] = 0x19;
-      SndDataBuf[3] = 0x06;
-      break;
-    case 4:
-      //got SOP’’_Debug :Sync-1 RST-2 Sync-3 Sync-2
-      SndDataBuf[1] = 0x19;
-      SndDataBuf[2] = 0x06;
-      SndDataBuf[3] = 0x11;
-      break;
-    default:
-      break;
+uint8_t RcvCheckSOP(){
+//start with Sync-1 11000 and end with EOP 01101
+  if ((RcvDataBuf[0] == 0x03) && (RcvDataBuf[RcvDataCount - 1] == 0x16)) {
+    if (RcvDataBuf[1] == 0x0C) {
+      //Sync-3 00110
+      if ((RcvDataBuf[2] == 0x03) && (RcvDataBuf[3] == 0x0C)) {
+        //SOP’’ :Sync-1 Sync-3 Sync-1 Sync-3
+        //Communication to USB Type-C Plug Side B
+        return 2;
+      } else {
+        return 0xFF;
+      }
+    } else if (RcvDataBuf[1] == 0x13) {
+      //RST-2 11001
+      if ((RcvDataBuf[2] == 0x13) && (RcvDataBuf[3] == 0x0C)) {
+        //SOP’_Debug :Sync-1 RST-2 RST-2 Sync-3
+        //Used for debug of USB Type-C Plug Side A
+        return 3;
+      }
+      else if ((RcvDataBuf[2] == 0x0C) && (RcvDataBuf[3] == 0x11)) {
+        //Sync-2 10001
+        //SOP’’_Debug :Sync-1 RST-2 Sync-3 Sync-2
+        //Used for debug of USB Type-C Plug Side B
+        return 4;
+      } else {
+        return 0xFF;
+      }
+    } else {
+      if (RcvDataBuf[1] == 0x03) {
+        //Sync-1 Sync-1
+        if ((RcvDataBuf[2] == 0x03) && (RcvDataBuf[3] == 0x11)) {
+          //SOP :Sync-1 Sync-1 Sync-1 Sync-2
+          //Communication to UFP
+          return 0;
+        } else if ((RcvDataBuf[2] == 0x0C) && (RcvDataBuf[3] == 0x0C)) {
+          //SOP’ :Sync-1 Sync-1 Sync-3 Sync-3
+          //Communication to USB Type-C Plug Side A
+          return 1;
+        } else {
+          return 0xFF;
+        }
+      } else {
+        return 0xFF;
+      }
+    }
   }
-
-  //just send, no retry balala.....!!!!!!
-  E_DIS = 1;
-  SEND_INTERRUPT();
-  E_DIS = 0;
-
-
-  return 0;
+  return 0xFF;
 }
-
-
 
 // using comparator to receive BMC data over CC
 void CMP_Interrupt() {
@@ -458,31 +412,184 @@ void CMP_Interrupt() {
   } while (TL0 < 121);
 }
 
-void ResetSndHeader() {
-  Union_Header = (__xdata _Union_Header * __data)SndDataBuf;
-  Union_Header->HeaderData[0] = 0;
-  Union_Header->HeaderData[1] = 0;
-  Union_Header->HeaderStruct.SpecRev = 2;
-  Union_Header->HeaderStruct.MsgID = SndMsgID;
-  //by default, NDO is 0
+void SEND_INTERRUPT(){
+  if ( (CCSel == 1) || (CCSel == 2) ){
+    __data uint8_t toggleMask = 1<<(3+CCSel);
+    __bit sendBit = 1;
+    TR0 = 0;
+    TF0 = 0;
+    TH0 = 0x96;
+    TL0 = 0x96;
+    __data uint8_t sendCounter = 63;
+    //sending 01010101.... end of 1
+    //send 63 bits of 10101....01
+    
+    P1 &= ~toggleMask;
+    P1_MOD_OC &= ~toggleMask;
+    P1_DIR_PU |= toggleMask;
+
+    TR0 = 1;
+    do{
+      //wait till overflow */
+      while(TF0==0); 
+      P1^=toggleMask;
+      TF0 = 0;
+      //1.435us (196-150)@32M
+      //toggle in middle if we have 1
+      while(TL0<196); 
+      if (sendBit){
+        P1^=toggleMask;
+      }
+      sendBit = !sendBit;
+      sendCounter--; 
+    }while(sendCounter != 0);
+    //now we send data
+    __data uint8_t dataSendMask = 1;
+    do{
+      //wait till overflow */
+      while(TF0==0); 
+      P1^=toggleMask;
+      TF0 = 0;
+      // use a mask to get a bit
+      sendBit = (SndDataBuf[sendCounter]&dataSendMask)!=0;
+      dataSendMask<<=1;
+      while(TL0<196); 
+      if (sendBit){
+        P1^=toggleMask;
+      }
+      // check if we already done 5 bits
+      if (dataSendMask == (1<<5)){
+        dataSendMask = 1;
+        sendCounter++;
+      }
+    }while( SndDataCount != sendCounter);
+    while(TF0==0); 
+    TF0 = 0;
+    P1^=toggleMask;
+    delayMicroseconds(2); //need fine tune delay  !!!!!
+    P1|=toggleMask;
+    delayMicroseconds(1);
+
+    P1_MOD_OC &= ~toggleMask;
+    P1_DIR_PU &= ~toggleMask;
+  }
+  TR0 = 0;
+  TF0 = 0;
+  SndDone = 1;
 }
 
-void RcvBufDecode5B4B(){
-  //now we deal with header
-  //the SOP is no longer needed, reuse the space for decoded data
-  
-  RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
-  RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
+uint8_t SendHandle(){
+  SndDataCount = Union_Header->HeaderStruct.NDO * 4 + 2;
+  *((uint32_t *)(&SndDataBuf[SndDataCount])) = CalculateCRC(((uint32_t)SndDataBuf)|( ((uint32_t)SndDataCount) <<16) );
 
-  //something different from the original code
-  //covert all received data from 5b to 4b
-  //NDO is the number of data objects, each data object is 4 bytes, and 4 byte CRC. each byte is 2 5b
-  __data uint8_t leftOverData = (((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4+4)*2; 
-  for (__data uint8_t i = 0; i < leftOverData; i++) {
-    //header is already converted
-    RcvDataBuf[2*i+2] = Cvt5B4B[RcvDataBuf[8+i*4+0]] + (Cvt5B4B[RcvDataBuf[8+i*4+1]] << 4);
-    RcvDataBuf[2*i+3] = Cvt5B4B[RcvDataBuf[8+i*4+2]] + (Cvt5B4B[RcvDataBuf[8+i*4+3]] << 4);
+  // 4b5b encoding
+  __data uint8_t i = SndDataCount+4;
+  do{
+    i--;
+    SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
+    SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
+  }while(i!=0);
+  SndDataCount = (SndDataCount+4)*2+4;
+  SndDataBuf[0] = 0x18;
+  switch (RecvSop){
+    case 0:
+      //got SOP :Sync-1 Sync-1 Sync-1 Sync-2
+      SndDataBuf[1] = 0x18;
+      SndDataBuf[2] = 0x18;
+      SndDataBuf[3] = 0x11;
+      break;
+    case 1:
+      //got SOP’ :Sync-1 Sync-1 Sync-3 Sync-3
+      SndDataBuf[1] = 0x18;
+      SndDataBuf[2] = 0x06;
+      SndDataBuf[3] = 0x06;
+      break;
+    case 2:
+      //got SOP’’ :Sync-1 Sync-3 Sync-1 Sync-3
+      SndDataBuf[1] = 0x06;
+      SndDataBuf[2] = 0x18;
+      SndDataBuf[3] = 0x06;
+      break;
+    case 3:
+      //got SOP’_Debug :Sync-1 RST-2 RST-2 Sync-3
+      SndDataBuf[1] = 0x19;
+      SndDataBuf[2] = 0x19;
+      SndDataBuf[3] = 0x06;
+      break;
+    case 4:
+      //got SOP’’_Debug :Sync-1 RST-2 Sync-3 Sync-2
+      SndDataBuf[1] = 0x19;
+      SndDataBuf[2] = 0x06;
+      SndDataBuf[3] = 0x11;
+      break;
+    default:
+      break;
   }
+
+  __data uint8_t RetryCount = 3;
+  do{
+    E_DIS = 1;
+    SEND_INTERRUPT();
+    E_DIS = 0;
+
+    //never happen as SEND_INTERRUPT always success?
+    if (SndDone == 0) {  
+      return 1;
+    }
+    SndDone = 0;
+    if (SendingGoodCRCFlag != 0) {
+      SndDone = 0;
+      SendingGoodCRCFlag = 0;
+      return 0;
+    }
+
+    if (SndMsgID < 7) {
+      SndMsgID = SndMsgID + 1;
+    } else {
+      SndMsgID = 0;
+    }
+
+    ADC_CHAN = CCSel + 3 | 0x30;
+    __xdata uint16_t TimeOutCount;
+    TimeOutCount = 0;
+    ADC_CTRL = bCMP_IF;
+
+    do{
+      if ((ADC_CTRL & bCMP_IF) != 0){
+        E_DIS = 1;
+        CMP_Interrupt();
+        E_DIS = 0;
+
+        if (RcvDataCount == 0) {
+          return 1;
+        }
+
+        __data uint8_t newRecvSop = RcvCheckSOP();
+        // wch code check if last byte of buffer is 0x16, not sure why
+        if (RecvSop != newRecvSop) {
+          return 1;
+        }
+
+        RcvBufDecode5B4B();
+
+        Union_Header = (__xdata _Union_Header * __data)RcvDataBuf;
+        if (Union_Header->HeaderStruct.MsgType == 1) {
+          SendingGoodCRCFlag = 0;
+          return 0;
+        }
+        return 1;
+
+      }
+
+      delayMicroseconds(1);
+      TimeOutCount++;
+    }while(TimeOutCount < 700);
+
+    delayMicroseconds(2000);
+    RetryCount--;
+  }while (RetryCount!=0);
+
+  return 1;
 }
 
 
@@ -495,98 +602,60 @@ uint8_t ReceiveHandle() {
   while ((ADC_CTRL & bCMP_IF) == 0) {
     TimeOutCount++;
     if (TimeOutCount >= 700) {  //need more investigation what time it means. ( (34+3+(2or3))*700 clks? 0.85ms? 256bits of BMC?) this SDCC code need more tuning
-      return 1;
+      return NODATA;
     }
   }
   E_DIS = 1;
   CMP_Interrupt();
   E_DIS = 0;
   if (RcvDataCount == 0) {
-    return 1;
+    return NODATA;
   }
-  //start with Sync-1 11000 and end with EOP 01101
-  if ((RcvDataBuf[0] == 0x03) && (RcvDataBuf[RcvDataCount - 1] == 0x16)) {
-    if (RcvDataBuf[1] == 0x0C) {
-      //Sync-3 00110
-      if ((RcvDataBuf[2] == 0x03) && (RcvDataBuf[3] == 0x0C)) {
-        //SOP’’ :Sync-1 Sync-3 Sync-1 Sync-3
-        //Communication to USB Type-C Plug Side B
-        RecvSop = 2;
-      } else {
-        return 2;
-      }
-    } else if (RcvDataBuf[1] == 0x13) {
-      //RST-2 11001
-      if ((RcvDataBuf[2] == 0x13) && (RcvDataBuf[3] == 0x0C)) {
-        //SOP’_Debug :Sync-1 RST-2 RST-2 Sync-3
-        //Used for debug of USB Type-C Plug Side A
-        RecvSop = 3;
-      }
-      else if ((RcvDataBuf[2] == 0x0C) && (RcvDataBuf[3] == 0x11)) {
-        //Sync-2 10001
-        //SOP’’_Debug :Sync-1 RST-2 Sync-3 Sync-2
-        //Used for debug of USB Type-C Plug Side B
-        RecvSop = 4;
-      } else {
-        return 2;
-      }
-    } else {
-      if (RcvDataBuf[1] == 0x03) {
-        //Sync-1 Sync-1
-        if ((RcvDataBuf[2] == 0x03) && (RcvDataBuf[3] == 0x11)) {
-          //SOP :Sync-1 Sync-1 Sync-1 Sync-2
-          //Communication to UFP
-          RecvSop = 0;
-        } else if ((RcvDataBuf[2] == 0x0C) && (RcvDataBuf[3] == 0x0C)) {
-          //SOP’ :Sync-1 Sync-1 Sync-3 Sync-3
-          //Communication to USB Type-C Plug Side A
-          RecvSop = 1;
-        } else {
-          return 2;
-        }
-      } else {
-        return 2;
-      }
-    }
 
-    RcvBufDecode5B4B();
-
-    //passing ptr in DPTR and length in B
-    __data uint8_t dataBeforeCRC = (2+((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4);
-    __data uint32_t crc = CalculateCRC(((uint32_t)RcvDataBuf)|( ((uint32_t)dataBeforeCRC) <<16) );
-    if (crc != *((uint32_t *)(&RcvDataBuf[dataBeforeCRC]))) {
-      //CRC error
-      return 2;
-    }
-
-    Union_Header = (__xdata _Union_Header * __data)RcvDataBuf;
-    RcvMsgID = Union_Header->HeaderStruct.MsgID;
-    ResetSndHeader();
-
-    if (((_Msg_Header_Struct *)(RcvDataBuf))->PortPwrRole){
-        //reverse power role between Sink & Source
-        //pointer Union_Header has been modified by ResetSndHeader()
-        Union_Header->HeaderStruct.PortPwrRole = 0;
-    }else{
-        Union_Header->HeaderStruct.PortPwrRole = 1;
-    }
-
-    if (((_Msg_Header_Struct *)(RcvDataBuf))->PortDataRole){
-        //reverse PortDataRole between UFP & DFP
-        //pointer Union_Header has been modified by ResetSndHeader()
-        Union_Header->HeaderStruct.PortDataRole = 0;
-    }else{
-        Union_Header->HeaderStruct.PortDataRole = 1;
-    }
-
-    Union_Header->HeaderStruct.MsgID = RcvMsgID;
-    Union_Header->HeaderStruct.MsgType = GoodCRC;
-
-    SendingGoodCRCFlag = 1;
-    //TODO:
-    SendHandle();
-
-    
+  RecvSop = RcvCheckSOP();
+  if (RecvSop == 0xFF) {
+    return ILLEGAL;
   }
-  return 2;
+  
+  RcvBufDecode5B4B();
+
+  //passing ptr in DPTR and length in B
+  __data uint8_t dataBeforeCRC = (2+((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4);
+  __data uint32_t crc = CalculateCRC(((uint32_t)RcvDataBuf)|( ((uint32_t)dataBeforeCRC) <<16) );
+  if (crc != *((uint32_t *)(&RcvDataBuf[dataBeforeCRC]))) {
+    //CRC error
+    return ILLEGAL;
+  }
+  //maybe redo data count?
+
+  Union_Header = (__xdata _Union_Header * __data)RcvDataBuf;
+  RcvMsgID = Union_Header->HeaderStruct.MsgID;
+  ResetSndHeader();
+
+  if (((_Msg_Header_Struct *)(RcvDataBuf))->PortPwrRole){
+      //reverse power role between Sink & Source
+      //pointer Union_Header has been modified by ResetSndHeader()
+      Union_Header->HeaderStruct.PortPwrRole = 0;
+  }else{
+      Union_Header->HeaderStruct.PortPwrRole = 1;
+  }
+
+  if (((_Msg_Header_Struct *)(RcvDataBuf))->PortDataRole){
+      //reverse PortDataRole between UFP & DFP
+      //pointer Union_Header has been modified by ResetSndHeader()
+      Union_Header->HeaderStruct.PortDataRole = 0;
+  }else{
+      Union_Header->HeaderStruct.PortDataRole = 1;
+  }
+
+  Union_Header->HeaderStruct.MsgID = RcvMsgID;
+  Union_Header->HeaderStruct.MsgType = GoodCRC;
+
+  SendingGoodCRCFlag = 1;
+
+  SendHandle();
+
+  Union_Header = (__xdata _Union_Header * __data)RcvDataBuf;
+
+  return REVSUCCESS;
 }
