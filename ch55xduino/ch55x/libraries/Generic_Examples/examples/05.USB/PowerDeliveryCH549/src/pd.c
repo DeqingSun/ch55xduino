@@ -467,6 +467,24 @@ void ResetSndHeader() {
   //by default, NDO is 0
 }
 
+void RcvBufDecode5B4B(){
+  //now we deal with header
+  //the SOP is no longer needed, reuse the space for decoded data
+  
+  RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
+  RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
+
+  //something different from the original code
+  //covert all received data from 5b to 4b
+  //NDO is the number of data objects, each data object is 4 bytes, and 4 byte CRC. each byte is 2 5b
+  __data uint8_t leftOverData = (((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4+4)*2; 
+  for (__data uint8_t i = 0; i < leftOverData; i++) {
+    //header is already converted
+    RcvDataBuf[2*i+2] = Cvt5B4B[RcvDataBuf[8+i*4+0]] + (Cvt5B4B[RcvDataBuf[8+i*4+1]] << 4);
+    RcvDataBuf[2*i+3] = Cvt5B4B[RcvDataBuf[8+i*4+2]] + (Cvt5B4B[RcvDataBuf[8+i*4+3]] << 4);
+  }
+}
+
 
 uint8_t ReceiveHandle() {
   __xdata uint16_t TimeOutCount;
@@ -531,11 +549,15 @@ uint8_t ReceiveHandle() {
       }
     }
 
-    //now we deal with header
-    //the SOP is no longer needed, reuse the space for decoded data
-    
-    RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
-    RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
+    RcvBufDecode5B4B();
+
+    //passing ptr in DPTR and length in B
+    __data uint8_t dataBeforeCRC = (2+((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4);
+    __data uint32_t crc = CalculateCRC(((uint32_t)RcvDataBuf)|( ((uint32_t)dataBeforeCRC) <<16) );
+    if (crc != *((uint32_t *)(&RcvDataBuf[dataBeforeCRC]))) {
+      //CRC error
+      return 2;
+    }
 
     Union_Header = (__xdata _Union_Header * __data)RcvDataBuf;
     RcvMsgID = Union_Header->HeaderStruct.MsgID;
@@ -559,24 +581,6 @@ uint8_t ReceiveHandle() {
 
     Union_Header->HeaderStruct.MsgID = RcvMsgID;
     Union_Header->HeaderStruct.MsgType = GoodCRC;
-
-    //something different from the original code
-    //covert all received data from 5b to 4b
-    //NDO is the number of data objects, each data object is 4 bytes, and 4 byte CRC. each byte is 2 5b
-    __data uint8_t leftOverData = (((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4+4)*2; 
-    for (__data uint8_t i = 0; i < leftOverData; i++) {
-      //header is already converted
-      RcvDataBuf[2*i+2] = Cvt5B4B[RcvDataBuf[8+i*4+0]] + (Cvt5B4B[RcvDataBuf[8+i*4+1]] << 4);
-      RcvDataBuf[2*i+3] = Cvt5B4B[RcvDataBuf[8+i*4+2]] + (Cvt5B4B[RcvDataBuf[8+i*4+3]] << 4);
-    }
-
-    //passing ptr in DPTR and length in B
-    __data uint8_t dataBeforeCRC = (2+((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4);
-    __data uint32_t crc = CalculateCRC(((uint32_t)RcvDataBuf)|( ((uint32_t)dataBeforeCRC) <<16) );
-    if (crc != *((uint32_t *)(&RcvDataBuf[dataBeforeCRC]))) {
-      //CRC error
-      return 2;
-    }
 
     SendingGoodCRCFlag = 1;
     //TODO:
