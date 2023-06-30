@@ -8166,22 +8166,22 @@ chip</description>
 <devices>
 <device name="SOP-16" package="MY_IC_SO16">
 <connects>
+<connect gate="G$1" pin="GND" pad="14"/>
 <connect gate="G$1" pin="P1.1" pad="1"/>
 <connect gate="G$1" pin="P1.4" pad="2"/>
 <connect gate="G$1" pin="P1.5" pad="3"/>
 <connect gate="G$1" pin="P1.6" pad="4"/>
 <connect gate="G$1" pin="P1.7" pad="5"/>
-<connect gate="G$1" pin="RST" pad="6"/>
+<connect gate="G$1" pin="P2.2" pad="10"/>
+<connect gate="G$1" pin="P2.4" pad="11"/>
 <connect gate="G$1" pin="P3.0" pad="7"/>
 <connect gate="G$1" pin="P3.1" pad="8"/>
 <connect gate="G$1" pin="P3.4" pad="9"/>
-<connect gate="G$1" pin="P2.2" pad="10"/>
-<connect gate="G$1" pin="P2.4" pad="11"/>
-<connect gate="G$1" pin="P5.1" pad="12"/>
 <connect gate="G$1" pin="P5.0" pad="13"/>
-<connect gate="G$1" pin="GND" pad="14"/>
-<connect gate="G$1" pin="VCC" pad="15"/>
+<connect gate="G$1" pin="P5.1" pad="12"/>
+<connect gate="G$1" pin="RST" pad="6"/>
 <connect gate="G$1" pin="V33" pad="16"/>
+<connect gate="G$1" pin="VCC" pad="15"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -10454,9 +10454,9 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <pinref part="U2" gate="G$1" pin="P3.4"/>
 </segment>
 <segment>
-<pinref part="J1" gate="G$1" pin="2"/>
-<wire x1="78.74" y1="-25.4" x2="81.28" y2="-25.4" width="0.1524" layer="91"/>
-<label x="81.28" y="-25.4" size="1.778" layer="95"/>
+<pinref part="J2" gate="G$1" pin="5"/>
+<wire x1="106.68" y1="-17.78" x2="109.22" y2="-17.78" width="0.1524" layer="91"/>
+<label x="109.22" y="-17.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="+5V" class="0">
@@ -10580,33 +10580,9 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <pinref part="U2" gate="G$1" pin="P1.1"/>
 </segment>
 <segment>
-<pinref part="J2" gate="G$1" pin="5"/>
-<wire x1="106.68" y1="-17.78" x2="109.22" y2="-17.78" width="0.1524" layer="91"/>
-<label x="109.22" y="-17.78" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="P3.0" class="0">
-<segment>
-<label x="127" y="12.7" size="1.778" layer="95"/>
-<wire x1="127" y1="12.7" x2="134.62" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="U2" gate="G$1" pin="P3.0"/>
-</segment>
-<segment>
-<pinref part="J2" gate="G$1" pin="4"/>
-<wire x1="106.68" y1="-20.32" x2="109.22" y2="-20.32" width="0.1524" layer="91"/>
-<label x="109.22" y="-20.32" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="P3.1" class="0">
-<segment>
-<label x="127" y="10.16" size="1.778" layer="95"/>
-<wire x1="127" y1="10.16" x2="134.62" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="U2" gate="G$1" pin="P3.1"/>
-</segment>
-<segment>
-<pinref part="J2" gate="G$1" pin="3"/>
-<wire x1="106.68" y1="-22.86" x2="109.22" y2="-22.86" width="0.1524" layer="91"/>
-<label x="109.22" y="-22.86" size="1.778" layer="95"/>
+<pinref part="J1" gate="G$1" pin="2"/>
+<wire x1="78.74" y1="-25.4" x2="81.28" y2="-25.4" width="0.1524" layer="91"/>
+<label x="81.28" y="-25.4" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="RST" class="0">
@@ -10642,6 +10618,30 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <pinref part="R3" gate="G$1" pin="2"/>
 <pinref part="LED2" gate="G$1" pin="A"/>
 <wire x1="144.78" y1="17.78" x2="147.32" y2="17.78" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="P3.0" class="0">
+<segment>
+<pinref part="J2" gate="G$1" pin="3"/>
+<wire x1="106.68" y1="-22.86" x2="109.22" y2="-22.86" width="0.1524" layer="91"/>
+<label x="109.22" y="-22.86" size="1.778" layer="95"/>
+</segment>
+<segment>
+<label x="127" y="12.7" size="1.778" layer="95"/>
+<wire x1="127" y1="12.7" x2="134.62" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="U2" gate="G$1" pin="P3.0"/>
+</segment>
+</net>
+<net name="P3.1" class="0">
+<segment>
+<label x="127" y="10.16" size="1.778" layer="95"/>
+<wire x1="127" y1="10.16" x2="134.62" y2="10.16" width="0.1524" layer="91"/>
+<pinref part="U2" gate="G$1" pin="P3.1"/>
+</segment>
+<segment>
+<pinref part="J2" gate="G$1" pin="4"/>
+<wire x1="106.68" y1="-20.32" x2="109.22" y2="-20.32" width="0.1524" layer="91"/>
+<label x="109.22" y="-20.32" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
