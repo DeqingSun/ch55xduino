@@ -1,7 +1,3 @@
-#if F_CPU != 32000000
-#error "This only run for 32M clock"
-#endif
-
 #include "src/pd.h"
 
 __xdata uint8_t status;

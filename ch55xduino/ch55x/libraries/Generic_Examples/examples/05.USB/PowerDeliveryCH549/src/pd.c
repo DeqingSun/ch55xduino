@@ -4,6 +4,17 @@
 #include <Arduino.h>
 //!!!!
 
+#if F_CPU == 32000000
+#define TIMEOUTCOUNT_LIMIT 700
+#define TL0_RECV_START_VALUE 0
+#define TL0_RECV_BIT0_UPPER_LIMIT 121
+#define TL0_RECV_BIT1_UPPER_LIMIT 87
+#define TL0_RECV_BIT1_LOWER_LIMIT 50
+#elif F_CPU == 16000000
+#define TIMEOUTCOUNT_LIMIT 350
+#else
+#error "This only run for 32M clock"
+#endif
 
 __xdata uint8_t CCSel;
 __xdata uint8_t RecvSop;
@@ -327,30 +338,30 @@ void CMP_Interrupt() {
   __data uint8_t bitmask = 3;
   __data uint8_t tempA = 0;
 
-  TL0 = 0;
-  TH0 = 0;
+  TL0 = TL0_RECV_START_VALUE;
+  TH0 = TL0_RECV_START_VALUE;
   TF0 = 0;
   TR0 = 1;
   RcvDataCount = 0;
   //for BMC@300K,each 0 is 3.33us and 1 is 1.66us*2
   do {
-    TL0 = 0;
+    TL0 = TL0_RECV_START_VALUE;
     ADC_CTRL = bCMP_IF;
     while ((ADC_CTRL & bCMP_IF) == 0) {
       //121@32M = 3.78us, longer than a regular bit
-      if (TL0 >= 121) {
+      if (TL0 >= TL0_RECV_BIT0_UPPER_LIMIT) {
         return;
       }
     }
     //87@32M = 2.72us, try until we find a bit 0
-  } while (TL0 < 87);
+  } while (TL0 < TL0_RECV_BIT1_UPPER_LIMIT);
   //now we are at an end of bit 0
-  TL0 = 0;
+  TL0 = TL0_RECV_START_VALUE;
   ADC_CTRL = bCMP_IF;
   do {
     //another transition!
     if ((ADC_CTRL & bCMP_IF)) {
-      TL0 = 0;
+      TL0 = TL0_RECV_START_VALUE;
       ADC_CTRL = bCMP_IF;
       do {
         //wait for another transition
@@ -364,7 +375,7 @@ void CMP_Interrupt() {
         }
         //since we are look for preamble, we are sure we are at end of bit 1.
         //if there are 2 of 0 then the code will not work, but it is not preamble anyway.
-        TL0 = 0;
+        TL0 = TL0_RECV_START_VALUE;
         ADC_CTRL = bCMP_IF;
         RcvDataBuf[0] = (RcvDataBuf[0] << 1) + tempA;
         //last 2 bit are 00 or 10, that is the end of preamble
@@ -376,7 +387,7 @@ void CMP_Interrupt() {
           preambleFlag = 0;
         }
         //wait 1.56us, if it is 1 we should already passed the center
-        while (TL0 < 0x32);
+        while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
         tempA = ((ADC_CTRL & bCMP_IF) != 0);
         if (tempA) {
           ADC_CTRL = bCMP_IF;
@@ -385,7 +396,7 @@ void CMP_Interrupt() {
       //now we are 2 bits beyond preamble
       do {
         while ((ADC_CTRL & bCMP_IF)) {
-          TL0 = 0;
+          TL0 = TL0_RECV_START_VALUE;
           ADC_CTRL = 0x40;
           RcvDataBuf[RcvDataCount] = (RcvDataBuf[RcvDataCount] << 1) + tempA;
           //each byte contains 5bits.
@@ -395,7 +406,7 @@ void CMP_Interrupt() {
             RcvDataCount++;
           }
           //wait 1.56us, if it is 1 we should already passed the center
-          while (TL0 < 0x32);
+          while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
           if ((ADC_CTRL & bCMP_IF) == 0) {
             tempA = false;
           }
@@ -410,7 +421,7 @@ void CMP_Interrupt() {
       return;
     }
     //as long as we are shorter than a regular bit
-  } while (TL0 < 121);
+  } while (TL0 < TL0_RECV_BIT0_UPPER_LIMIT);
 }
 
 void SEND_INTERRUPT(){
@@ -587,7 +598,7 @@ uint8_t SendHandle(){
 
       delayMicroseconds(1);
       TimeOutCount++;
-    }while(TimeOutCount < 700);
+    }while(TimeOutCount < TIMEOUTCOUNT_LIMIT);
 
     delayMicroseconds(2000);
     RetryCount--;
@@ -605,7 +616,8 @@ uint8_t ReceiveHandle() {
   ADC_CTRL = bCMP_IF;
   while ((ADC_CTRL & bCMP_IF) == 0) {
     TimeOutCount++;
-    if (TimeOutCount >= 700) {  //need more investigation what time it means. ( (34+3+(2or3))*700 clks? 0.85ms? 256bits of BMC?) this SDCC code need more tuning
+    //need more investigation what time it means. ( (34+3+(2or3))*700 clks? 0.85ms? 256bits of BMC?) this SDCC code need more tuning
+    if (TimeOutCount >= TIMEOUTCOUNT_LIMIT) {  
       return NODATA;
     }
   }
