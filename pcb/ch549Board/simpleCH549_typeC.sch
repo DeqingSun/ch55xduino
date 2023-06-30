@@ -8133,24 +8133,24 @@ chip</description>
 </package>
 </packages>
 <symbols>
-<symbol name="MY_IC_CH551G_CH552G">
+<symbol name="MY_IC_CH549G">
 <wire x1="-10.16" y1="-17.78" x2="10.16" y2="-17.78" width="0.4064" layer="94"/>
 <wire x1="10.16" y1="-17.78" x2="10.16" y2="17.78" width="0.4064" layer="94"/>
 <wire x1="10.16" y1="17.78" x2="-10.16" y2="17.78" width="0.4064" layer="94"/>
 <wire x1="-10.16" y1="17.78" x2="-10.16" y2="-17.78" width="0.4064" layer="94"/>
 <pin name="GND" x="-15.24" y="-15.24" length="middle" direction="pwr"/>
-<pin name="P1.1" x="15.24" y="5.08" length="middle" rot="R180"/>
+<pin name="P3.4" x="15.24" y="5.08" length="middle" rot="R180"/>
 <pin name="P1.4" x="15.24" y="7.62" length="middle" rot="R180"/>
 <pin name="P1.5" x="15.24" y="10.16" length="middle" rot="R180"/>
 <pin name="P1.6" x="15.24" y="12.7" length="middle" rot="R180"/>
 <pin name="P1.7" x="15.24" y="15.24" length="middle" rot="R180"/>
-<pin name="P3.0" x="15.24" y="-15.24" length="middle" rot="R180"/>
-<pin name="P3.1" x="15.24" y="-12.7" length="middle" rot="R180"/>
-<pin name="P3.2" x="15.24" y="-10.16" length="middle" rot="R180"/>
-<pin name="P3.3" x="15.24" y="-7.62" length="middle" rot="R180"/>
-<pin name="P3.4" x="15.24" y="-5.08" length="middle" rot="R180"/>
-<pin name="P3.6" x="15.24" y="-2.54" length="middle" rot="R180"/>
-<pin name="P3.7" x="15.24" y="0" length="middle" rot="R180"/>
+<pin name="P3.1" x="15.24" y="-15.24" length="middle" rot="R180"/>
+<pin name="P3.0" x="15.24" y="-12.7" length="middle" rot="R180"/>
+<pin name="P1.1" x="15.24" y="-10.16" length="middle" rot="R180"/>
+<pin name="P2.2" x="15.24" y="-7.62" length="middle" rot="R180"/>
+<pin name="P2.4" x="15.24" y="-5.08" length="middle" rot="R180"/>
+<pin name="P5.1" x="15.24" y="-2.54" length="middle" rot="R180"/>
+<pin name="P5.0" x="15.24" y="0" length="middle" rot="R180"/>
 <pin name="RST" x="-15.24" y="15.24" length="middle" direction="in"/>
 <pin name="V33" x="-15.24" y="7.62" length="middle" direction="pwr"/>
 <pin name="VCC" x="-15.24" y="0" length="middle" direction="pwr"/>
@@ -8159,29 +8159,29 @@ chip</description>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="MY_IC_CH551G_CH552G">
+<deviceset name="MY_IC_CH549G">
 <gates>
-<gate name="G$1" symbol="MY_IC_CH551G_CH552G" x="0" y="0"/>
+<gate name="G$1" symbol="MY_IC_CH549G" x="0" y="0"/>
 </gates>
 <devices>
 <device name="SOP-16" package="MY_IC_SO16">
 <connects>
-<connect gate="G$1" pin="GND" pad="14"/>
-<connect gate="G$1" pin="P1.1" pad="9"/>
+<connect gate="G$1" pin="P1.1" pad="1"/>
 <connect gate="G$1" pin="P1.4" pad="2"/>
 <connect gate="G$1" pin="P1.5" pad="3"/>
 <connect gate="G$1" pin="P1.6" pad="4"/>
 <connect gate="G$1" pin="P1.7" pad="5"/>
-<connect gate="G$1" pin="P3.0" pad="8"/>
-<connect gate="G$1" pin="P3.1" pad="7"/>
-<connect gate="G$1" pin="P3.2" pad="1"/>
-<connect gate="G$1" pin="P3.3" pad="10"/>
-<connect gate="G$1" pin="P3.4" pad="11"/>
-<connect gate="G$1" pin="P3.6" pad="12"/>
-<connect gate="G$1" pin="P3.7" pad="13"/>
 <connect gate="G$1" pin="RST" pad="6"/>
-<connect gate="G$1" pin="V33" pad="16"/>
+<connect gate="G$1" pin="P3.0" pad="7"/>
+<connect gate="G$1" pin="P3.1" pad="8"/>
+<connect gate="G$1" pin="P3.4" pad="9"/>
+<connect gate="G$1" pin="P2.2" pad="10"/>
+<connect gate="G$1" pin="P2.4" pad="11"/>
+<connect gate="G$1" pin="P5.1" pad="12"/>
+<connect gate="G$1" pin="P5.0" pad="13"/>
+<connect gate="G$1" pin="GND" pad="14"/>
 <connect gate="G$1" pin="VCC" pad="15"/>
+<connect gate="G$1" pin="V33" pad="16"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -10246,7 +10246,7 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <part name="P+3" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+5V" device=""/>
 <part name="GND3" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="GND" device=""/>
 <part name="R2" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="20K"/>
-<part name="U2" library="myOwnLib" deviceset="MY_IC_CH551G_CH552G" device="SOP-16" value="CH552G">
+<part name="U2" library="myOwnLib" deviceset="MY_IC_CH549G" device="SOP-16" value="CH549G">
 <attribute name="LCSC" value="C111292"/>
 </part>
 <part name="LED1" library="BeagleBone_Black_Wireless" library_urn="urn:adsk.eagle:library:6644236" deviceset="GHI-BASICCOMPONENTS_LED-(INCH)-" device="0805" package3d_urn="urn:adsk.eagle:package:6644356/2" value="PWR"/>
@@ -10259,7 +10259,7 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <part name="P+5" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+5V" device=""/>
 <part name="S1" library="SparkFun-Switches" library_urn="urn:adsk.eagle:library:535" deviceset="MOMENTARY-SWITCH-SPST" device="-SMD-6.2MM-TALL" package3d_urn="urn:adsk.eagle:package:40172/1"/>
 <part name="R3" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="20K"/>
-<part name="LED2" library="BeagleBone_Black_Wireless" library_urn="urn:adsk.eagle:library:6644236" deviceset="GHI-BASICCOMPONENTS_LED-(INCH)-" device="0805" package3d_urn="urn:adsk.eagle:package:6644356/2" value="P3.3"/>
+<part name="LED2" library="BeagleBone_Black_Wireless" library_urn="urn:adsk.eagle:library:6644236" deviceset="GHI-BASICCOMPONENTS_LED-(INCH)-" device="0805" package3d_urn="urn:adsk.eagle:package:6644356/2" value="P2.2"/>
 <part name="GND6" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="GND" device=""/>
 <part name="GOLD_ORB_SM1" library="oshw" deviceset="OSHWLOGO" device="LOGO8MM"/>
 <part name="J4" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="USB_A" device="_SMT_MALE" package3d_urn="urn:adsk.eagle:package:38305/1"/>
@@ -10427,7 +10427,7 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <segment>
 <wire x1="127" y1="25.4" x2="134.62" y2="25.4" width="0.1524" layer="91"/>
 <label x="127" y="25.4" size="1.778" layer="95"/>
-<pinref part="U2" gate="G$1" pin="P3.7"/>
+<pinref part="U2" gate="G$1" pin="P5.0"/>
 </segment>
 </net>
 <net name="USB_D+" class="0">
@@ -10439,7 +10439,7 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <segment>
 <wire x1="127" y1="22.86" x2="134.62" y2="22.86" width="0.1524" layer="91"/>
 <label x="127" y="22.86" size="1.778" layer="95"/>
-<pinref part="U2" gate="G$1" pin="P3.6"/>
+<pinref part="U2" gate="G$1" pin="P5.1"/>
 </segment>
 <segment>
 <wire x1="104.14" y1="55.88" x2="96.52" y2="55.88" width="0.1524" layer="91"/>
@@ -10447,11 +10447,11 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <pinref part="R1" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="P1.1" class="0">
+<net name="P3.4" class="0">
 <segment>
 <label x="127" y="30.48" size="1.778" layer="95"/>
 <wire x1="133.35" y1="30.48" x2="127" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="U2" gate="G$1" pin="P1.1"/>
+<pinref part="U2" gate="G$1" pin="P3.4"/>
 </segment>
 <segment>
 <pinref part="J1" gate="G$1" pin="2"/>
@@ -10548,11 +10548,11 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <label x="81.28" y="-15.24" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="P3.4" class="0">
+<net name="P2.4" class="0">
 <segment>
 <wire x1="127" y1="20.32" x2="134.62" y2="20.32" width="0.1524" layer="91"/>
 <label x="127" y="20.32" size="1.778" layer="95"/>
-<pinref part="U2" gate="G$1" pin="P3.4"/>
+<pinref part="U2" gate="G$1" pin="P2.4"/>
 </segment>
 <segment>
 <pinref part="J2" gate="G$1" pin="7"/>
@@ -10560,11 +10560,11 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <label x="109.22" y="-12.7" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="P3.3" class="0">
+<net name="P2.2" class="0">
 <segment>
 <label x="127" y="17.78" size="1.778" layer="95"/>
 <wire x1="127" y1="17.78" x2="134.62" y2="17.78" width="0.1524" layer="91"/>
-<pinref part="U2" gate="G$1" pin="P3.3"/>
+<pinref part="U2" gate="G$1" pin="P2.2"/>
 <pinref part="R3" gate="G$1" pin="1"/>
 </segment>
 <segment>
@@ -10573,11 +10573,11 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <label x="109.22" y="-15.24" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="P3.2" class="0">
+<net name="P1.1" class="0">
 <segment>
 <wire x1="127" y1="15.24" x2="134.62" y2="15.24" width="0.1524" layer="91"/>
 <label x="127" y="15.24" size="1.778" layer="95"/>
-<pinref part="U2" gate="G$1" pin="P3.2"/>
+<pinref part="U2" gate="G$1" pin="P1.1"/>
 </segment>
 <segment>
 <pinref part="J2" gate="G$1" pin="5"/>
@@ -10585,11 +10585,11 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <label x="109.22" y="-17.78" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="P3.1" class="0">
+<net name="P3.0" class="0">
 <segment>
 <label x="127" y="12.7" size="1.778" layer="95"/>
 <wire x1="127" y1="12.7" x2="134.62" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="U2" gate="G$1" pin="P3.1"/>
+<pinref part="U2" gate="G$1" pin="P3.0"/>
 </segment>
 <segment>
 <pinref part="J2" gate="G$1" pin="4"/>
@@ -10597,11 +10597,11 @@ SparkFun BigTime Watch Kit&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 <label x="109.22" y="-20.32" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="P3.0" class="0">
+<net name="P3.1" class="0">
 <segment>
 <label x="127" y="10.16" size="1.778" layer="95"/>
 <wire x1="127" y1="10.16" x2="134.62" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="U2" gate="G$1" pin="P3.0"/>
+<pinref part="U2" gate="G$1" pin="P3.1"/>
 </segment>
 <segment>
 <pinref part="J2" gate="G$1" pin="3"/>
