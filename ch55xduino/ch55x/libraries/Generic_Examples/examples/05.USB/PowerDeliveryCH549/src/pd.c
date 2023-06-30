@@ -10,8 +10,16 @@
 #define TL0_RECV_BIT0_UPPER_LIMIT 121
 #define TL0_RECV_BIT1_UPPER_LIMIT 87
 #define TL0_RECV_BIT1_LOWER_LIMIT 50
+#define TL0_SEND_START_VALUE 150
+#define TL0_SEND_BIT1_TOGGLE 196
 #elif F_CPU == 16000000
 #define TIMEOUTCOUNT_LIMIT 350
+#define TL0_RECV_START_VALUE 128
+#define TL0_RECV_BIT0_UPPER_LIMIT 189
+#define TL0_RECV_BIT1_UPPER_LIMIT 171
+#define TL0_RECV_BIT1_LOWER_LIMIT 153
+#define TL0_SEND_START_VALUE 203
+#define TL0_SEND_BIT1_TOGGLE 226
 #else
 #error "This only run for 32M clock"
 #endif
@@ -430,8 +438,8 @@ void SEND_INTERRUPT(){
     __bit sendBit = 1;
     TR0 = 0;
     TF0 = 0;
-    TH0 = 0x96;
-    TL0 = 0x96;
+    TH0 = TL0_SEND_START_VALUE;
+    TL0 = TL0_SEND_START_VALUE;
     __data uint8_t sendCounter = 63;
     //sending 01010101.... end of 1
     //send 63 bits of 10101....01
@@ -448,7 +456,7 @@ void SEND_INTERRUPT(){
       TF0 = 0;
       //1.435us (196-150)@32M
       //toggle in middle if we have 1
-      while(TL0<196); 
+      while(TL0<TL0_SEND_BIT1_TOGGLE); 
       if (sendBit){
         P1^=toggleMask;
       }
@@ -465,7 +473,7 @@ void SEND_INTERRUPT(){
       // use a mask to get a bit
       sendBit = (SndDataBuf[sendCounter]&dataSendMask)!=0;
       dataSendMask<<=1;
-      while(TL0<196); 
+      while(TL0<TL0_SEND_BIT1_TOGGLE); 
       if (sendBit){
         P1^=toggleMask;
       }
