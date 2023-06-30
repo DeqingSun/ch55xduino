@@ -8,7 +8,8 @@ __xdata uint8_t status;
 __xdata uint16_t ERR;
 __xdata uint8_t Connect_Status;
 
-#define TARGET_VOLT_MV (12000)
+//testing voltage not too high
+#define TARGET_VOLT_MV (5000)
 
 void setT0ForCC() {
   TR0 = 0;
@@ -145,6 +146,7 @@ void loop() {
                 matchCurrent = current/10;
               }
             }
+            Serial0_flush();
             if (searchIndex != 0xFF) {
               // prepare package to request high voltage
               ResetSndHeader();
@@ -152,6 +154,7 @@ void loop() {
               Union_Header->HeaderStruct.PortDataRole = DataRoleUFP;
               Union_Header->HeaderStruct.NDO = 1;
               Union_Header->HeaderStruct.MsgType = SinkSendRequest;
+              
               //clear data buffer
               for (uint8_t i = 0; i < 4; i++) {
                 SndDataBuf[2 + i] = 0;
