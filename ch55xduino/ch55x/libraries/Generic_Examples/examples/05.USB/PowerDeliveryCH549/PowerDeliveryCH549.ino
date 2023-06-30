@@ -36,18 +36,14 @@ void PD_Init( )
   P1_MOD_OC &= ~(bUCC2 | bUCC1);
   P1_DIR_PU &= ~(bUCC2 | bUCC1);                                                   //UCC1 UCC2 Set to float input
 
-  P2_MOD_OC &= ~(5 << 2);                                                          //LED1 LED2 Push pull output
-  P2_DIR_PU |= (5 << 2);
-
   USB_C_CTRL |= bUCC1_PD_EN | bUCC2_PD_EN;                                         //CC1 pulldown 5.1K (ext?)
   CCSel = 1;                                                                       //choose CC1
-  USB_C_CTRL |= bUCC_PD_MOD;                                                       //BMC Output enable
+  USB_C_CTRL |= bUCC_PD_MOD;                                                       //BMC Output enable, on CH549, this make output under 1.2V
 
   ADC_CFG |= (bADC_EN | bADC_AIN_EN | bVDD_REF_EN | bCMP_EN);                      //enable ADC power, open ext channel, open comparator and reference power, NEG of comp using 1/8VDD
   ADC_CFG = ADC_CFG & ~(bADC_CLK0 | bADC_CLK1);                                    //ADC lock set to 750K
   ADC_CTRL = bADC_IF;                                                              //Clear ADC conversion finish flag
-  delayMicroseconds(2);                                                                     //wait till ADC power to be stablea
-  delayMicroseconds(2);
+  delayMicroseconds(2);                                                            //wait till ADC power to be stable
 }
 
 uint8_t Connect_Check( void )
@@ -170,34 +166,6 @@ void loop() {
               Serial0_println("No Matched Volt.");
             }
           }
-
-
-          /*index = SearchVoltage ( 5000 );                          //µÁ—π—°‘Ò
-            if(index != 0xFF)
-            {
-            Union_SrcCap = (_Union_SrcCap*)&RcvDataBuf[(index<<2)+2];
-            printf("Volt:%d mV\n",(UINT16)(((Union_SrcCap->SrcCapStruct.VoltH4<<6)+(Union_SrcCap->SrcCapStruct.VoltL6))*50));
-            printf("Current:%d mA\n",(UINT16)(Union_SrcCap->SrcCapStruct.Current*10) );
-
-            ResetSndHeader();
-            Union_Header->HeaderStruct.PortPwrRole = PwrRoleSink;
-            Union_Header->HeaderStruct.PortDataRole = DataRoleUFP;
-            Union_Header->HeaderStruct.NDO = 1;                //1 Byte ˝æ›
-            Union_Header->HeaderStruct.MsgType = SinkSendRequest;
-            RcvDataBuf[(index<<2)+2] = ((index+1)<<4);
-            RcvDataBuf[(index<<2)+3] &= 0x0f;
-
-            RcvDataBuf[(index<<2)+3] &= 0xf0;
-            RcvDataBuf[(index<<2)+4] &= 0x03;
-            RcvDataBuf[(index<<2)+4] |= ((RcvDataBuf[(index<<2)+5] &0x3f)<<2);
-            RcvDataBuf[(index<<2)+3] |= ((RcvDataBuf[(index<<2)+5]>>6)+ ((RcvDataBuf[(index<<2)+4]&0x03)<<2));
-            memcpy(&SndDataBuf[2],&RcvDataBuf[(index<<2)+2],4);
-            SendHandle(CCSel,SOP);
-            }
-            else
-            {
-            Serial0_println("No Matched Volt.");
-            }*/
           break;
         case Accept:
           Serial0_println("Accept");
@@ -234,16 +202,6 @@ void loop() {
 
     P1_6 = 0;//!!!!!!
 
-    //Serial0_println("DONE");
-
-    /*if (RcvDataCount > 0) {
-      for (uint8_t i = 0; i < RcvDataCount; i++) {
-        USBSerial_print(RcvDataBuf[i], HEX);
-        USBSerial_print(" ");
-      }
-      USBSerial_println();
-      RcvDataCount = 0;
-      }*/
   }
 
 }
