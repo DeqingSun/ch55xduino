@@ -195,13 +195,13 @@
 <text x="10.0076" y="3.1496" size="0.6096" layer="25">F</text>
 <text x="8.3312" y="9.7028" size="0.6096" layer="25">GND</text>
 <text x="11.0744" y="9.7028" size="0.6096" layer="25">5V</text>
-<text x="13.6144" y="9.7028" size="0.6096" layer="25">30~</text>
-<text x="16.1544" y="9.7028" size="0.6096" layer="25">31~</text>
-<text x="18.6944" y="9.7028" size="0.6096" layer="25">32</text>
-<text x="21.2344" y="9.7028" size="0.6096" layer="25">33</text>
-<text x="23.7744" y="9.7028" size="0.6096" layer="25">34~</text>
+<text x="13.6144" y="9.7028" size="0.6096" layer="25">31</text>
+<text x="16.1544" y="9.7028" size="0.6096" layer="25">30</text>
+<text x="18.6944" y="9.7028" size="0.6096" layer="25">11</text>
+<text x="21.2344" y="9.7028" size="0.6096" layer="25">22~</text>
+<text x="23.7744" y="9.7028" size="0.6096" layer="25">24~</text>
 <text x="8.382" y="1.7272" size="0.6096" layer="25">GND</text>
-<text x="11.1252" y="1.7272" size="0.6096" layer="25">11</text>
+<text x="11.1252" y="1.7272" size="0.6096" layer="25">34</text>
 <text x="13.6652" y="1.7272" size="0.6096" layer="25">14</text>
 <text x="16.2052" y="1.7272" size="0.6096" layer="25">15~</text>
 <text x="18.7452" y="1.7272" size="0.6096" layer="25">16</text>
@@ -216,53 +216,43 @@
 <text x="2.0828" y="2.9464" size="0.8128" layer="25" rot="R90">Deqing, 2023</text>
 <text x="8.9916" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">GND</text>
 <text x="11.0744" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">5V</text>
-<text x="13.5636" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P3.0
-PWM1_
-RXD</text>
-<text x="16.7132" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P3.1
-PWM2_
+<text x="13.5636" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P3.1
 TXD</text>
-<text x="19.558" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P3.2
-TXD1_
-INT0
-VBUS1
-AIN3</text>
-<text x="21.6408" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P2.2
-INT1</text>
-<text x="24.4348" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P3.4
-PWM2
-RXD1_
-T0</text>
-<text x="8.9916" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">GND</text>
-<text x="11.0236" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">AIN0
-VBUS2
-TIN1
-CAP2
+<text x="16.7132" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P3.0
+RXD</text>
+<text x="19.177" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P1.1
 T2EX
-P1.1</text>
-<text x="13.9192" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">AIN1
-UCC1
-TIN2
-SCS
-CAP1_
-T2_
-P1.4</text>
-<text x="16.7132" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">AIN2
-UCC2
-TIN3
+CAP2
+AIN1</text>
+<text x="21.8948" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P2.2
+PWM3
+INT0_</text>
+<text x="24.4348" y="10.0076" size="0.6096" layer="26" distance="30" rot="MR0" align="top-left">P2.4
 PWM1
+T2_
+CAP1_</text>
+<text x="8.9916" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">GND</text>
+<text x="11.0236" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">T0
+P3.4</text>
+<text x="13.9192" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">AIN4
+UCC1
+SCS
+P1.4</text>
+<text x="16.7132" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">AIN5
+UCC2
+PWM0_
 MOSI
 P1.5</text>
-<text x="19.2024" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">TIN4
-RXD1
+<text x="19.4564" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">AIN6
+VBUS
+RXD1_
 MISO
 P1.6</text>
-<text x="21.59" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">TIN5
-TXD1
+<text x="22.225" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">AIN7
+TXD1_
 SCK
 P1.7</text>
-<text x="24.5364" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">CAP2_
-T2EX_
+<text x="24.5364" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">P5.7
 RST</text>
 <text x="6.7818" y="8.3312" size="0.8128" layer="26" distance="30" rot="MR0">Deqing Sun
 2023</text>
