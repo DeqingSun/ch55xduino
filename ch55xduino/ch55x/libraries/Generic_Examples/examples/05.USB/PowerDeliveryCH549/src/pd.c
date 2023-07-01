@@ -26,6 +26,9 @@
 #error "This only run for 32M clock"
 #endif
 
+#define STR_INDIR(x) #x
+#define STR(x) STR_INDIR(x)
+
 __xdata uint8_t CCSel;
 __xdata uint8_t RecvSop;
 //extern _Union_Header xdata *Union_Header;
@@ -45,6 +48,8 @@ __xdata uint8_t SndDone;
 ///pointer physically in data ram pointing to xdata
 __xdata _Union_Header * __data Union_Header;
 __xdata _Union_SrcCap * __data Union_SrcCap;
+
+__bit pd_send_recv_flag;
 
 __code uint8_t Cvt5B4B[32]={
     0xff,0xff,0xff,0xff,0xff,0x02,0xff,0x0e,
@@ -344,28 +349,25 @@ void CMP_Interrupt() {
     "    dec _XBUS_AUX                            \n"
   );
 
-  RcvDataCount = 0;
-  TF0 = 0;
-  TR0 = 0;
-  //passing the value to inline assembly
-  //defined value does not work
-  TH0 = TL0_RECV_START_VALUE; 
-  B = (256-TL0_RECV_BIT0_UPPER_LIMIT);
-  DPL = (256-TL0_RECV_BIT1_UPPER_LIMIT);
-  DPH = TL0_RECV_BIT1_LOWER_LIMIT;
-
   P1_7=1;//!!!!
 
   __asm__(
-    //even need more check with compiler
-    "; .even                                      \n"
+    "  .even                                      \n"
+    "; RcvDataCount = 0;                          \n"
+    "    mov	dptr,#_RcvDataCount                 \n"
+    "    clr	a                                   \n"
+    "    movx	@dptr,a                             \n"
+    "    clr _TR0                                 \n"
+    "    clr _TF0                                 \n"
     "; prepare constants                          \n"
-    "    mov r7,#0x40                     ;bCMP_IF\n"
-    "    mov r6,_TH0                              \n"
-    "    mov r5,b ;(256-TL0_RECV_BIT0_UPPER_LIMIT)\n"
-    "    mov r4,dpl                               \n"
-    "    mov r3,dph                               \n"
-    "    mov r2,0                    ;RcvDataCount\n"
+    "    mov r7,#" STR(bCMP_IF) "                 \n"
+    "    mov r6,#" STR(TL0_RECV_START_VALUE) "    \n"
+    "    mov r5,#" STR(256-TL0_RECV_BIT0_UPPER_LIMIT) "\n"
+    "    mov r4,#" STR(256-TL0_RECV_BIT1_UPPER_LIMIT) "\n"
+    "    mov r3,#" STR(256-TL0_RECV_BIT1_LOWER_LIMIT) "\n"
+    "    mov r2,0              ;RcvDataCount_local\n"
+    "    mov r1,0                    ;RcvBuf_local\n"
+    "    clr _pd_send_recv_flag                   \n"
     "    nop                            ;alignment\n"
     "; wait until we get a bit 0 (3.33us)         \n"
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
@@ -383,6 +385,7 @@ void CMP_Interrupt() {
     "    mov	a,_TL0                              \n"
     "    add	a,r5                                \n"
     "    jnc loop_recv_wait_for_bit_0_while$      \n"
+    "recv_direct_exit_1$:                         \n"
     "    clr _TR0                                 \n"
     "    clr _TF0                                 \n"
     "    ret                                      \n"
@@ -391,10 +394,62 @@ void CMP_Interrupt() {
     "    mov	a,_TL0                              \n"
     "    add	a,r4                                \n"
     "    jnc recv_wait_for_bit_0$                 \n"
-
     //now we are at an end of bit 0
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+    //next bit is bit 1, we wait for it
+    "loop_recv_wait_for_bit_1_in_preamble$:       \n"
+    "    mov	a,_TL0                              \n"
+    "    add	a,r5                                \n"
+    "    jc recv_direct_exit_1$  ;just exit if > TL0_RECV_BIT0_UPPER_LIMIT \n"
+    "    mov	a,_ADC_CTRL                         \n"
+    "    jnb	acc.6,loop_recv_wait_for_bit_1_in_preamble$\n"
+    //now we are after the middle of bit 1
+    "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+    "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+
+    "loop_recv_getting_bits$:                     \n"
+    "    jb _TF0,recv_direct_exit_1$ ;just exit if TF0\n"
+    "    mov	a,_ADC_CTRL                         \n"
+    "    jnb	acc.6,loop_recv_getting_bits$       \n"
+    "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+    "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+    "; now we are just after the beginning of bit \n"
+
+
+"clr _P1_7           \n"
+"setb _P1_7           \n"
+
+
+
+    //wait 1.56us, if it is 1 we should already passed the center
+    //while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
+    "loop_recv_preamble_wait_center$:             \n"
+    "    mov	a,_TL0                              \n"
+    "    add	a,r3                                \n"
+    "    jnc loop_recv_preamble_wait_center$      \n"
+    "    mov	a,_ADC_CTRL                         \n"
+    "    mov	c,acc.6                             \n"
+    "    mov	_pd_send_recv_flag,c                \n"
+    "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+
+
+
+
+    "ljmp loop_recv_getting_bits$                 \n"
+
+
+
+
+    
+    //!!!!not used
+
+    
+
+
+
+
+/*
     "loop_recv_wait_for_receive_while$:           \n"
     ////another transition!
     //if ((ADC_CTRL & bCMP_IF))
@@ -413,9 +468,30 @@ void CMP_Interrupt() {
     //if there are 2 of 0 then the code will not work, but it is not preamble anyway.
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+    "    mov c,_pd_send_recv_flag                 \n"
+    "    mov a,r1                    ;RcvBuf_local\n"
+    "    rlc a                                    \n"
+    "    mov r1,a                    ;RcvBuf_local\n"
+    ";check if RcvBuf_local is 0x54 or 0x56       \n"
+    "    add a,#(255-0x54)                        \n"
+    "    jz end_of_recv_preamble$                 \n"
+    "    mov a,r1                    ;RcvBuf_local\n"
+    "    add a,#(255-0x56)                        \n"
+    "    jz end_of_recv_preamble$                 \n"
+    //wait 1.56us, if it is 1 we should already passed the center
+    //while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
+    "loop_recv_preamble_wait_center$:             \n"
+    "    mov	a,_TL0                              \n"
+    "    add	a,r3                                \n"
+    "    jnc loop_recv_preamble_wait_center$      \n"
+    "    mov	a,_ADC_CTRL                         \n"
+    "    mov	c,acc.6                             \n"
+    "    mov	_pd_send_recv_flag,c                \n"
+    "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
 
-"clr _P1_7           \n"
-"setb _P1_7           \n"
+
+
+"mov _P1_7,c           \n"
 
 
     "loop_recv_no_flip_yet$:                      \n"
@@ -424,18 +500,29 @@ void CMP_Interrupt() {
     "    add	a,r5                                \n"
     "    jnc loop_recv_wait_for_receive_while$    \n"
 
+    "end_of_recv_preamble$:                       \n"
+    ";because we want to be fast, we do one bit here\n"
 
+//RcvDataBuf[0] = RcvDataBuf[0] & 3;
 
+"clr _P1_7           \n"
+"setb _P1_7           \n"
 
 
 
     "    ljmp not_return_from_recv$     \n"
     "return_from_recv$:                           \n"
     "   ret                           \n"
-    "not_return_from_recv$:                           \n"
+    "not_return_from_recv$:                           \n"*/
   );
 
 P1_7=0; //!!!!!
+
+        while ( ((ADC_CTRL & bCMP_IF)==0) && (TL0 < TL0_RECV_BIT0_UPPER_LIMIT) );
+        B = ((ADC_CTRL & bCMP_IF) != 0);
+        if (B) {
+          ADC_CTRL = bCMP_IF;
+        }
 
 return;
 
