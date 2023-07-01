@@ -50,6 +50,7 @@ __xdata _Union_Header * __data Union_Header;
 __xdata _Union_SrcCap * __data Union_SrcCap;
 
 __bit pd_send_recv_flag;
+__bit pd_send_recv_status;
 
 __code uint8_t Cvt5B4B[32]={
     0xff,0xff,0xff,0xff,0xff,0x02,0xff,0x0e,
@@ -368,6 +369,7 @@ void CMP_Interrupt() {
     "    mov r2,0              ;RcvDataCount_local\n"
     "    mov r1,0                    ;RcvBuf_local\n"
     "    clr _pd_send_recv_flag                   \n"
+    "    clr _pd_send_recv_status                 \n"
     "    nop                            ;alignment\n"
     "; wait until we get a bit 0 (3.33us)         \n"
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
@@ -416,12 +418,15 @@ void CMP_Interrupt() {
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
     "; now we are just after the beginning of bit \n"
 
-
-"clr _P1_7           \n"
-"setb _P1_7           \n"
-
-
-
+    "    mov c,_pd_send_recv_flag                 \n"
+    "    mov a,r1                    ;RcvBuf_local\n"
+    "    rlc a                                    \n"
+    "    mov r1,a                    ;RcvBuf_local\n"
+    ";check if RcvBuf_local is 0x54 or 0x56       \n"
+    "    orl a,#0x2            ;0x54 will be 0x56 \n"
+    "    add a,#(256-0x56)                        \n"
+    "    jnz loop_recv_preamble_wait_center$      \n"
+    "    setb _pd_send_recv_status                \n"
     //wait 1.56us, if it is 1 we should already passed the center
     //while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
     "loop_recv_preamble_wait_center$:             \n"
@@ -432,11 +437,13 @@ void CMP_Interrupt() {
     "    mov	c,acc.6                             \n"
     "    mov	_pd_send_recv_flag,c                \n"
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+    "jnb _pd_send_recv_status,loop_recv_getting_bits$\n"
+    //RcvDataBuf[0] = RcvDataBuf[0] & 3;
+    "    mov a,r1                    ;RcvBuf_local\n"
+    "    anl a,#3                                 \n"
+    "    mov r1,a                    ;RcvBuf_local\n"
 
-
-
-
-    "ljmp loop_recv_getting_bits$                 \n"
+    
 
 
 
