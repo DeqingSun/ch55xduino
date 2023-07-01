@@ -367,6 +367,7 @@ void CMP_Interrupt() {
     "    mov	dptr,#_RcvDataCount                 \n"
     "    clr	a                                   \n"
     "    movx	@dptr,a                             \n"
+    "    mov	dptr,#_RcvDataBuf                   \n"
     "    clr _TR0                                 \n"
     "    clr _TF0                                 \n"
     "; prepare constants                          \n"
@@ -377,9 +378,10 @@ void CMP_Interrupt() {
     "    mov r3,#" STR(256-TL0_RECV_BIT1_LOWER_LIMIT) "\n"
     "    mov r2,0              ;RcvDataCount_local\n"
     "    mov r1,0                    ;RcvBuf_local\n"
+    "    mov r0,#3                 ;RecvBitCounter\n"
     "    clr _pd_send_recv_flag                   \n"
     "    clr _pd_send_recv_status                 \n"
-    "    nop                            ;alignment\n"
+    "                                   ;alignment\n"
     "; wait until we get a bit 0 (3.33us)         \n"
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
     "    mov _TH0,r6  ;TH0 = TL0_RECV_START_VALUE;\n"
@@ -451,188 +453,50 @@ void CMP_Interrupt() {
     "    mov a,r1                    ;RcvBuf_local\n"
     "    anl a,#3                                 \n"
     "    mov r1,a                    ;RcvBuf_local\n"
-
-    
-
-
-
-
-    
-    //!!!!not used
-
-    
-
-
-
-
-/*
-    "loop_recv_wait_for_receive_while$:           \n"
-    ////another transition!
-    //if ((ADC_CTRL & bCMP_IF))
+    //now we are 2 bits beyond preamble
+    "loop_recv_getting_data_bits$:                \n"
+    "    jb _TF0,recv_direct_exit_2_full$ ;exit if TF0\n"
     "    mov	a,_ADC_CTRL                         \n"
-    "    jnb	acc.6,loop_recv_no_flip_yet$        \n"
-    //wait for another transition, exit if overflow
-    "loop_recv_wait_for_another_transition$:      \n"
-    "    mov	a,_ADC_CTRL                         \n"
-    "    jb	acc.6,loop_recv_got_another_transition$\n"
-    "    jnb _TF0,loop_recv_wait_for_another_transition$\n"
-    "    clr _TR0                                 \n"
-    "    clr _TF0                                 \n"
-    "    ret                                      \n"
-    "loop_recv_got_another_transition$:           \n"
-    //since we are look for preamble, we are sure we are at end of bit 1.
-    //if there are 2 of 0 then the code will not work, but it is not preamble anyway.
+    "    jnb	acc.6,loop_recv_getting_data_bits$  \n"
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+    "; now we are just after the beginning of bit \n"
     "    mov c,_pd_send_recv_flag                 \n"
     "    mov a,r1                    ;RcvBuf_local\n"
     "    rlc a                                    \n"
     "    mov r1,a                    ;RcvBuf_local\n"
-    ";check if RcvBuf_local is 0x54 or 0x56       \n"
-    "    add a,#(255-0x54)                        \n"
-    "    jz end_of_recv_preamble$                 \n"
-    "    mov a,r1                    ;RcvBuf_local\n"
-    "    add a,#(255-0x56)                        \n"
-    "    jz end_of_recv_preamble$                 \n"
+    "    movx @dptr,a                 ;*RcvDataBuf\n"
+    ";inc ptr for each 5 bits                     \n"
+    "    djnz r0,recv_not_inc_ptr$ ;RecvBitCounter\n"
+    "    mov r0,#5                                \n"
+    "    inc dptr                     ;*RcvDataBuf\n"
+    "recv_not_inc_ptr$:                           \n"
     //wait 1.56us, if it is 1 we should already passed the center
     //while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
-    "loop_recv_preamble_wait_center$:             \n"
+    "loop_recv_data_wait_center$:                 \n"
     "    mov	a,_TL0                              \n"
     "    add	a,r3                                \n"
-    "    jnc loop_recv_preamble_wait_center$      \n"
+    "    jnc loop_recv_data_wait_center$          \n"
     "    mov	a,_ADC_CTRL                         \n"
     "    mov	c,acc.6                             \n"
     "    mov	_pd_send_recv_flag,c                \n"
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+    "    sjmp loop_recv_getting_data_bits$        \n" 
 
 
+    
+    "recv_direct_exit_2_full$:                    \n"
+    "    mov dptr,#_RcvDataCount                  \n"
+    "    mov r1,a                                 \n"
+    "    movx @dptr,a                             \n"
+    "    clr _TR0                                 \n"
+    "    clr _TF0                                 \n"
+    "    ret                                      \n"
 
-"mov _P1_7,c           \n"
-
-
-    "loop_recv_no_flip_yet$:                      \n"
-    //while (TL0 < TL0_RECV_BIT0_UPPER_LIMIT);
-    "    mov	a,_TL0                              \n"
-    "    add	a,r5                                \n"
-    "    jnc loop_recv_wait_for_receive_while$    \n"
-
-    "end_of_recv_preamble$:                       \n"
-    ";because we want to be fast, we do one bit here\n"
-
-//RcvDataBuf[0] = RcvDataBuf[0] & 3;
-
-"clr _P1_7           \n"
-"setb _P1_7           \n"
-
-
-
-    "    ljmp not_return_from_recv$     \n"
-    "return_from_recv$:                           \n"
-    "   ret                           \n"
-    "not_return_from_recv$:                           \n"*/
   );
 
 P1_7=0; //!!!!!
 
-        while ( ((ADC_CTRL & bCMP_IF)==0) && (TL0 < TL0_RECV_BIT0_UPPER_LIMIT) );
-        B = ((ADC_CTRL & bCMP_IF) != 0);
-        if (B) {
-          ADC_CTRL = bCMP_IF;
-        }
-
-return;
-
-
-
-  __data uint8_t preambleFlag = 1;
-  __data uint8_t bitmask = 3;
-  __data uint8_t tempA = 0;
-
-  TL0 = TL0_RECV_START_VALUE;
-  TH0 = TL0_RECV_START_VALUE;
-  TF0 = 0;
-  TR0 = 1;
-  RcvDataCount = 0;
-  //for BMC@300K,each 0 is 3.33us and 1 is 1.66us*2
-  do {
-    TL0 = TL0_RECV_START_VALUE;
-    ADC_CTRL = bCMP_IF;
-    while ((ADC_CTRL & bCMP_IF) == 0) {
-      //121@32M = 3.78us, longer than a regular bit
-      if (TL0 >= TL0_RECV_BIT0_UPPER_LIMIT) {
-        return;
-      }
-    }
-    //87@32M = 2.72us, try until we find a bit 0
-  } while (TL0 < TL0_RECV_BIT1_UPPER_LIMIT);
-
-  //now we are at an end of bit 0
-  TL0 = TL0_RECV_START_VALUE;
-  ADC_CTRL = bCMP_IF;
-  do {
-    //another transition!
-    if ((ADC_CTRL & bCMP_IF)) {
-      TL0 = TL0_RECV_START_VALUE;
-      ADC_CTRL = bCMP_IF;
-      do {
-        //wait for another transition
-        while ((ADC_CTRL & bCMP_IF) == 0) {
-          //I guess this is faster than compare?
-          if (TF0) {
-            TR0 = 0;
-            TF0 = 0;
-            return;
-          }
-        }
-        //since we are look for preamble, we are sure we are at end of bit 1.
-        //if there are 2 of 0 then the code will not work, but it is not preamble anyway.
-        TL0 = TL0_RECV_START_VALUE;
-        ADC_CTRL = bCMP_IF;
-        RcvDataBuf[0] = (RcvDataBuf[0] << 1) + tempA;
-        //last 2 bit are 00 or 10, that is the end of preamble
-        //All SOP start with Sync-1 K-code 11000, at LSB first, that is 00
-        //Cable Reset and Hard Reset start with RST-1 K-code 00111, can ignore.
-        //not sure why we need to check the case of 10
-        if ((RcvDataBuf[0] == 0x54) || (RcvDataBuf[0] == 0x56)) {
-          RcvDataBuf[0] = RcvDataBuf[0] & 3;
-          preambleFlag = 0;
-        }
-        //wait 1.56us, if it is 1 we should already passed the center
-        while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
-        tempA = ((ADC_CTRL & bCMP_IF) != 0);
-        if (tempA) {
-          ADC_CTRL = bCMP_IF;
-        }
-      } while (preambleFlag != 0);
-      //now we are 2 bits beyond preamble
-      do {
-        while ((ADC_CTRL & bCMP_IF)) {
-          TL0 = TL0_RECV_START_VALUE;
-          ADC_CTRL = 0x40;
-          RcvDataBuf[RcvDataCount] = (RcvDataBuf[RcvDataCount] << 1) + tempA;
-          //each byte contains 5bits.
-          bitmask--;
-          if (bitmask == 0) {
-            bitmask = 5;
-            RcvDataCount++;
-          }
-          //wait 1.56us, if it is 1 we should already passed the center
-          while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
-          if ((ADC_CTRL & bCMP_IF) == 0) {
-            tempA = false;
-          }
-          else {
-            ADC_CTRL = bCMP_IF;
-            tempA = true;
-          }
-        }
-      } while (TF0 == 0);
-      TF0 = 0;
-      TR0 = 0;
-      return;
-    }
-    //as long as we are shorter than a regular bit
-  } while (TL0 < TL0_RECV_BIT0_UPPER_LIMIT);
 }
 
 void SEND_INTERRUPT(){
@@ -839,6 +703,8 @@ P1_7=1; ///!!!!
 P1_7=0;
 P1_7=1;
 P1_7=0;
+
+  sendCharDebug17(RcvDataCount);
 
   if (RcvDataCount == 0) {
     return NODATA;
