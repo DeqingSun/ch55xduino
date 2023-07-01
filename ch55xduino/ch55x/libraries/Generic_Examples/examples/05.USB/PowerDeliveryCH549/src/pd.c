@@ -469,6 +469,7 @@ void CMP_Interrupt() {
     ";inc ptr for each 5 bits                     \n"
     "    djnz r0,recv_not_inc_ptr$ ;RecvBitCounter\n"
     "    mov r0,#5                                \n"
+    "    inc r2                ;RcvDataCount_local\n"
     "    inc dptr                     ;*RcvDataBuf\n"
     "recv_not_inc_ptr$:                           \n"
     //wait 1.56us, if it is 1 we should already passed the center
@@ -487,7 +488,7 @@ void CMP_Interrupt() {
     
     "recv_direct_exit_2_full$:                    \n"
     "    mov dptr,#_RcvDataCount                  \n"
-    "    mov r1,a                                 \n"
+    "    mov a,r2                                 \n"
     "    movx @dptr,a                             \n"
     "    clr _TR0                                 \n"
     "    clr _TF0                                 \n"
