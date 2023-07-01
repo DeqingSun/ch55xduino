@@ -12,6 +12,16 @@
 #define TL0_RECV_BIT1_LOWER_LIMIT 50
 #define TL0_SEND_START_VALUE 150
 #define TL0_SEND_BIT1_TOGGLE 196
+#elif F_CPU == 24000000
+#define TIMEOUTCOUNT_LIMIT 525
+#define TL0_RECV_START_VALUE 64
+#define TL0_RECV_BIT0_UPPER_LIMIT 226
+//TL0_RECV_BIT1_UPPER_LIMIT is only used in sync 1010..
+//seems we need to make it more strict as loop take longer
+#define TL0_RECV_BIT1_UPPER_LIMIT (129-8)
+#define TL0_RECV_BIT1_LOWER_LIMIT 101
+#define TL0_SEND_START_VALUE 176
+#define TL0_SEND_BIT1_TOGGLE 211
 #else
 #error "This only run for 32M clock"
 #endif
@@ -334,6 +344,91 @@ void CMP_Interrupt() {
     "    dec _XBUS_AUX                            \n"
   );
 
+  RcvDataCount = 0;
+  TF0 = 0;
+  TR0 = 0;
+  //passing the value to inline assembly
+  //defined value does not work
+  TH0 = TL0_RECV_START_VALUE; 
+  B = (256-TL0_RECV_BIT0_UPPER_LIMIT);
+  DPL = (256-TL0_RECV_BIT1_UPPER_LIMIT);
+  DPH = TL0_RECV_BIT1_LOWER_LIMIT;
+
+  P1_7=1;//!!!!
+
+  __asm__(
+    //even need more check with compiler
+    "; .even                                      \n"
+    "; prepare constants                          \n"
+    "    mov r7,#0x40                     ;bCMP_IF\n"
+    "    mov r6,_TH0                              \n"
+    "    mov r5,b ;(256-TL0_RECV_BIT0_UPPER_LIMIT)\n"
+    "    mov r4,dpl                               \n"
+    "    mov r3,dph                               \n"
+    "    mov r2,0                    ;RcvDataCount\n"
+    "    nop                            ;alignment\n"
+    "; wait until we get a bit 0 (3.33us)         \n"
+    "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+    "    mov _TH0,r6  ;TH0 = TL0_RECV_START_VALUE;\n"
+    "    clr _TF0                                 \n"
+    "    setb _TR0                                \n"
+    "recv_wait_for_bit_0$:                        \n"
+    "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+    "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+    "loop_recv_wait_for_bit_0_while$:             \n"
+    //while ((ADC_CTRL & bCMP_IF) == 0)
+    "    mov	a,_ADC_CTRL                         \n"
+    "    jb	acc.6,loop_recv_wait_for_bit_0_flip$  \n"
+    //if (TL0 >= TL0_RECV_BIT0_UPPER_LIMIT)
+    "    mov	a,_TL0                              \n"
+    "    add	a,r5                                \n"
+    "    jnc loop_recv_wait_for_bit_0_while$      \n"
+
+    "    ret                                      \n"
+    "loop_recv_wait_for_bit_0_flip$:              \n"
+    //while (TL0 < TL0_RECV_BIT1_UPPER_LIMIT)
+    "    mov	a,_TL0                              \n"
+    "    add	a,r4                                \n"
+    "    jnc recv_wait_for_bit_0$                 \n"
+
+
+
+
+
+
+    "    ljmp not_return_from_recv$     \n"
+    "return_from_recv$:                           \n"
+    "   ret                           \n"
+    "not_return_from_recv$:                           \n"
+  );
+
+P1_7=0; //!!!!!
+
+return;
+/*/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:374: do {
+      00029E                       1334 00106$:
+                                   1335 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:375: TL0 = TL0_RECV_START_VALUE;
+      00029E 75 8A 00         [24] 1336 	mov	_TL0,#0x00
+                                   1337 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:376: ADC_CTRL = bCMP_IF;
+      0002A1 75 F2 40         [24] 1338 	mov	_ADC_CTRL,#0x40
+                                   1339 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:377: while ((ADC_CTRL & bCMP_IF) == 0) {
+      0002A4                       1340 00103$:
+      0002A4 E5 F2            [12] 1341 	mov	a,_ADC_CTRL
+      0002A6 20 E6 07         [24] 1342 	jb	acc.6,00107$
+                                   1343 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:379: if (TL0 >= TL0_RECV_BIT0_UPPER_LIMIT) {
+      0002A9 74 87            [12] 1344 	mov	a,#0x100 - 0x79
+      0002AB 25 8A            [12] 1345 	add	a,_TL0
+      0002AD 50 F5            [24] 1346 	jnc	00103$
+                                   1347 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:380: return;
+      0002AF 22               [24] 1348 	ret
+      0002B0                       1349 00107$:
+                                         1350 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:384: } while (TL0 < TL0_RECV_BIT1_UPPER_LIMIT);
+      0002B0 74 A9            [12] 1351 	mov	a,#0x100 - 0x57
+      0002B2 25 8A            [12] 1352 	add	a,_TL0
+      0002B4 50 E8            [24] 1353 	jnc	00106$
+      */
+
+
   __data uint8_t preambleFlag = 1;
   __data uint8_t bitmask = 3;
   __data uint8_t tempA = 0;
@@ -355,6 +450,7 @@ void CMP_Interrupt() {
     }
     //87@32M = 2.72us, try until we find a bit 0
   } while (TL0 < TL0_RECV_BIT1_UPPER_LIMIT);
+
   //now we are at an end of bit 0
   TL0 = TL0_RECV_START_VALUE;
   ADC_CTRL = bCMP_IF;
@@ -624,6 +720,11 @@ uint8_t ReceiveHandle() {
   E_DIS = 1;
   CMP_Interrupt();
   E_DIS = 0;
+P1_7=1; ///!!!!
+P1_7=0;
+P1_7=1;
+P1_7=0;
+
   if (RcvDataCount == 0) {
     return NODATA;
   }
