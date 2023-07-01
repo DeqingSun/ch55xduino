@@ -1,0 +1,104 @@
+// using comparator to receive BMC data over CC
+void CMP_Interrupt() {
+  //clear RcvDataBuf[73]
+  __asm__(
+    "    inc _XBUS_AUX                            \n"
+    "    mov r7, #73                              \n"
+    "    clr a                                    \n"
+    "    mov dptr,#(_RcvDataBuf)                  \n"
+    "loop_clr_RcvDataBuf$:                        \n"
+    "    .db #0xa5                                \n"
+    "    djnz r7,loop_clr_RcvDataBuf$             \n"
+    "    dec _XBUS_AUX                            \n"
+  );
+
+  __data uint8_t preambleFlag = 1;
+  __data uint8_t bitmask = 3;
+  __data uint8_t tempA = 0;
+
+  TL0 = TL0_RECV_START_VALUE;
+  TH0 = TL0_RECV_START_VALUE;
+  TF0 = 0;
+  TR0 = 1;
+  RcvDataCount = 0;
+  //for BMC@300K,each 0 is 3.33us and 1 is 1.66us*2
+  do {
+    TL0 = TL0_RECV_START_VALUE;
+    ADC_CTRL = bCMP_IF;
+    while ((ADC_CTRL & bCMP_IF) == 0) {
+      //121@32M = 3.78us, longer than a regular bit
+      if (TL0 >= TL0_RECV_BIT0_UPPER_LIMIT) {
+        return;
+      }
+    }
+    //87@32M = 2.72us, try until we find a bit 0
+  } while (TL0 < TL0_RECV_BIT1_UPPER_LIMIT);
+  //now we are at an end of bit 0
+  TL0 = TL0_RECV_START_VALUE;
+  ADC_CTRL = bCMP_IF;
+  do {
+    //another transition!
+    if ((ADC_CTRL & bCMP_IF)) {
+      TL0 = TL0_RECV_START_VALUE;
+      ADC_CTRL = bCMP_IF;
+      do {
+        //wait for another transition
+        while ((ADC_CTRL & bCMP_IF) == 0) {
+          //I guess this is faster than compare?
+          if (TF0) {
+            TR0 = 0;
+            TF0 = 0;
+            return;
+          }
+        }
+        //since we are look for preamble, we are sure we are at end of bit 1.
+        //if there are 2 of 0 then the code will not work, but it is not preamble anyway.
+        TL0 = TL0_RECV_START_VALUE;
+        ADC_CTRL = bCMP_IF;
+        RcvDataBuf[0] = (RcvDataBuf[0] << 1) + tempA;
+        //last 2 bit are 00 or 10, that is the end of preamble
+        //All SOP start with Sync-1 K-code 11000, at LSB first, that is 00
+        //Cable Reset and Hard Reset start with RST-1 K-code 00111, can ignore.
+        //not sure why we need to check the case of 10
+        if ((RcvDataBuf[0] == 0x54) || (RcvDataBuf[0] == 0x56)) {
+          RcvDataBuf[0] = RcvDataBuf[0] & 3;
+          preambleFlag = 0;
+        }
+        //wait 1.56us, if it is 1 we should already passed the center
+        while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
+        tempA = ((ADC_CTRL & bCMP_IF) != 0);
+        if (tempA) {
+          ADC_CTRL = bCMP_IF;
+        }
+      } while (preambleFlag != 0);
+      //now we are 2 bits beyond preamble
+      do {
+        while ((ADC_CTRL & bCMP_IF)) {
+          TL0 = TL0_RECV_START_VALUE;
+          ADC_CTRL = 0x40;
+          RcvDataBuf[RcvDataCount] = (RcvDataBuf[RcvDataCount] << 1) + tempA;
+          //each byte contains 5bits.
+          bitmask--;
+          if (bitmask == 0) {
+            bitmask = 5;
+            RcvDataCount++;
+          }
+          //wait 1.56us, if it is 1 we should already passed the center
+          while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
+          if ((ADC_CTRL & bCMP_IF) == 0) {
+            tempA = false;
+          }
+          else {
+            ADC_CTRL = bCMP_IF;
+            tempA = true;
+          }
+        }
+      } while (TF0 == 0);
+      TF0 = 0;
+      TR0 = 0;
+      return;
+    }
+    //as long as we are shorter than a regular bit
+  } while (TL0 < TL0_RECV_BIT0_UPPER_LIMIT);
+}
+
