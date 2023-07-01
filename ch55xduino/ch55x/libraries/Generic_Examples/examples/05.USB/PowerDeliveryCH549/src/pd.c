@@ -383,13 +383,46 @@ void CMP_Interrupt() {
     "    mov	a,_TL0                              \n"
     "    add	a,r5                                \n"
     "    jnc loop_recv_wait_for_bit_0_while$      \n"
-
+    "    clr _TR0                                 \n"
+    "    clr _TF0                                 \n"
     "    ret                                      \n"
     "loop_recv_wait_for_bit_0_flip$:              \n"
     //while (TL0 < TL0_RECV_BIT1_UPPER_LIMIT)
     "    mov	a,_TL0                              \n"
     "    add	a,r4                                \n"
     "    jnc recv_wait_for_bit_0$                 \n"
+
+    //now we are at an end of bit 0
+    "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+    "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+    "loop_recv_wait_for_receive_while$:           \n"
+    ////another transition!
+    //if ((ADC_CTRL & bCMP_IF))
+    "    mov	a,_ADC_CTRL                         \n"
+    "    jnb	acc.6,loop_recv_no_flip_yet$        \n"
+    //wait for another transition, exit if overflow
+    "loop_recv_wait_for_another_transition$:      \n"
+    "    mov	a,_ADC_CTRL                         \n"
+    "    jb	acc.6,loop_recv_got_another_transition$\n"
+    "    jnb _TF0,loop_recv_wait_for_another_transition$\n"
+    "    clr _TR0                                 \n"
+    "    clr _TF0                                 \n"
+    "    ret                                      \n"
+    "loop_recv_got_another_transition$:           \n"
+    //since we are look for preamble, we are sure we are at end of bit 1.
+    //if there are 2 of 0 then the code will not work, but it is not preamble anyway.
+    "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+    "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+
+"clr _P1_7           \n"
+"setb _P1_7           \n"
+
+
+    "loop_recv_no_flip_yet$:                      \n"
+    //while (TL0 < TL0_RECV_BIT0_UPPER_LIMIT);
+    "    mov	a,_TL0                              \n"
+    "    add	a,r5                                \n"
+    "    jnc loop_recv_wait_for_receive_while$    \n"
 
 
 
@@ -405,28 +438,7 @@ void CMP_Interrupt() {
 P1_7=0; //!!!!!
 
 return;
-/*/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:374: do {
-      00029E                       1334 00106$:
-                                   1335 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:375: TL0 = TL0_RECV_START_VALUE;
-      00029E 75 8A 00         [24] 1336 	mov	_TL0,#0x00
-                                   1337 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:376: ADC_CTRL = bCMP_IF;
-      0002A1 75 F2 40         [24] 1338 	mov	_ADC_CTRL,#0x40
-                                   1339 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:377: while ((ADC_CTRL & bCMP_IF) == 0) {
-      0002A4                       1340 00103$:
-      0002A4 E5 F2            [12] 1341 	mov	a,_ADC_CTRL
-      0002A6 20 E6 07         [24] 1342 	jb	acc.6,00107$
-                                   1343 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:379: if (TL0 >= TL0_RECV_BIT0_UPPER_LIMIT) {
-      0002A9 74 87            [12] 1344 	mov	a,#0x100 - 0x79
-      0002AB 25 8A            [12] 1345 	add	a,_TL0
-      0002AD 50 F5            [24] 1346 	jnc	00103$
-                                   1347 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:380: return;
-      0002AF 22               [24] 1348 	ret
-      0002B0                       1349 00107$:
-                                         1350 ;	/Users/sundeqing/Desktop/untitledfolder2/build/sketch/src/pd.c:384: } while (TL0 < TL0_RECV_BIT1_UPPER_LIMIT);
-      0002B0 74 A9            [12] 1351 	mov	a,#0x100 - 0x57
-      0002B2 25 8A            [12] 1352 	add	a,_TL0
-      0002B4 50 E8            [24] 1353 	jnc	00106$
-      */
+
 
 
   __data uint8_t preambleFlag = 1;
