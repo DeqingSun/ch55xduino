@@ -359,8 +359,6 @@ void CMP_Interrupt() {
     "    dec _XBUS_AUX                            \n"
   );
 
-  P1_7=1;//!!!!
-
   __asm__(
     "  .even                                      \n"
     "; RcvDataCount = 0;                          \n"
@@ -471,6 +469,7 @@ void CMP_Interrupt() {
     "    mov r0,#5                                \n"
     "    inc r2                ;RcvDataCount_local\n"
     "    inc dptr                     ;*RcvDataBuf\n"
+    "    mov r1,#0                   ;RcvBuf_local\n"
     "recv_not_inc_ptr$:                           \n"
     //wait 1.56us, if it is 1 we should already passed the center
     //while (TL0 < TL0_RECV_BIT1_LOWER_LIMIT);
@@ -484,8 +483,6 @@ void CMP_Interrupt() {
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
     "    sjmp loop_recv_getting_data_bits$        \n" 
 
-
-    
     "recv_direct_exit_2_full$:                    \n"
     "    mov dptr,#_RcvDataCount                  \n"
     "    mov a,r2                                 \n"
@@ -495,9 +492,6 @@ void CMP_Interrupt() {
     "    ret                                      \n"
 
   );
-
-P1_7=0; //!!!!!
-
 }
 
 void SEND_INTERRUPT(){
