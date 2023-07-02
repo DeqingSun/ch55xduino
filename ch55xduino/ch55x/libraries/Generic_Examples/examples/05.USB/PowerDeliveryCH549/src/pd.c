@@ -131,31 +131,22 @@ void sendCharDebug17(__data char c) // 8Mbps under 24M clk
 
       "  clr c             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  rrc a             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  rrc a             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  rrc a             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  rrc a             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  rrc a             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  rrc a             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  rrc a             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  rrc a             \n"
       "  mov _P1_7,c       \n"
-      "  nop               \n"
       "  setb c            \n"
       "  mov _P1_7,c       \n");
   // if (interruptOn) EA = 1;
@@ -694,13 +685,6 @@ uint8_t ReceiveHandle() {
   E_DIS = 1;
   CMP_Interrupt();
   E_DIS = 0;
-P1_7=1; ///!!!!
-P1_7=0;
-P1_7=1;
-P1_7=0;
-
-  sendCharDebug17(RcvDataCount);
-
   if (RcvDataCount == 0) {
     return NODATA;
   }
