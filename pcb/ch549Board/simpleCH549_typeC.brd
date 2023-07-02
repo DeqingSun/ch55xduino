@@ -252,12 +252,12 @@ SCK
 P1.7</text>
 <text x="29.2354" y="2.032" size="0.6096" layer="26" distance="30" rot="MR0">P5.7
 RST</text>
-<text x="11.4808" y="8.3312" size="0.8128" layer="26" distance="30" rot="MR0">Deqing Sun
+<text x="6.9088" y="6.5532" size="0.8128" layer="26" distance="30" rot="MR0">Deqing Sun
 2023</text>
 <text x="33.147" y="7.0358" size="0.6096" layer="25">P2.2</text>
 <text x="29.5656" y="7.62" size="0.6096" layer="25" rot="R90">PWR</text>
 <text x="32.3596" y="4.2418" size="0.6096" layer="25" rot="R90">20K</text>
-<text x="12.8778" y="5.0292" size="0.8128" layer="26" distance="30" rot="MR0">Try Ch55xduino
+<text x="8.9408" y="4.0132" size="0.8128" layer="26" distance="30" rot="MR0">Try Ch55xduino
 with this board</text>
 <text x="9.652" y="1.2954" size="1.27" layer="25">+</text>
 <text x="9.8552" y="7.1628" size="1.27" layer="25">-</text>
