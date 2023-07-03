@@ -755,8 +755,8 @@
                             "host": "aarch64-linux-gnu",
                             "url": "https://github.com/DeqingSun/ch55xduino/releases/download/0.0.18/sdcc-mcs51-aarch64-linux-gnu-20230701-14184_2.tar.bz2",
                             "archiveFileName": "sdcc-mcs51-aarch64-linux-gnu-20230701-14184_2.tar.bz2",
-                            "checksum": "SHA-256:f1f7d49d3b0854fc0c202bd629ac68900acf7598cc57d0ae3925b23809f5490b",
-                            "size": "3206208"
+                            "checksum": "SHA-256:4459b7d3e6c690a91a4ea4ac5f8915c390d4b9ada7e9dac4be45e8865b28c569",
+                            "size": "3283863"
                         },{
                             "host": "x86_64-pc-linux-gnu",
                             "url": "https://github.com/DeqingSun/ch55xduino/releases/download/0.0.18/sdcc-mcs51-amd64-unknown-linux2.5-20230702-14184_2.tar.bz2",
