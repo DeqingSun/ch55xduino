@@ -360,7 +360,9 @@ void CMP_Interrupt() {
     "    clr _TR0                                 \n"
     "    clr _TF0                                 \n"
     "; prepare constants                          \n"
+#if defined(CH549)
     "    mov r7,#" STR(bCMP_IF) "                 \n"
+#endif
     "    mov r6,#" STR(TL0_RECV_START_VALUE) "    \n"
     "    mov r5,#" STR(256-TL0_RECV_BIT0_UPPER_LIMIT) "\n"
     "    mov r4,#" STR(256-TL0_RECV_BIT1_UPPER_LIMIT) "\n"
@@ -625,13 +627,30 @@ uint8_t SendHandle(){
       SndMsgID = 0;
     }
 
+#if defined(CH549)
     ADC_CHAN = CCSel + 3 | 0x30;
+#elif defined(CH552)
+    if (CCSel==1){
+      ADC_CHAN1 = 0;
+      ADC_CHAN0 = 1;
+    }else{
+      ADC_CHAN1 = 1;
+      ADC_CHAN0 = 0;
+    }
+#endif
     __xdata uint16_t TimeOutCount;
     TimeOutCount = 0;
+#if defined(CH549)
     ADC_CTRL = bCMP_IF;
-
+#elif defined(CH552)
+    CMP_IF = 0;
+#endif
     do{
+#if defined(CH549)
       if ((ADC_CTRL & bCMP_IF) != 0){
+#elif defined(CH552)
+      if (CMP_IF != 0){
+#endif
         E_DIS = 1;
         CMP_Interrupt();
         E_DIS = 0;
@@ -672,10 +691,25 @@ uint8_t SendHandle(){
 uint8_t ReceiveHandle() {
   __xdata uint16_t TimeOutCount;
   // setting comparator channel to receive CC data 
+#if defined(CH549)
   ADC_CHAN = CCSel + 3 | 0x30;
+#elif defined(CH552)
+  if (CCSel==1){
+    ADC_CHAN1 = 0;
+    ADC_CHAN0 = 1;
+  }else{
+    ADC_CHAN1 = 1;
+    ADC_CHAN0 = 0;
+  }
+#endif
   TimeOutCount = 0;
+#if defined(CH549)
   ADC_CTRL = bCMP_IF;
   while ((ADC_CTRL & bCMP_IF) == 0) {
+#elif defined(CH552)
+  CMP_IF = 0;
+  while (CMP_IF == 0) {
+#endif
     TimeOutCount++;
     //need more investigation what time it means. ( (34+3+(2or3))*700 clks? 0.85ms? 256bits of BMC?) this SDCC code need more tuning
     if (TimeOutCount >= TIMEOUTCOUNT_LIMIT) {  

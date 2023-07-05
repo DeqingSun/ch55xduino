@@ -4,12 +4,22 @@
 // clang-format on
 
 // Check power capability with ADC value from CC1/CC2
+#if defined(CH549)
 #define  DefaultPowerMin  (342-137)
 #define  DefaultPowerMax  (342+158)
 #define  Power1_5AMin     (771-198)
 #define  Power1_5AMax     (771+180)
 #define  Power3_0AMin     (1383-310)
 #define  Power3_0AMax     (1383+288) 
+#elif defined(CH552)
+#define  DefaultPowerMin  ((342-137)>>4)
+#define  DefaultPowerMax  ((342+158)>>4)
+#define  Power1_5AMin     ((771-198)>>4)
+#define  Power1_5AMax     ((771+180)>>4)
+#define  Power3_0AMin     ((1383-310)>>4)
+#define  Power3_0AMax     ((1383+288)>>4)
+#endif
+
 
 // size of RcvDataBuf
 #define  RcvBufMaxLen	   73
