@@ -349,7 +349,7 @@ void CMP_Interrupt() {
     "    djnz r7,loop_clr_RcvDataBuf$             \n"
     "    dec _XBUS_AUX                            \n"
   );
-
+  
   __asm__(
     "  .even                                      \n"
     "; RcvDataCount = 0;                          \n"
@@ -380,7 +380,11 @@ void CMP_Interrupt() {
     "    setb _TR0                                \n"
     "recv_wait_for_bit_0$:                        \n"
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+#if defined(CH549)
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+#elif defined(CH552)
+    "    clr	_CMP_IF                             \n"
+#endif
     "loop_recv_wait_for_bit_0_while$:             \n"
     //while ((ADC_CTRL & bCMP_IF) == 0)
     "    mov	a,_ADC_CTRL                         \n"
@@ -400,7 +404,11 @@ void CMP_Interrupt() {
     "    jnc recv_wait_for_bit_0$                 \n"
     //now we are at an end of bit 0
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+#if defined(CH549)
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+#elif defined(CH552)
+    "    clr	_CMP_IF                             \n"
+#endif
     //next bit is bit 1, we wait for it
     "loop_recv_wait_for_bit_1_in_preamble$:       \n"
     "    mov	a,_TL0                              \n"
@@ -410,14 +418,22 @@ void CMP_Interrupt() {
     "    jnb	acc.6,loop_recv_wait_for_bit_1_in_preamble$\n"
     //now we are after the middle of bit 1
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+#if defined(CH549)
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+#elif defined(CH552)
+    "    clr	_CMP_IF                             \n"
+#endif
 
     "loop_recv_getting_bits$:                     \n"
     "    jb _TF0,recv_direct_exit_1$ ;just exit if TF0\n"
     "    mov	a,_ADC_CTRL                         \n"
     "    jnb	acc.6,loop_recv_getting_bits$       \n"
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+#if defined(CH549)
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+#elif defined(CH552)
+    "    clr	_CMP_IF                             \n"
+#endif
     "; now we are just after the beginning of bit \n"
 
     "    mov c,_pd_send_recv_flag                 \n"
@@ -438,7 +454,11 @@ void CMP_Interrupt() {
     "    mov	a,_ADC_CTRL                         \n"
     "    mov	c,acc.6                             \n"
     "    mov	_pd_send_recv_flag,c                \n"
+#if defined(CH549)
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+#elif defined(CH552)
+    "    clr	_CMP_IF                             \n"
+#endif
     "jnb _pd_send_recv_status,loop_recv_getting_bits$\n"
     //RcvDataBuf[0] = RcvDataBuf[0] & 3;
     "    mov a,r1                    ;RcvBuf_local\n"
@@ -450,7 +470,11 @@ void CMP_Interrupt() {
     "    mov	a,_ADC_CTRL                         \n"
     "    jnb	acc.6,loop_recv_getting_data_bits$  \n"
     "    mov _TL0,r6  ;TL0 = TL0_RECV_START_VALUE;\n"
+#if defined(CH549)
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+#elif defined(CH552)
+    "    clr	_CMP_IF                             \n"
+#endif
     "; now we are just after the beginning of bit \n"
     "    mov c,_pd_send_recv_flag                 \n"
     "    mov a,r1                    ;RcvBuf_local\n"
@@ -473,7 +497,11 @@ void CMP_Interrupt() {
     "    mov	a,_ADC_CTRL                         \n"
     "    mov	c,acc.6                             \n"
     "    mov	_pd_send_recv_flag,c                \n"
+#if defined(CH549)
     "    mov _ADC_CTRL,r7      ;ADC_CTRL = bCMP_IF\n"
+#elif defined(CH552)
+    "    clr	_CMP_IF                             \n"
+#endif
     "    sjmp loop_recv_getting_data_bits$        \n" 
 
     "recv_direct_exit_2_full$:                    \n"
