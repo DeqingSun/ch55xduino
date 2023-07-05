@@ -102,3 +102,68 @@ void CMP_Interrupt() {
   } while (TL0 < TL0_RECV_BIT0_UPPER_LIMIT);
 }
 
+void SEND_INTERRUPT(){
+  if ( (CCSel == 1) || (CCSel == 2) ){
+    __data uint8_t toggleMask = 1<<(3+CCSel);
+    __bit sendBit = 1;
+    TR0 = 0;
+    TF0 = 0;
+    TH0 = TL0_SEND_START_VALUE;
+    TL0 = TL0_SEND_START_VALUE;
+    __data uint8_t sendCounter = 63;
+    //sending 01010101.... end of 1
+    //send 63 bits of 10101....01
+    
+    P1 &= ~toggleMask;
+    P1_MOD_OC &= ~toggleMask;
+    P1_DIR_PU |= toggleMask;
+
+    TR0 = 1;
+    do{
+      //wait till overflow */
+      while(TF0==0); 
+      P1^=toggleMask;
+      TF0 = 0;
+      //1.435us (196-150)@32M
+      //toggle in middle if we have 1
+      while(TL0<TL0_SEND_BIT1_TOGGLE); 
+      if (sendBit){
+        P1^=toggleMask;
+      }
+      sendBit = !sendBit;
+      sendCounter--; 
+    }while(sendCounter != 0);
+    //now we send data
+    __data uint8_t dataSendMask = 1;
+    do{
+      //wait till overflow */
+      while(TF0==0); 
+      P1^=toggleMask;
+      TF0 = 0;
+      // use a mask to get a bit
+      sendBit = (SndDataBuf[sendCounter]&dataSendMask)!=0;
+      dataSendMask<<=1;
+      while(TL0<TL0_SEND_BIT1_TOGGLE); 
+      if (sendBit){
+        P1^=toggleMask;
+      }
+      // check if we already done 5 bits
+      if (dataSendMask == (1<<5)){
+        dataSendMask = 1;
+        sendCounter++;
+      }
+    }while( SndDataCount != sendCounter);
+    while(TF0==0); 
+    TF0 = 0;
+    P1^=toggleMask;
+    delayMicroseconds(2); //need fine tune delay  !!!!!
+    P1|=toggleMask;
+    delayMicroseconds(1);
+
+    P1_MOD_OC &= ~toggleMask;
+    P1_DIR_PU &= ~toggleMask;
+  }
+  TR0 = 0;
+  TF0 = 0;
+  SndDone = 1;
+}

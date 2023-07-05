@@ -349,7 +349,7 @@ void CMP_Interrupt() {
     "    djnz r7,loop_clr_RcvDataBuf$             \n"
     "    dec _XBUS_AUX                            \n"
   );
-  
+
   __asm__(
     "  .even                                      \n"
     "; RcvDataCount = 0;                          \n"
@@ -516,69 +516,141 @@ void CMP_Interrupt() {
 }
 
 void SEND_INTERRUPT(){
-  if ( (CCSel == 1) || (CCSel == 2) ){
-    __data uint8_t toggleMask = 1<<(3+CCSel);
-    __bit sendBit = 1;
-    TR0 = 0;
-    TF0 = 0;
-    TH0 = TL0_SEND_START_VALUE;
-    TL0 = TL0_SEND_START_VALUE;
-    __data uint8_t sendCounter = 63;
+  __asm__(
+    "  .even                                      \n"
+    "    clr _TR0                                 \n"
+    "    clr _TF0                                 \n"
+    "    mov	dptr,#_CCSel                        \n"
+    "    movx	a,@dptr                             \n"
+    ";check if a is 1 or 2                        \n"
+    "    dec	a                                   \n"
+    "    jz	send_ccsel_1_2$                       \n"
+    "    dec	a                                   \n"
+    "    jz	send_ccsel_1_2$                       \n"
+    "    ret                                      \n"
+    "send_ccsel_1_2$:                             \n"
+
+    //toggleMask = 1<<(3+CCSel), 1->1<<4 2->1<<5
+    "    movx	a,@dptr                             \n"
+    "    rl a                                     \n"
+    "    rl a                                     \n"
+    "    rl a                                     \n"
+    "    rl a                                     \n"
+    "    mov r7,a                     ;toggleMask \n"
+    "    xrl a,#0xff                              \n"
+    "    mov r6,a                    ;~toggleMask \n"
+    "    setb _pd_send_recv_flag                  \n"
+    "    mov r5,#" STR(TL0_SEND_START_VALUE) "\n"
+    "    mov r4,#" STR(256-TL0_SEND_BIT1_TOGGLE) "\n"
+    "    mov r3,#63                  ;sendCounter \n"
+    "    mov r2,#1                   ;dataSendMask\n"
+    "    mov	dptr,#_SndDataCount                 \n"
+    "    movx	a,@dptr                             \n"
+    "    mov r1,a                    ;SndDataCount\n"
+    "    mov	dptr,#_SndDataBuf                   \n"
+    "    mov _TH0,r5                              \n"
+    "    mov _TL0,r5                              \n"
     //sending 01010101.... end of 1
     //send 63 bits of 10101....01
-    
-    P1 &= ~toggleMask;
-    P1_MOD_OC &= ~toggleMask;
-    P1_DIR_PU |= toggleMask;
+    ";P1 &= ~toggleMask;                          \n"
+    "    mov a,r6                                 \n"
+    "    anl _P1,a                                \n"
+    ";P1_MOD_OC &= ~toggleMask;                   \n"
+    "    mov a,r6                                 \n"
+    "    anl _P1_MOD_OC,a                         \n"
+    ";P1_DIR_PU |= toggleMask;                    \n"
+    "    mov a,r7                                 \n"
+    "    orl _P1_DIR_PU,a                         \n"
 
-    TR0 = 1;
-    do{
-      //wait till overflow */
-      while(TF0==0); 
-      P1^=toggleMask;
-      TF0 = 0;
-      //1.435us (196-150)@32M
-      //toggle in middle if we have 1
-      while(TL0<TL0_SEND_BIT1_TOGGLE); 
-      if (sendBit){
-        P1^=toggleMask;
-      }
-      sendBit = !sendBit;
-      sendCounter--; 
-    }while(sendCounter != 0);
+    "    setb _TR0                                \n"
+    "send_preamble_bits$:                         \n"
+    "    jnb _TF0,send_preamble_bits$             \n"
+    ";P1^=toggleMask;                             \n"
+    "    mov a,r7                                 \n"
+    "    xrl _P1,a                                \n"
+    "    clr _TF0                                 \n"
+    "send_preamble_half_bits$:                    \n"
+    "    mov	a,_TL0                              \n"
+    "    add	a,r4                                \n"
+    "    jnc send_preamble_half_bits$             \n"
+
+    "    jnb _pd_send_recv_flag,send_preamble_skip_toggle_half$ \n"
+    ";P1^=toggleMask;                             \n"
+    "    mov a,r7                                 \n"
+    "    xrl _P1,a                                \n"
+    "send_preamble_skip_toggle_half$:             \n"
+    "    cpl _pd_send_recv_flag                   \n"
+
+    "    djnz r3,send_preamble_bits$              \n"
+
     //now we send data
-    __data uint8_t dataSendMask = 1;
-    do{
-      //wait till overflow */
-      while(TF0==0); 
-      P1^=toggleMask;
-      TF0 = 0;
-      // use a mask to get a bit
-      sendBit = (SndDataBuf[sendCounter]&dataSendMask)!=0;
-      dataSendMask<<=1;
-      while(TL0<TL0_SEND_BIT1_TOGGLE); 
-      if (sendBit){
-        P1^=toggleMask;
-      }
-      // check if we already done 5 bits
-      if (dataSendMask == (1<<5)){
-        dataSendMask = 1;
-        sendCounter++;
-      }
-    }while( SndDataCount != sendCounter);
-    while(TF0==0); 
-    TF0 = 0;
-    P1^=toggleMask;
-    delayMicroseconds(2); //need fine tune delay  !!!!!
-    P1|=toggleMask;
-    delayMicroseconds(1);
+    "send_data_bits$:                             \n"
+    "    jnb _TF0,send_data_bits$                 \n"
+    ";P1^=toggleMask;                             \n"
+    "    mov a,r7                                 \n"
+    "    xrl _P1,a                                \n"
+    "    clr _TF0                                 \n"
+    // use a mask to get a bit
+    "    movx a,@dptr                             \n"
+    "    anl a,r2                    ;dataSendMask\n"
+    "    add a,#0xFF        ;only 0 will not set C\n"
+    "    mov _pd_send_recv_flag,c                 \n"
+    //dataSendMask<<=1;
+    "    mov a,r2                                 \n"
+    "    rl a                                     \n"
+    "    mov r2,a                                 \n"
+    "send_data_half_bits$:                        \n"
+    "    mov	a,_TL0                              \n"
+    "    add	a,r4                                \n"
+    "    jnc send_data_half_bits$                 \n"
 
-    P1_MOD_OC &= ~toggleMask;
-    P1_DIR_PU &= ~toggleMask;
-  }
-  TR0 = 0;
-  TF0 = 0;
-  SndDone = 1;
+    "    jnb _pd_send_recv_flag,send_data_skip_toggle_half$ \n"
+    ";P1^=toggleMask;                             \n"
+    "    mov a,r7                                 \n"
+    "    xrl _P1,a                                \n"
+    "send_data_skip_toggle_half$:                 \n"
+
+    // check if we already done 5 bits
+    "    cjne r2,#(1<<5),send_data_bits$          \n"
+    "    mov r2,#1                   ;dataSendMask\n"
+    "    inc dptr                                 \n"
+    "    djnz r1,send_data_bits$                  \n"
+
+    "send_wait_one_more$:                         \n"
+    "    jnb _TF0,send_wait_one_more$             \n"
+    "    clr _TF0                                 \n"
+
+    ";P1^=toggleMask;                             \n"
+    "    mov a,r7                                 \n"
+    "    xrl _P1,a                                \n"
+
+    "send_wait_one_more2$:                        \n"
+    "    jnb _TF0,send_wait_one_more2$            \n"
+    "    clr _TF0                                 \n"
+
+    ";P1|=toggleMask;                             \n"
+    "    mov a,r7                                 \n"
+    "    orl _P1,a                                \n"
+
+    "send_wait_one_more3$:                        \n"
+    "    jnb _TF0,send_wait_one_more3$            \n"
+    "    clr _TF0                                 \n"
+
+    ";P1_MOD_OC &= ~toggleMask;                   \n"
+    "    mov a,_P1_MOD_OC                         \n"
+    "    anl a,r6                                 \n"
+    "    mov _P1_MOD_OC,a                         \n"
+    ";P1_DIR_PU &= ~toggleMask;                   \n"
+    "    mov a,_P1_DIR_PU                         \n"
+    "    anl a,r6                                 \n"
+    "    mov _P1_DIR_PU,a                         \n"
+
+    "    clr _TR0                                 \n"
+    "    clr _TF0                                 \n"
+    "    ret                                      \n"
+    
+  );
+
 }
 
 uint8_t SendHandle(){
@@ -634,6 +706,8 @@ uint8_t SendHandle(){
 
   __data uint8_t RetryCount = 3;
   do{
+    SndDone = 0;
+
     E_DIS = 1;
     SEND_INTERRUPT();
     E_DIS = 0;
