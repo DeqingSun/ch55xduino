@@ -645,6 +645,10 @@ void SEND_INTERRUPT(){
     "    anl a,r6                                 \n"
     "    mov _P1_DIR_PU,a                         \n"
 
+    "    mov dptr,#_SndDone                       \n"
+    "    mov a,#1                                 \n"
+    "    movx @dptr,a                             \n"
+    
     "    clr _TR0                                 \n"
     "    clr _TF0                                 \n"
     "    ret                                      \n"

@@ -163,7 +163,7 @@ void loop() {
               __xdata uint16_t current = (Union_SrcCap->SrcCapStruct.Current) * 10;
               //B19...10 Voltage in 50mV units
               __xdata uint16_t voltage = (((Union_SrcCap->SrcCapStruct.VoltH4) << 6) | (Union_SrcCap->SrcCapStruct.VoltL6)) * 50;
-              Serial0_print(voltage);
+              Serial0_print(voltage-TARGET_VOLT_MV);
               Serial0_print(",");
               Serial0_print(current);
               Serial0_print(";");
