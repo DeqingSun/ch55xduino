@@ -825,7 +825,7 @@ uint8_t ReceiveHandle() {
     }
   }
   E_DIS = 1;
-  CMP_Interrupt();
+  CMP_Interrupt();  //4us before optimization @24M
   E_DIS = 0;
   if (RcvDataCount == 0) {
     return NODATA;
@@ -836,8 +836,8 @@ uint8_t ReceiveHandle() {
     return ILLEGAL;
   }
   
-  RcvBufDecode5B4B();
 
+  RcvBufDecode5B4B();  //248us before optimization @24M
   //passing ptr in DPTR and length in B
   __data uint8_t dataBeforeCRC = (2+((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4);
   __data uint32_t crc = CalculateCRC(((uint32_t)RcvDataBuf)|( ((uint32_t)dataBeforeCRC) <<16) );
