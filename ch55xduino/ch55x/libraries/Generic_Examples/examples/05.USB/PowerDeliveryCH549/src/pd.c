@@ -624,6 +624,8 @@ void SEND_INTERRUPT(){
     "    mov a,r7                                 \n"
     "    xrl _P1,a                                \n"
 
+    //finish of last bit 0 of EOP
+
     "send_wait_one_more2$:                        \n"
     "    jnb _TF0,send_wait_one_more2$            \n"
     "    clr _TF0                                 \n"
