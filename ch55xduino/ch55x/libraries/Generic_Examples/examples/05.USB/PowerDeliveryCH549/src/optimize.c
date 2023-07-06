@@ -88,3 +88,70 @@ void RcvBufDecode5B4B(){
 
   );
 }
+
+void SndBufEncode4B5B(){
+  __asm__(
+    "    mov dptr,#_SndDataCount                  \n"
+    "    movx a,@dptr                             \n"
+    "    mov r7,a                                 \n"
+
+    " ; r5:r6 is the write ptr SndDataBuf[4+2*(SndDataCount-1)] \n"
+    "    dec a                                    \n"
+    "    add a,acc                                \n"
+    "    add a,#04                                \n"
+    "    add a,#_SndDataBuf                       \n"
+    "    mov r6,a                                 \n"
+    "    clr a                                    \n"
+    "    addc a,#(_SndDataBuf>>8)                 \n"
+    "    mov r5,a                                 \n"
+
+
+
+ "    mov dph,r5                                 \n"
+ "    mov dpl,r6                                 \n"
+  "    mov a,#0x5a                                 \n"
+  "    movx @dptr,a                                 \n"
+
+    " ;r5:r6 -= 2                                 \n"
+    "    clr c                                    \n"
+    "    mov a,r6                                 \n"
+    "    subb a,#2                                \n"
+    "    mov r6,a                                 \n"
+    "    mov a,r5                                 \n"
+    "    subb a,#0                                \n"
+    "    mov r5,a                                 \n"
+
+
+
+ "    mov dph,r5                                 \n"
+ "    mov dpl,r6                                 \n"
+  "    mov a,#0xa5                                 \n"
+  "    movx @dptr,a                                 \n"
+
+    
+    "SndBufEncode4B5B_loop$:                      \n"
+
+
+
+
+
+  );
+
+ /* __data uint8_t i = SndDataCount;
+  do{
+    i--;
+    SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
+    SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
+  }while(i!=0);*/
+}
+
+/*
+void SndBufEncode4B5B(){
+  __data uint8_t i = SndDataCount;
+  do{
+    i--;
+    SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
+    SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
+  }while(i!=0);
+}
+*/
