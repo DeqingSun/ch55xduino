@@ -873,6 +873,15 @@ uint8_t ReceiveHandle() {
 
   SendingGoodCRCFlag = 1;
 
+  //delayMicroseconds(120);
+  //0->278us gap OK, 
+  //40->322us gap OK,
+  //80->357us gap OK,
+  //120->397us gap KO,
+  //180->457us gap KO,
+
+  //on 24M, that is 368us, which is too slow.
+
   SendHandle();
 
   Union_Header = (__xdata _Union_Header * __data)RcvDataBuf;
