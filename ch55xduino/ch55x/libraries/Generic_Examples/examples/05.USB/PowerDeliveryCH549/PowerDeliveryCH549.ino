@@ -12,8 +12,6 @@ void setT0ForCC() {
   ET0 = 0;
   T2MOD |= (bTMR_CLK) | (bT0_CLK);
   TMOD = (TMOD & ~0x0F) | (bT0_M1); // mode 2 for autoreload
-  TH0 = 0x96;
-  TL0 = 0x96;
 }
 
 void restoreT0ForTiming() {
