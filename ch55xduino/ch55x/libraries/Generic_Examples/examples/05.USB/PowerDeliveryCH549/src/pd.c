@@ -21,7 +21,6 @@
 #define TL0_RECV_BIT1_UPPER_LIMIT (129-8)
 #define TL0_RECV_BIT1_LOWER_LIMIT 101
 #define TL0_SEND_START_VALUE 176
-#define TL0_SEND_BIT1_TOGGLE (211-2)
 #define TL0_SEND_BIT1_TOGGLE (211)
 #else
 #error "This only run for 32M clock"
