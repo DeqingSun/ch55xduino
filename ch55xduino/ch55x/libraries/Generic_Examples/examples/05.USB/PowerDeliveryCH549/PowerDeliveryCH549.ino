@@ -40,11 +40,26 @@ void PD_Init( )
   ADC_CTRL = bADC_IF;                                                              //Clear ADC conversion finish flag
   delayMicroseconds(2);                                                            //wait till ADC power to be stable
 #elif defined(CH552)
+
+  USB_C_CTRL |= bUCC1_PD_EN | bUCC2_PD_EN;
+
   P1_MOD_OC &= ~((1 << 4)|(1 << 5));
   P1_DIR_PU &= ~((1 << 4)|(1 << 5));
 
+  //voltage divider on P3.2 to get 0.6V
   P3_MOD_OC &= ~(1 << 2);
   P3_DIR_PU &= ~(1 << 2);
+
+  //P1.4 connect to CC1 directly with internal 5.1K pull-down. If 1K resistor is inserted, the signal will be too weak
+  //P3.4 connect 3 (0.7+0.3+0.3 underdrive) diode to CC. Switch between Input and GND to hold voltage on 1V 
+  //P1.7 connect to CC via 1K resistor (limit current) and diode to P1.7 (increase pulldown strength)
+  
+  P3_MOD_OC &= ~(1 << 4); //!!!!! using P3.4 for control for now 
+  P3_DIR_PU &= ~(1 << 4); //!!!!! using P3.4 for control for now
+  P3 &= ~(1 << 4); //!!!!! using P3.4 for control for now
+  //P1.7 for drive
+  P1_DIR_PU &= ~(1 << 7);
+  P1_DIR_PU &= ~(1 << 7);
   
   CCSel = 1;                                                                       //choose CC1
   ADC_CFG = bADC_EN | bCMP_EN | bADC_CLK;
@@ -107,8 +122,8 @@ void setup() {
   Serial0_println("Type-C DP start ...");
 
   pinMode(16, OUTPUT);
-  pinMode(17, OUTPUT);
-  P1_7 = 0; //!!!!!!
+  //pinMode(17, OUTPUT);
+  //P1_7 = 0; //!!!!!!
   //SndMsgID = 0;//!!!!???????
 }
 

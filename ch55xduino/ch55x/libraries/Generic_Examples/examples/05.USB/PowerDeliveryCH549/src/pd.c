@@ -674,6 +674,21 @@ void SEND_INTERRUPT(){
     "    mov _TL0,r5                              \n"
     //sending 01010101.... end of 1
     //send 63 bits of 10101....01
+
+#if defined(CH552)
+    ////!!!!! using P3.4 for control for now
+    "    mov a,#((1<<4))                          \n"
+    "    orl _P3_DIR_PU,a                         \n"
+    "    mov a,#(~(1<<4))                         \n"
+    "    anl _P3,a                                \n"
+
+    ////!!!!! using P1.7 for drives for now
+    "    mov a,#((1<<7))                          \n"
+    "    mov r7,a                     ;toggleMask \n"
+    "    xrl a,#0xff                              \n"
+    "    mov r6,a                    ;~toggleMask \n"
+#endif
+
     ";P1 &= ~toggleMask;                          \n"
     "    mov a,r6                                 \n"
     "    anl _P1,a                                \n"
@@ -683,6 +698,8 @@ void SEND_INTERRUPT(){
     ";P1_DIR_PU |= toggleMask;                    \n"
     "    mov a,r7                                 \n"
     "    orl _P1_DIR_PU,a                         \n"
+
+
 
     "    setb _TR0                                \n"
     "send_preamble_bits$:                         \n"
@@ -768,6 +785,13 @@ void SEND_INTERRUPT(){
     "    mov a,_P1_DIR_PU                         \n"
     "    anl a,r6                                 \n"
     "    mov _P1_DIR_PU,a                         \n"
+
+#if defined(CH552)
+    ////!!!!! using P3.4 for control for now
+    "    mov a,#(~(1<<4))                         \n"
+    "    anl _P3_DIR_PU,a                         \n"
+    "    anl _P3,a                                \n"
+#endif
 
     "    mov dptr,#_SndDone                       \n"
     "    mov a,#1                                 \n"
