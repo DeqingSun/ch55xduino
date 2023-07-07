@@ -358,6 +358,15 @@ void RcvBufDecode5B4B(){
   );
 }
 
+void SndBufEncode4B5B(){
+  __data uint8_t i = SndDataCount;
+  do{
+    i--;
+    SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
+    SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
+  }while(i!=0);
+}
+
 uint8_t RcvCheckSOP(){
 //start with Sync-1 11000 and end with EOP 01101
   if ((RcvDataBuf[0] == 0x03) && (RcvDataBuf[RcvDataCount - 1] == 0x16)) {
@@ -734,15 +743,10 @@ uint8_t SendHandle(){
   SndDataCount = Union_Header->HeaderStruct.NDO * 4 + 2;
   *((uint32_t *)(&SndDataBuf[SndDataCount])) = CalculateCRC(((uint32_t)SndDataBuf)|( ((uint32_t)SndDataCount) <<16) );
 
-  // 4b5b encoding
-  __data uint8_t i = SndDataCount+4;
-  do{
-    i--;
-    SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
-    SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
-  }while(i!=0);
+  SndDataCount = SndDataCount+4;
+  SndBufEncode4B5B();
   // (data+crc)*2 + SOP + EOP 
-  SndDataCount = (SndDataCount+4)*2+4+1;
+  SndDataCount = (SndDataCount)*2+4+1;
   // EOP 01101
   SndDataBuf[SndDataCount-1] = 0x0d;
   SndDataBuf[0] = 0x18;
