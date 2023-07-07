@@ -167,3 +167,22 @@ void SEND_INTERRUPT(){
   TF0 = 0;
   SndDone = 1;
 }
+
+void RcvBufDecode5B4B(){
+  //now we deal with header
+  //the SOP is no longer needed, reuse the space for decoded data
+  
+  RcvDataBuf[0] = Cvt5B4B[RcvDataBuf[4]] + (Cvt5B4B[RcvDataBuf[5]] << 4);
+  RcvDataBuf[1] = Cvt5B4B[RcvDataBuf[6]] + (Cvt5B4B[RcvDataBuf[7]] << 4);
+
+  //something different from the original code
+  //covert all received data from 5b to 4b
+  //NDO is the number of data objects, each data object is 4 bytes, and 4 byte CRC. each byte is 2 5b
+  __data uint8_t leftOverData = (((_Msg_Header_Struct *)(RcvDataBuf))->NDO*4+4)*2; 
+  for (__data uint8_t i = 0; i < leftOverData; i++) {
+    //header is already converted
+    RcvDataBuf[2*i+2] = Cvt5B4B[RcvDataBuf[8+i*4+0]] + (Cvt5B4B[RcvDataBuf[8+i*4+1]] << 4);
+    RcvDataBuf[2*i+3] = Cvt5B4B[RcvDataBuf[8+i*4+2]] + (Cvt5B4B[RcvDataBuf[8+i*4+3]] << 4);
+  }
+}
+
