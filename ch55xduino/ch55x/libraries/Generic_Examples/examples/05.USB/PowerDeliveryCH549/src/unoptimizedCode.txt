@@ -186,3 +186,11 @@ void RcvBufDecode5B4B(){
   }
 }
 
+void SndBufEncode4B5B(){
+  __data uint8_t i = SndDataCount;
+  do{
+    i--;
+    SndDataBuf[4+i*2+0] = Cvt4B5B[SndDataBuf[i] & 0x0f];
+    SndDataBuf[4+i*2+1] = Cvt4B5B[SndDataBuf[i] >> 4];
+  }while(i!=0);
+}
