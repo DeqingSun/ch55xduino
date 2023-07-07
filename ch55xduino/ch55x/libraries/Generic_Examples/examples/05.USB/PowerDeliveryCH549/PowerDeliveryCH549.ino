@@ -207,7 +207,13 @@ void loop() {
           Union_Header->HeaderStruct.PortDataRole = DataRoleUFP;
           Union_Header->HeaderStruct.NDO = 1;
           Union_Header->HeaderStruct.MsgType = SinkCap;
-          SndDataBuf[2] = 0x20; //!!! to check later
+          //6.4.1.3 Sink Capabilities Message
+          //battery
+          //Maximum Voltage in 50mV units: 585 
+          //Minimum Voltage in 50mV units: 0
+          //Operational Power in 250mW units:288
+          //not sure why WCH use this data
+          SndDataBuf[2] = 0x20;
           SndDataBuf[3] = 0x01;
           SndDataBuf[4] = 0x90;
           SndDataBuf[5] = 0x64;
