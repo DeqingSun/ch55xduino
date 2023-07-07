@@ -1,8 +1,5 @@
 #include "pd.h"
-
-//!!!!
 #include <Arduino.h>
-//!!!!
 
 #if F_CPU == 32000000
 #define TIMEOUTCOUNT_LIMIT 700
@@ -991,15 +988,6 @@ uint8_t ReceiveHandle() {
   Union_Header->HeaderStruct.MsgType = GoodCRC;
 
   SendingGoodCRCFlag = 1;
-
-  //delayMicroseconds(120);
-  //0->278us gap OK, 
-  //40->322us gap OK,
-  //80->357us gap OK,
-  //120->397us gap KO,
-  //180->457us gap KO,
-
-  //on 24M, that is 368us, which is too slow.
 
   SendHandle();
 
