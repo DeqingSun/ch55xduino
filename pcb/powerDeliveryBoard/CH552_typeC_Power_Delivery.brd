@@ -270,8 +270,8 @@ RST</text>
 <text x="23.6728" y="7.6708" size="0.8128" layer="26" distance="30" rot="MR0">Try Ch55xduino
 with this board</text>
 <text x="8.1026" y="6.5532" size="2.54" layer="25">+</text>
-<text x="21.0566" y="1.4732" size="3.81" layer="25">-</text>
-<text x="8.1026" y="1.2192" size="3.81" layer="25">-</text>
+<text x="21.1836" y="1.6002" size="3.048" layer="25">-</text>
+<text x="8.1026" y="1.3462" size="3.048" layer="25">-</text>
 <text x="23.7998" y="1.0668" size="0.8128" layer="26" distance="30" rot="MR0">PD Sink capable</text>
 </plain>
 <libraries>
