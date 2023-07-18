@@ -20,6 +20,8 @@
   Or remap-keys with the json file in the same folder:
   https://remap-keys.app/
 
+  The circuit design, case design and photos can be found in pcb/keyboard
+
   cli board options: usb_settings=user266
 
 */
