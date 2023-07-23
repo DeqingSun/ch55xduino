@@ -5,7 +5,9 @@ __xdata uint16_t ERR;
 __xdata uint8_t Connect_Status;
 
 //testing voltage not too high
-#define TARGET_VOLT_MV (5000)
+#define TARGET_VOLT_MV (6000)
+#define ALLOWED_MIN_VOLT_MV (5000)
+#define ALLOWED_MAX_VOLT_MV (12000)
 
 void setT0ForCC() {
   TR0 = 0;
@@ -169,11 +171,13 @@ void loop() {
             __data uint8_t searchIndex = 0xFF;
             __data uint8_t voltageSettingCount = Union_Header->HeaderStruct.NDO;
             __xdata uint16_t matchCurrent = 0;
+            __xdata uint16_t matchVoltage = 0;
+            __xdata uint16_t voltageMatchError = 65535;
             Serial0_print("VA:");
             for (__data uint8_t i = 0; i < voltageSettingCount; i++) {
               Union_SrcCap = (__xdata _Union_SrcCap * __data)(&RcvDataBuf[2 + 4 * i]);
               if (Union_SrcCap->SrcCapFixedSupplyStruct.Fixedsupply == 0b00) {
-                //Fixed supply 
+                //Fixed supply
                 //B9...0 Maximum Current in 10mA units
                 __xdata uint16_t current = (Union_SrcCap->SrcCapFixedSupplyStruct.Current) * 10;
                 //B19...10 Voltage in 50mV units
@@ -182,12 +186,18 @@ void loop() {
                 Serial0_print(",");
                 Serial0_print(current);
                 Serial0_print(";");
-                if (voltage == TARGET_VOLT_MV) {
-                  searchIndex = i;
-                  matchCurrent = current / 10;
+
+                if ((voltage >= ALLOWED_MIN_VOLT_MV) && (voltage <= ALLOWED_MAX_VOLT_MV)) {
+                  uint16_t errorInThisVoltage = (uint16_t)abs(((int16_t)TARGET_VOLT_MV) - ((int16_t)voltage));
+                  if (errorInThisVoltage < voltageMatchError) {
+                    //find a voltage within range and closest to the ideal one
+                    searchIndex = i;
+                    matchCurrent = current / 10;
+                    voltageMatchError = errorInThisVoltage;
+                  }
                 }
-              }else if(Union_SrcCap->SrcCapFixedSupplyStruct.Fixedsupply == 0b11){
-                if (Union_SrcCap->SrcCapAugmentedSupplyStruct.PPS == 0){
+              } else if (Union_SrcCap->SrcCapFixedSupplyStruct.Fixedsupply == 0b11) {
+                if (Union_SrcCap->SrcCapAugmentedSupplyStruct.PPS == 0) {
                   //Augmented Power Data Object
                   __xdata uint16_t minVoltage = (Union_SrcCap->SrcCapAugmentedSupplyStruct.MinVoltage) * 100;
                   __xdata uint16_t maxVoltage = (((Union_SrcCap->SrcCapAugmentedSupplyStruct.MaxVoltageH1) << 7) | (Union_SrcCap->SrcCapAugmentedSupplyStruct.MaxVoltageL7)) * 100;
@@ -214,10 +224,13 @@ void loop() {
               for (uint8_t i = 0; i < 4; i++) {
                 SndDataBuf[2 + i] = 0;
               }
-              ((_Sink_Request_Data_Struct *)(&SndDataBuf[2]))->MaxCurrent = matchCurrent;
-              ((_Sink_Request_Data_Struct *)(&SndDataBuf[2]))->CurrentL6 = matchCurrent & (0x3F);
-              ((_Sink_Request_Data_Struct *)(&SndDataBuf[2]))->CurrentH4 = (matchCurrent >> 6) & (0xF);
-              ((_Sink_Request_Data_Struct *)(&SndDataBuf[2]))->ObjectPosition = searchIndex + 1;
+              if (matchVoltage == 0) {
+                //this is fixed. As fixed voltage request use obj id for voltage
+                ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->MaxCurrent = matchCurrent;
+                ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->CurrentL6 = matchCurrent & (0x3F);
+                ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->CurrentH4 = (matchCurrent >> 6) & (0xF);
+                ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->ObjectPosition = searchIndex + 1;
+              }
               setT0ForCC();
               SendHandle();
               restoreT0ForTiming();

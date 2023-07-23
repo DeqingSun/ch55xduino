@@ -166,7 +166,7 @@ typedef struct  {
 
 	uint8_t  Reserved2:1;
 
-} _Sink_Request_Data_Struct;
+} _Sink_Request_Data_Fixed_Struct;
 
 typedef union {				                                              /* Src Cap */
 	_SRC_Cap_Fixed_Supply_Struct  SrcCapFixedSupplyStruct;
