@@ -132,7 +132,20 @@ typedef struct  {
 	uint8_t  DualRolePower:1;
 	uint8_t  Fixedsupply:2;
 
-} _SRC_Cap_Struct;
+} _SRC_Cap_Fixed_Supply_Struct;
+
+typedef struct {
+	uint8_t  MaxCurrent:7;
+	uint8_t  Reserved:1;
+	uint8_t  MinVoltage:8;
+	uint8_t  Reserved2:1;
+	uint8_t  MaxVoltageL7:7;
+	uint8_t  MaxVoltageH1:1;
+	uint8_t  Reserved3:2;
+	uint8_t  PPSPowerLimited:1;
+	uint8_t  PPS:2;
+	uint8_t  AugmentedPowerDataObj:2;
+} _SRC_Cap_Augmented_Supply_Struct;
 
 // voltage current request
 typedef struct  {
@@ -156,7 +169,8 @@ typedef struct  {
 } _Sink_Request_Data_Struct;
 
 typedef union {				                                              /* Src Cap */
-	_SRC_Cap_Struct  SrcCapStruct;
+	_SRC_Cap_Fixed_Supply_Struct  SrcCapFixedSupplyStruct;
+	_SRC_Cap_Augmented_Supply_Struct SrcCapAugmentedSupplyStruct;
 	uint8_t SrcCapData[4];
 } _Union_SrcCap;
 

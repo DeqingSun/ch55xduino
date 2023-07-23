@@ -172,17 +172,33 @@ void loop() {
             Serial0_print("VA:");
             for (__data uint8_t i = 0; i < voltageSettingCount; i++) {
               Union_SrcCap = (__xdata _Union_SrcCap * __data)(&RcvDataBuf[2 + 4 * i]);
-              //B9...0 Maximum Current in 10mA units
-              __xdata uint16_t current = (Union_SrcCap->SrcCapStruct.Current) * 10;
-              //B19...10 Voltage in 50mV units
-              __xdata uint16_t voltage = (((Union_SrcCap->SrcCapStruct.VoltH4) << 6) | (Union_SrcCap->SrcCapStruct.VoltL6)) * 50;
-              Serial0_print(voltage);
-              Serial0_print(",");
-              Serial0_print(current);
-              Serial0_print(";");
-              if (voltage == TARGET_VOLT_MV) {
-                searchIndex = i;
-                matchCurrent = current/10;
+              if (Union_SrcCap->SrcCapFixedSupplyStruct.Fixedsupply == 0b00) {
+                //Fixed supply 
+                //B9...0 Maximum Current in 10mA units
+                __xdata uint16_t current = (Union_SrcCap->SrcCapFixedSupplyStruct.Current) * 10;
+                //B19...10 Voltage in 50mV units
+                __xdata uint16_t voltage = (((Union_SrcCap->SrcCapFixedSupplyStruct.VoltH4) << 6) | (Union_SrcCap->SrcCapFixedSupplyStruct.VoltL6)) * 50;
+                Serial0_print(voltage);
+                Serial0_print(",");
+                Serial0_print(current);
+                Serial0_print(";");
+                if (voltage == TARGET_VOLT_MV) {
+                  searchIndex = i;
+                  matchCurrent = current / 10;
+                }
+              }else if(Union_SrcCap->SrcCapFixedSupplyStruct.Fixedsupply == 0b11){
+                if (Union_SrcCap->SrcCapAugmentedSupplyStruct.PPS == 0){
+                  //Augmented Power Data Object
+                  __xdata uint16_t minVoltage = (Union_SrcCap->SrcCapAugmentedSupplyStruct.MinVoltage) * 100;
+                  __xdata uint16_t maxVoltage = (((Union_SrcCap->SrcCapAugmentedSupplyStruct.MaxVoltageH1) << 7) | (Union_SrcCap->SrcCapAugmentedSupplyStruct.MaxVoltageL7)) * 100;
+                  __xdata uint16_t current = (Union_SrcCap->SrcCapAugmentedSupplyStruct.MaxCurrent) * 50;
+                  Serial0_print(minVoltage);
+                  Serial0_print("~");
+                  Serial0_print(maxVoltage);
+                  Serial0_print(",");
+                  Serial0_print(current);
+                  Serial0_print(";");
+                }
               }
             }
             Serial0_flush();
