@@ -5,9 +5,9 @@ __xdata uint16_t ERR;
 __xdata uint8_t Connect_Status;
 
 //testing voltage not too high
-#define TARGET_VOLT_MV (6000)
+#define TARGET_VOLT_MV (7000)
 #define ALLOWED_MIN_VOLT_MV (5000)
-#define ALLOWED_MAX_VOLT_MV (12000)
+#define ALLOWED_MAX_VOLT_MV (20000)
 
 void setT0ForCC() {
   TR0 = 0;
@@ -192,6 +192,7 @@ void loop() {
                   if (errorInThisVoltage < voltageMatchError) {
                     //find a voltage within range and closest to the ideal one
                     searchIndex = i;
+                    matchVoltage = 0;
                     matchCurrent = current / 10;
                     voltageMatchError = errorInThisVoltage;
                   }
@@ -208,6 +209,14 @@ void loop() {
                   Serial0_print(",");
                   Serial0_print(current);
                   Serial0_print(";");
+
+                  //only do a precise match in PPS mode
+                  if ((voltageMatchError>0) && (TARGET_VOLT_MV>=minVoltage) && (TARGET_VOLT_MV<=maxVoltage)){
+                    matchVoltage = ((TARGET_VOLT_MV+10)/20);
+                    matchCurrent = current / 50;
+                    voltageMatchError = 0;  //do no more search
+                    searchIndex = i;
+                  }
                 }
               }
             }
@@ -230,6 +239,12 @@ void loop() {
                 ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->CurrentL6 = matchCurrent & (0x3F);
                 ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->CurrentH4 = (matchCurrent >> 6) & (0xF);
                 ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->ObjectPosition = searchIndex + 1;
+              }else{
+                //this is pps
+                ((_Sink_Request_Data_Programmable_Struct *)(&SndDataBuf[2]))->Current = matchCurrent;
+                ((_Sink_Request_Data_Programmable_Struct *)(&SndDataBuf[2]))->VoltageL7 = matchVoltage & (0x7F);
+                ((_Sink_Request_Data_Programmable_Struct *)(&SndDataBuf[2]))->VoltageH4 = (matchVoltage >> 7) & (0xF);
+                ((_Sink_Request_Data_Programmable_Struct *)(&SndDataBuf[2]))->ObjectPosition = searchIndex + 1;
               }
               setT0ForCC();
               SendHandle();

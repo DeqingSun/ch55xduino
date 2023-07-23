@@ -168,6 +168,21 @@ typedef struct  {
 
 } _Sink_Request_Data_Fixed_Struct;
 
+typedef struct {
+	uint8_t  Current:7;
+	uint8_t  Reserved:2;
+	uint8_t  VoltageL7:7;
+	uint8_t  VoltageH4:4;
+	uint8_t  Reserved2:3;
+	uint8_t  UnchunkedExtended:1;
+	uint8_t  NoUSBSuspend:1;
+	uint8_t  USBCommunicationsCapable:1;
+	uint8_t  CapabilityMismatch:1;
+	uint8_t  Reserved3:1;
+	uint8_t  ObjectPosition:3;
+	uint8_t  Reserved4:1;
+} _Sink_Request_Data_Programmable_Struct;
+
 typedef union {				                                              /* Src Cap */
 	_SRC_Cap_Fixed_Supply_Struct  SrcCapFixedSupplyStruct;
 	_SRC_Cap_Augmented_Supply_Struct SrcCapAugmentedSupplyStruct;
