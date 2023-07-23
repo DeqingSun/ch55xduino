@@ -211,8 +211,8 @@ void loop() {
                   Serial0_print(";");
 
                   //only do a precise match in PPS mode
-                  if ((voltageMatchError>0) && (TARGET_VOLT_MV>=minVoltage) && (TARGET_VOLT_MV<=maxVoltage)){
-                    matchVoltage = ((TARGET_VOLT_MV+10)/20);
+                  if ((voltageMatchError > 0) && (TARGET_VOLT_MV >= minVoltage) && (TARGET_VOLT_MV <= maxVoltage)) {
+                    matchVoltage = ((TARGET_VOLT_MV + 10) / 20);
                     matchCurrent = current / 50;
                     voltageMatchError = 0;  //do no more search
                     searchIndex = i;
@@ -239,7 +239,7 @@ void loop() {
                 ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->CurrentL6 = matchCurrent & (0x3F);
                 ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->CurrentH4 = (matchCurrent >> 6) & (0xF);
                 ((_Sink_Request_Data_Fixed_Struct *)(&SndDataBuf[2]))->ObjectPosition = searchIndex + 1;
-              }else{
+              } else {
                 //this is pps
                 ((_Sink_Request_Data_Programmable_Struct *)(&SndDataBuf[2]))->Current = matchCurrent;
                 ((_Sink_Request_Data_Programmable_Struct *)(&SndDataBuf[2]))->VoltageL7 = matchVoltage & (0x7F);

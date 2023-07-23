@@ -170,7 +170,8 @@ typedef struct  {
 
 typedef struct {
 	uint8_t  Current:7;
-	uint8_t  Reserved:2;
+	uint8_t  Reserved:1;
+	uint8_t  Reserved1:1;
 	uint8_t  VoltageL7:7;
 	uint8_t  VoltageH4:4;
 	uint8_t  Reserved2:3;
