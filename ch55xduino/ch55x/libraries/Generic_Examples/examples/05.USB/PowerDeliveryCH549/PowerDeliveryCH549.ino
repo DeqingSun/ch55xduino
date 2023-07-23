@@ -59,9 +59,9 @@ void PD_Init( )
   P3_MOD_OC &= ~(1 << 4); //using P3.4 for controlling the output
   P3_DIR_PU &= ~(1 << 4); 
   P3 &= ~(1 << 4); 
-  //P1.7 for drive
-  P1_DIR_PU &= ~(1 << 7);
-  P1_DIR_PU &= ~(1 << 7);
+  //P1.6 P1.7 for drive
+  P1_MOD_OC &= ~((1 << 6)|(1 << 7));
+  P1_DIR_PU &= ~((1 << 6)|(1 << 7));
 
   CCSel = 1;                                                                       //choose CC1
   ADC_CFG = bADC_EN | bCMP_EN | bADC_CLK;
@@ -117,8 +117,8 @@ uint8_t Connect_Check( void )
 
 
 void setup() {
-  //delay(1000);
   PD_Init();
+
   Serial0_begin(115200);
   delay(20);
   Serial0_println("Type-C DP start ...");
