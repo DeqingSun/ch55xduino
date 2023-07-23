@@ -1,3 +1,5 @@
+// boot pin may need to be changed to be not on USB, as some charger will pull D+ high
+
 #include "src/pd.h"
 
 __xdata uint8_t status;
@@ -111,10 +113,6 @@ uint8_t Connect_Check( void )
   }
   return DFP_PD_DISCONNECT;
 }
-
-
-
-
 
 void setup() {
   PD_Init();
