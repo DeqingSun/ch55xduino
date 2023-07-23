@@ -56,9 +56,9 @@ void PD_Init( )
   //P3.4 connect 3 (0.7+0.3+0.3 underdrive) diode to CC. Switch between Input and GND to hold voltage on 1V
   //P1.7 connect to CC via 1K resistor (limit current) and diode to P1.7 (increase pulldown strength)
 
-  P3_MOD_OC &= ~(1 << 4); //!!!!! using P3.4 for control for now
-  P3_DIR_PU &= ~(1 << 4); //!!!!! using P3.4 for control for now
-  P3 &= ~(1 << 4); //!!!!! using P3.4 for control for now
+  P3_MOD_OC &= ~(1 << 4); //using P3.4 for controlling the output
+  P3_DIR_PU &= ~(1 << 4); 
+  P3 &= ~(1 << 4); 
   //P1.7 for drive
   P1_DIR_PU &= ~(1 << 7);
   P1_DIR_PU &= ~(1 << 7);
@@ -122,11 +122,6 @@ void setup() {
   Serial0_begin(115200);
   delay(20);
   Serial0_println("Type-C DP start ...");
-
-  pinMode(16, OUTPUT);
-  //pinMode(17, OUTPUT);
-  //P1_7 = 0; //!!!!!!
-  //SndMsgID = 0;//!!!!???????
 }
 
 void loop() {
@@ -158,8 +153,6 @@ void loop() {
 
   if (Connect_Status)                                                    //when connected, process data receiving
   {
-    P1_6 = 1;//!!!!!!
-
     setT0ForCC();
     status = ReceiveHandle();
     restoreT0ForTiming();
@@ -289,12 +282,7 @@ void loop() {
           Serial0_println( (int)(Union_Header->HeaderStruct.MsgType));
           break;
       }
-
-      //
     }
-
-    P1_6 = 0;//!!!!!!
-
   }
 
 }

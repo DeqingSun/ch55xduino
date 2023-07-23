@@ -676,14 +676,16 @@ void SEND_INTERRUPT(){
     //send 63 bits of 10101....01
 
 #if defined(CH552)
-    ////!!!!! using P3.4 for control for now
+    //using P3.4 for controlling the output
     "    mov a,#((1<<4))                          \n"
     "    orl _P3_DIR_PU,a                         \n"
     "    mov a,#(~(1<<4))                         \n"
     "    anl _P3,a                                \n"
 
-    ////!!!!! using P1.7 for drives for now
-    "    mov a,#((1<<7))                          \n"
+    //using P1.6 or P1.7 for drives
+    "    mov a,r7                   ;P1.4 or P1.5 \n"
+    "    rl a                                     \n"
+    "    rl a                                     \n"
     "    mov r7,a                     ;toggleMask \n"
     "    xrl a,#0xff                              \n"
     "    mov r6,a                    ;~toggleMask \n"
@@ -787,7 +789,7 @@ void SEND_INTERRUPT(){
     "    mov _P1_DIR_PU,a                         \n"
 
 #if defined(CH552)
-    ////!!!!! using P3.4 for control for now
+    //using P3.4 for controlling output
     "    mov a,#(~(1<<4))                         \n"
     "    anl _P3_DIR_PU,a                         \n"
     "    anl _P3,a                                \n"
