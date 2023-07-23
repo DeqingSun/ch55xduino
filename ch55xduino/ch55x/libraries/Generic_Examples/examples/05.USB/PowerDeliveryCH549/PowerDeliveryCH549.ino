@@ -43,24 +43,24 @@ void PD_Init( )
 
   USB_C_CTRL |= bUCC1_PD_EN | bUCC2_PD_EN;
 
-  P1_MOD_OC &= ~((1 << 4)|(1 << 5));
-  P1_DIR_PU &= ~((1 << 4)|(1 << 5));
+  P1_MOD_OC &= ~((1 << 4) | (1 << 5));
+  P1_DIR_PU &= ~((1 << 4) | (1 << 5));
 
   //voltage divider on P3.2 to get 0.6V
   P3_MOD_OC &= ~(1 << 2);
   P3_DIR_PU &= ~(1 << 2);
 
   //P1.4 connect to CC1 directly with internal 5.1K pull-down. If 1K resistor is inserted, the signal will be too weak
-  //P3.4 connect 3 (0.7+0.3+0.3 underdrive) diode to CC. Switch between Input and GND to hold voltage on 1V 
+  //P3.4 connect 3 (0.7+0.3+0.3 underdrive) diode to CC. Switch between Input and GND to hold voltage on 1V
   //P1.7 connect to CC via 1K resistor (limit current) and diode to P1.7 (increase pulldown strength)
-  
-  P3_MOD_OC &= ~(1 << 4); //!!!!! using P3.4 for control for now 
+
+  P3_MOD_OC &= ~(1 << 4); //!!!!! using P3.4 for control for now
   P3_DIR_PU &= ~(1 << 4); //!!!!! using P3.4 for control for now
   P3 &= ~(1 << 4); //!!!!! using P3.4 for control for now
   //P1.7 for drive
   P1_DIR_PU &= ~(1 << 7);
   P1_DIR_PU &= ~(1 << 7);
-  
+
   CCSel = 1;                                                                       //choose CC1
   ADC_CFG = bADC_EN | bCMP_EN | bADC_CLK;
   ADC_CTRL = 0;
@@ -88,15 +88,15 @@ uint8_t Connect_Check( void )
     UCCn_Value = ADC_DAT & 0xFFF;
 #elif defined(CH552)
     ADC_IF = 0;
-    if (i==1){
+    if (i == 1) {
       ADC_CHAN1 = 0;
       ADC_CHAN0 = 1;
-    }else{
+    } else {
       ADC_CHAN1 = 1;
       ADC_CHAN0 = 0;
     }
     ADC_START = 1;
-    while(ADC_IF == 0);
+    while (ADC_IF == 0);
     UCCn_Value = ADC_DATA;
 #endif
     //  printf("UCC1=%d\n",(UINT16)UCC1_Value);
@@ -193,7 +193,7 @@ void loop() {
               Union_Header->HeaderStruct.PortDataRole = DataRoleUFP;
               Union_Header->HeaderStruct.NDO = 1;
               Union_Header->HeaderStruct.MsgType = SinkSendRequest;
-              
+
               //clear data buffer
               for (uint8_t i = 0; i < 4; i++) {
                 SndDataBuf[2 + i] = 0;
@@ -224,7 +224,7 @@ void loop() {
           Union_Header->HeaderStruct.MsgType = SinkCap;
           //6.4.1.3 Sink Capabilities Message
           //battery
-          //Maximum Voltage in 50mV units: 585 
+          //Maximum Voltage in 50mV units: 585
           //Minimum Voltage in 50mV units: 0
           //Operational Power in 250mW units:288
           //not sure why WCH use this data
