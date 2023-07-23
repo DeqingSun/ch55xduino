@@ -109,54 +109,6 @@ __code uint32_t CRC32_Table[256] = {
 	0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
-
-#pragma callee_saves sendCharDebug
-void sendCharDebug17(__data char c) // 8Mbps under 24M clk
-{
-  c; // avoid unreferenced function argument warning
-  // uint8_t interruptOn = EA;
-  // EA = 0;
-  __asm__("  mov c,_EA         \n"
-          "  clr a             \n"
-          "  rlc a             \n"
-          "  mov b,a           \n"
-          "  clr _EA           \n");
-
-  // using P1.4
-  __asm__( // any branch will cause unpredictable timing due to code alignment
-      "  mov a,dpl         \n" // the parameter of func
-
-      "  clr c             \n"
-      "  mov _P1_7,c       \n"
-      "  rrc a             \n"
-      "  mov _P1_7,c       \n"
-      "  rrc a             \n"
-      "  mov _P1_7,c       \n"
-      "  rrc a             \n"
-      "  mov _P1_7,c       \n"
-      "  rrc a             \n"
-      "  mov _P1_7,c       \n"
-      "  rrc a             \n"
-      "  mov _P1_7,c       \n"
-      "  rrc a             \n"
-      "  mov _P1_7,c       \n"
-      "  rrc a             \n"
-      "  mov _P1_7,c       \n"
-      "  rrc a             \n"
-      "  mov _P1_7,c       \n"
-      "  setb c            \n"
-      "  mov _P1_7,c       \n");
-  // if (interruptOn) EA = 1;
-
-  __asm__("  mov a,b           \n"
-          "  jz skipSetEADebug$\n"
-          "  setb _EA          \n"
-          "skipSetEADebug$:    \n");
-
-
-          
-}
-
 uint32_t CalculateCRC(uint32_t dataPtrAndLen){
   //'dpl' (LSB),'dph','b' & 'acc'
   //DPTR is the array address, B is the low byte of length
