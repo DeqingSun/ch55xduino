@@ -59,11 +59,11 @@ void PD_Init( )
   //P1.7 connect to CC via 1K resistor (limit current) and diode to P1.7 (increase pulldown strength)
 
   P3_MOD_OC &= ~(1 << 4); //using P3.4 for controlling the output
-  P3_DIR_PU &= ~(1 << 4); 
-  P3 &= ~(1 << 4); 
+  P3_DIR_PU &= ~(1 << 4);
+  P3 &= ~(1 << 4);
   //P1.6 P1.7 for drive
-  P1_MOD_OC &= ~((1 << 6)|(1 << 7));
-  P1_DIR_PU &= ~((1 << 6)|(1 << 7));
+  P1_MOD_OC &= ~((1 << 6) | (1 << 7));
+  P1_DIR_PU &= ~((1 << 6) | (1 << 7));
 
   CCSel = 1;                                                                       //choose CC1
   ADC_CFG = bADC_EN | bCMP_EN | bADC_CLK;
