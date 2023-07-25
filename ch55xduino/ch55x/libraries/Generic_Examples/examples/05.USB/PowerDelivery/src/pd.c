@@ -1,7 +1,7 @@
-//clang-format off
+// clang-format off
 #include <Arduino.h>
 #include "pd.h"
-//clang-format on
+// clang-format on
 
 #if F_CPU == 32000000
 #define TIMEOUTCOUNT_LIMIT 700
@@ -130,6 +130,7 @@ uint32_t CalculateCRC(uint32_t dataPtrAndLen){
   //sdcc is small-endian, so lowest byte is first in memory
 
   //B = CRC32_Table[(dataPtrAndLen&0xff)*4];
+// clang-format off
   dataPtrAndLen;
   __asm__(
     "; put data ptr to DPTR1                      \n"
@@ -194,20 +195,21 @@ uint32_t CalculateCRC(uint32_t dataPtrAndLen){
     "    mov a,#3                                 \n"
     "    movc a,@a+dptr                           \n"
     "    mov r3,a                                 \n"
-    "    djnz r7,loop_crc_calc$             \n"
+    "    djnz r7,loop_crc_calc$                   \n"
     " ; now r0~r3 has the CRC result, do an inv   \n"
     "    mov a,#0xFF                              \n"
     "    xrl a,r0                                 \n"
     "    mov dpl,a                                \n"
-    "    mov a,#0xFF                               \n"
+    "    mov a,#0xFF                              \n"
     "    xrl a,r1                                 \n"
     "    mov dph,a                                \n"
-    "    mov a,#0xFF                               \n"
+    "    mov a,#0xFF                              \n"
     "    xrl a,r2                                 \n"
     "    mov b,a                                  \n"
-    "    mov a,#0xFF                               \n"
+    "    mov a,#0xFF                              \n"
     "    xrl a,r3                                 \n"
   );
+// clang-format on
 
 }
 
@@ -226,6 +228,7 @@ void RcvBufDecode5B4B(){
 
   //a5-> MOVX @DPTR1,A & INC DPTR1
 
+// clang-format off
   __asm__(
     " ; write DPTR1 as write ptr, use with 0xa5   \n"
     "    inc _XBUS_AUX                            \n"
@@ -305,11 +308,12 @@ void RcvBufDecode5B4B(){
     " ; write result back to RcvDataBuf           \n"
     "    .db #0xa5                                \n"
     "    djnz r3,RcvBufDecode5B4B_loop_REST$      \n"
-
   );
+// clang-format on
 }
 
 void SndBufEncode4B5B(){
+// clang-format off
   __asm__(
     "    mov dptr,#_SndDataCount                  \n"
     "    movx a,@dptr                             \n"
@@ -361,6 +365,7 @@ void SndBufEncode4B5B(){
 
     "    djnz r7,SndBufEncode4B5B_loop$           \n"
   );
+// clang-format on
 }
 
 uint8_t RcvCheckSOP(){
@@ -414,6 +419,7 @@ uint8_t RcvCheckSOP(){
 
 // using comparator to receive BMC data over CC
 void CMP_Interrupt() {
+// clang-format off
   //clear RcvDataBuf[73]
   __asm__(
     "    inc _XBUS_AUX                            \n"
@@ -587,11 +593,12 @@ void CMP_Interrupt() {
     "    clr _TR0                                 \n"
     "    clr _TF0                                 \n"
     "    ret                                      \n"
-
   );
+// clang-format on
 }
 
 void SEND_INTERRUPT(){
+// clang-format off
   __asm__(
     "  .even                                      \n"
     "    clr _TR0                                 \n"
@@ -756,9 +763,8 @@ void SEND_INTERRUPT(){
     "    clr _TR0                                 \n"
     "    clr _TF0                                 \n"
     "    ret                                      \n"
-
   );
-
+// clang-format on
 }
 
 uint8_t SendHandle(){
