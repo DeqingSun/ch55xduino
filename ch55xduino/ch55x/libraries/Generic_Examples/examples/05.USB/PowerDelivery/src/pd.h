@@ -54,7 +54,7 @@
 #define  DiscMode		   0x03
 #define  EnterMode		   0x04
 #define  ExitMode		   0x05
-#define  Attention		   0x06                                        //SINK请求通知，表示设备连接状态
+#define  Attention		   0x06                                        //SINK request notification
 #define  DPStatUpdate	   0x10
 #define  DPConfig		   0x11
 
@@ -77,9 +77,9 @@
 #define  SOPDPD            4                                           //Start of Packet Sequence Double Prime Double(SOP''_Debug)
 
 // receive data status
-#define  REVSUCCESS        0x00                                        //收到数据
-#define  NODATA            0x01                                        //无数据
-#define  ILLEGAL           0x02                                        //收到非法数据包，可能是SOP'
+#define  REVSUCCESS        0x00                                        //Get data
+#define  NODATA            0x01                                        //No data
+#define  ILLEGAL           0x02                                        //Illegal data, might be SOP'
 
 // connection status
 #define  DFP_PD_CONNECT    0x00
