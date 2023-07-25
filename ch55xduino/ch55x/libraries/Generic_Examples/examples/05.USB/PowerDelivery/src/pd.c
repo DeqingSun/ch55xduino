@@ -1,5 +1,7 @@
-#include "pd.h"
+//clang-format off
 #include <Arduino.h>
+#include "pd.h"
+//clang-format on
 
 #if F_CPU == 32000000
 #define TIMEOUTCOUNT_LIMIT 700
