@@ -1,4 +1,17 @@
-// boot pin may need to be changed to be not on USB, as some charger will pull D+ high
+/*
+  Power Delivery example
+
+  created 2023
+  by Deqing Sun for use with CH55xduino
+
+  This example uses CH552 or CH549 to communicate with PD/PPS compatible charger to get a higher voltage than 5V.
+  Boot pin may need to be changed to be not on USB, as some charger will pull D+ high.
+  Please refer to the pcb folder for schematics.
+  This example will try to get 7V if the charger support PPS. Otherwise it is likely to get 9V (closest to 7V in 5~20V range)
+  Change TARGET_VOLT_MV to get another voltage.
+
+  This example code is in the public domain.
+*/
 
 #include "src/pd.h"
 
