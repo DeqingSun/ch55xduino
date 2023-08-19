@@ -1,3 +1,5 @@
+*languages: [English](README.md), [简体中文](README.zh-CN.md)*
+
 # Ch55xduino: Small Devices Arduino for ch55x devices
 
 **Getting started on the Ch55x the easy way. Forked from Sduino project, also based on 
