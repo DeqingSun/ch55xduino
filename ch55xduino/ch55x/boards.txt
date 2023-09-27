@@ -3,6 +3,7 @@
 menu.usb_settings=USB Settings
 menu.upload_method=Upload method
 menu.clock=Clock Source
+menu.bootloader_pin=Bootloader pin
 ##############################################################
 
 ch552.name=CH552 Board
@@ -63,6 +64,13 @@ ch552.menu.upload_method.usb.upload.tool=vnproch55x_usb
 ch552.menu.upload_method.serial=Serial
 ch552.menu.upload_method.serial.upload.tool=vnproch55x_serial
 
+## ----------------------------------------------
+ch552.menu.bootloader_pin.p36=P3.6 (D+) pull-up
+ch552.menu.bootloader_pin.p36.upload.bootcfg=3
+## ----
+ch552.menu.bootloader_pin.p15=P1.5 pull-down
+ch552.menu.bootloader_pin.p15.upload.bootcfg=1
+
 # meaningless variables just to keep the makefile happy
 
 ch552.upload.speed=1
@@ -114,6 +122,13 @@ ch551.menu.usb_settings.user0=USER CODE w/ 0B USB ram
 ch551.menu.usb_settings.user0.upload.maximum_data_size=512
 ch551.menu.usb_settings.user0.upload.xdata_location=0
 ch551.menu.usb_settings.user0.build.extra_flags=-DUSER_USB_RAM=0
+
+## ----------------------------------------------
+ch551.menu.bootloader_pin.p36=P3.6 (D+) pull-up
+ch551.menu.bootloader_pin.p36.upload.bootcfg=3
+## ----
+ch551.menu.bootloader_pin.p15=P1.5 pull-down
+ch551.menu.bootloader_pin.p15.upload.bootcfg=1
 
 # meaningless variables just to keep the makefile happy
 
@@ -169,6 +184,13 @@ ch559.menu.usb_settings.user0=USER CODE w/ 0B USB ram
 ch559.menu.usb_settings.user0.upload.maximum_data_size=6144
 ch559.menu.usb_settings.user0.upload.xdata_location=0
 ch559.menu.usb_settings.user0.build.extra_flags=-DUSER_USB_RAM=0
+
+## ----------------------------------------------
+ch559.menu.bootloader_pin.p46=P4.6 pull-down
+ch559.menu.bootloader_pin.p46.upload.bootcfg=3
+## ----
+ch559.menu.bootloader_pin.p51=P5.1 (D+) pull-up
+ch559.menu.bootloader_pin.p51.upload.bootcfg=1
 
 # meaningless variables just to keep the makefile happy
 
@@ -226,6 +248,13 @@ ch549.menu.upload_method.usb.upload.tool=vnproch55x_usb
 ## ----
 ch549.menu.upload_method.serial=Serial
 ch549.menu.upload_method.serial.upload.tool=vnproch55x_serial
+
+## ----------------------------------------------
+ch549.menu.bootloader_pin.p51=P5.1 (D+) pull-up
+ch549.menu.bootloader_pin.p51.upload.bootcfg=0
+## ----
+ch549.menu.bootloader_pin.p15=P1.5 pull-down
+ch549.menu.bootloader_pin.p15.upload.bootcfg=2
 
 # meaningless variables just to keep the makefile happy
 

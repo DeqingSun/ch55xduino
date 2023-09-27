@@ -119,4 +119,4 @@ void main(void) {
   //    return 0;
 }
 
-unsigned char _sdcc_external_startup(void) __nonbanked { return 0; }
+unsigned char __sdcc_external_startup(void) __nonbanked { return 0; }
