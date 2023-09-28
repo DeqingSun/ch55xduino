@@ -153,8 +153,7 @@ uint32_t millis(void);
 uint32_t micros(void);
 void delay(__data uint32_t ms);
 void delayMicroseconds(__data uint16_t us);
-// unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
-// unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout);
+uint32_t pulseIn(uint8_t pin, __xdata uint8_t state, __xdata uint16_t timeout);
 
 // void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t
 // val); uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
