@@ -26,6 +26,9 @@ volatile __xdata uint8_t servoPin[16] = {9,9,9,9,9,9,9,9};
 volatile __xdata uint8_t servoPinNext = 9;
 volatile __xdata uint8_t servoPinPrevious = 9;
 
+__xdata uint16_t Servo_min = 1000;
+__xdata uint16_t Servo_max = 2000;
+
 void Timer2Interrupt(void) __interrupt {
   if (TF2) {
     TF2 = 0;
@@ -144,7 +147,7 @@ bool Servo_detach(uint8_t pin){
   return true;
 }
 
-bool Servo_write(uint8_t pin, __xdata uint16_t pulseUs){
+bool Servo_writeMicroseconds(uint8_t pin, __xdata uint16_t pulseUs){
   __idata uint8_t pinIndex = Servo_search_pin(pin);
   if (pinIndex == 0) {
     return false;
@@ -152,6 +155,32 @@ bool Servo_write(uint8_t pin, __xdata uint16_t pulseUs){
   __idata uint16_t value = (65536-((F_CPU/1000000)*pulseUs));
   ET2 = 0;
   listRCAP2[pinIndex] = value;
+  ET2 = 1;
+  return true;
+}
+
+bool Servo_write(uint8_t pin, __xdata int16_t value){
+  __idata uint8_t pinIndex = Servo_search_pin(pin);
+  __idata uint16_t pulseValue;
+  if (pinIndex == 0) {
+    return false;
+  }
+  if (value <= 200) {
+    //value is angle when value <= 200
+    if (value < 0) {
+      value = 0;
+    }
+    if (value > 180) {
+      value = 180;
+    }
+    uint16_t pulseUs = Servo_min + ((Servo_max-Servo_min)*((uint32_t)value))/180;
+    pulseValue = (65536-((F_CPU/1000000)*(pulseUs)));
+  }else{
+    //value is pulseUs when value > 200
+    pulseValue = (65536-((F_CPU/1000000)*value));
+  }
+  ET2 = 0;
+  listRCAP2[pinIndex] = pulseValue;
   ET2 = 1;
   return true;
 }

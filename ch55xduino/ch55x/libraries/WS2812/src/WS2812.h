@@ -10,11 +10,8 @@
 
 #ifndef _WS2812_H_INCLUDED
 #define _WS2812_H_INCLUDED
-
-// clang-format off
-#include <Arduino.h>
 #include "template/WS2812_pins_header.h"
-// clang-format on
+#include <Arduino.h>
 
 #define set_pixel_for_RGB_LED(ADDR, INDEX, R, G, B)                            \
   {                                                                            \
