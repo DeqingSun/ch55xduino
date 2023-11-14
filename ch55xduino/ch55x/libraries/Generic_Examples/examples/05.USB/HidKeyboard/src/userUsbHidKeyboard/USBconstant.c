@@ -48,7 +48,7 @@ __code USB_Descriptor_Configuration_t ConfigurationDescriptor = {
                       .InterfaceNumber = 0,
                       .AlternateSetting = 0x00,
 
-                      .TotalEndpoints = 2,
+                      .TotalEndpoints = 1,
 
                       .Class = HID_CSCP_HIDClass,
                       .SubClass = HID_CSCP_BootSubclass,
@@ -76,7 +76,7 @@ __code USB_Descriptor_Configuration_t ConfigurationDescriptor = {
                              .EndpointSize = KEYBOARD_EPSIZE,
                              .PollingIntervalMS = 10},
 
-    .HID_ReportOUTEndpoint = {.Header = {.Size =
+    /*.HID_ReportOUTEndpoint = {.Header = {.Size =
                                              sizeof(USB_Descriptor_Endpoint_t),
                                          .Type = DTYPE_Endpoint},
 
@@ -85,7 +85,7 @@ __code USB_Descriptor_Configuration_t ConfigurationDescriptor = {
                                   (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC |
                                    ENDPOINT_USAGE_DATA),
                               .EndpointSize = KEYBOARD_EPSIZE,
-                              .PollingIntervalMS = 10},
+                              .PollingIntervalMS = 10},*/
 };
 
 __code uint8_t ReportDescriptor[] = {
