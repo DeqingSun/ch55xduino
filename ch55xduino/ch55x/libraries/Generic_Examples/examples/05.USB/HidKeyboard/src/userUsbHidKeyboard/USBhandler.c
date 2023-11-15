@@ -347,12 +347,9 @@ void USB_EP0_OUT() {
   if ((SetupReq == HID_SET_REPORT)) 
   {
     //does not care led status for now
-    UEP0_T_LEN = 0;
-    UEP0_CTRL ^= bUEP_R_TOG; 
-  }else{
-    UEP0_T_LEN = 0;
-    UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_NAK; // Respond Nak
+    
   }
+  UEP0_CTRL ^= bUEP_R_TOG; 
 }
 
 #pragma save
