@@ -347,8 +347,8 @@ void USB_EP0_OUT() {
   if ((SetupReq == HID_SET_REPORT)) 
   {
     //does not care led status for now
-    
   }
+  UEP0_T_LEN = 0;
   UEP0_CTRL ^= bUEP_R_TOG; 
 }
 
