@@ -18,7 +18,7 @@
 #error "This example needs to be compiled with a USER USB setting"
 #endif
 
-#include "src/userUsbCdc/USBCDC.h"
+#include "src/CdcHidCombo/USBCDC.h"
 
 //This is a fairly large array, store it in external memory with keyword __xdata
 __xdata char recvStr[64];

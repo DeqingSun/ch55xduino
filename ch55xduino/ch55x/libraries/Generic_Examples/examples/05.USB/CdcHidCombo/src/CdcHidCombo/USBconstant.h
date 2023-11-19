@@ -7,11 +7,14 @@
 #include "include/ch5xx_usb.h"
 #include "usbCommonDescriptors/StdDescriptors.h"
 #include "usbCommonDescriptors/CDCClassCommon.h"
+#include "usbCommonDescriptors/HIDClassCommon.h"
 // clang-format on
 
 #define EP0_ADDR 0
 #define EP1_ADDR 10
 #define EP2_ADDR 20
+#define EP3_ADDR 148
+
 
 #define SET_LINE_CODING                                                        \
   0X20 // Configures DTE rate, stop-bits, parity, and number-of-character
@@ -26,6 +29,9 @@
 #define CDC_TX_EPADDR 0x82
 #define CDC_RX_EPADDR 0x02
 #define CDC_TXRX_EPSIZE 0x40
+
+#define KEYBOARD_EPADDR 0x83
+#define KEYBOARD_EPSIZE 8
 
 /* Type Defines: */
 /** Type define for the device configuration descriptor structure. This must be
@@ -48,6 +54,12 @@ typedef struct {
   USB_Descriptor_Interface_t CDC_DCI_Interface;
   USB_Descriptor_Endpoint_t CDC_DataOutEndpoint;
   USB_Descriptor_Endpoint_t CDC_DataInEndpoint;
+
+  // Keyboard HID Interface
+  USB_Descriptor_Interface_t HID_Interface;
+  USB_HID_Descriptor_HID_t HID_KeyboardHID;
+  USB_Descriptor_Endpoint_t HID_ReportINEndpoint;
+
 } USB_Descriptor_Configuration_t;
 
 /** Enum for the device interface descriptor IDs within the device. Each
@@ -57,6 +69,7 @@ typedef struct {
 enum InterfaceDescriptors_t {
   INTERFACE_ID_CDC_CCI = 0, /**< CDC CCI interface descriptor ID */
   INTERFACE_ID_CDC_DCI = 1, /**< CDC DCI interface descriptor ID */
+  INTERFACE_ID_HID = 2,     /**< HID interface descriptor ID */
 };
 
 extern __code USB_Descriptor_Device_t DeviceDescriptor;
@@ -66,5 +79,6 @@ extern __code uint16_t SerialDescriptor[];
 extern __code uint16_t ProductDescriptor[];
 extern __code uint16_t CDCDescriptor[];
 extern __code uint16_t ManufacturerDescriptor[];
+extern __code uint8_t ReportDescriptor[];
 
 #endif
