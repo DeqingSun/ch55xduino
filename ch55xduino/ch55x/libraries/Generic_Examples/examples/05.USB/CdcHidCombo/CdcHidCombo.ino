@@ -19,6 +19,7 @@
 #endif
 
 #include "src/CdcHidCombo/USBCDC.h"
+#include "src/CdcHidCombo/USBHIDKeyboard.h"
 
 //This is a fairly large array, store it in external memory with keyword __xdata
 __xdata char recvStr[64];
@@ -26,8 +27,14 @@ uint8_t recvStrPtr = 0;
 bool stringComplete = false;
 uint16_t echoCounter = 0;
 
+#define BUTTON1_PIN 30
+
+bool button1PressPrev = false;
+
 void setup() {
   USBInit();
+
+  pinMode(BUTTON1_PIN, INPUT_PULLUP);
 }
 
 void loop() {
@@ -62,4 +69,15 @@ void loop() {
     USBSerial_println(echoCounter);
     USBSerial_flush();
   }
+
+  bool button1Press = !digitalRead(BUTTON1_PIN);
+  if (button1PressPrev != button1Press) {
+    button1PressPrev = button1Press;
+    if (button1Press) {
+      Keyboard_press('a');
+    } else {
+      Keyboard_release('a');
+    }
+  }
+
 }

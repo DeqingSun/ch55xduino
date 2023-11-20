@@ -37,9 +37,6 @@ void USBInit() {
   USBDeviceCfg();         // Device mode configuration
   USBDeviceEndPointCfg(); // Endpoint configuration
   USBDeviceIntCfg();      // Interrupt configuration
-  UEP0_T_LEN = 0;
-  UEP1_T_LEN = 0; // Pre-use send length must be cleared
-  UEP2_T_LEN = 0;
 }
 
 void resetCDCParameters() {

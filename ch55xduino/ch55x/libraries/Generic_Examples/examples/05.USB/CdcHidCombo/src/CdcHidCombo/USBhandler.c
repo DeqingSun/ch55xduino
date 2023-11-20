@@ -13,14 +13,16 @@ uint16_t getLineCodingHandler();
 void setControlLineStateHandler();
 void USB_EP2_IN();
 void USB_EP2_OUT();
+void USB_EP3_IN();
 
 // clang-format off
 __xdata __at (EP0_ADDR) uint8_t Ep0Buffer[8];
 __xdata __at (EP1_ADDR) uint8_t Ep1Buffer[8];       //on page 47 of data sheet, the receive buffer need to be min(possible packet size+2,64)
 __xdata __at (EP2_ADDR) uint8_t Ep2Buffer[128];     //IN and OUT buffer, must be even address
+__xdata __at (EP3_ADDR) uint8_t Ep3Buffer[64];     //IN and OUT buffer, must be even address
 // clang-format on
 
-#if (EP2_ADDR + 128) > USER_USB_RAM
+#if (EP3_ADDR + 64) > USER_USB_RAM
 #error "This example needs more USB ram. Increase this setting in menu."
 #endif
 
@@ -542,9 +544,10 @@ void USBDeviceEndPointCfg() {
   UEP0_DMA = (uint16_t)Ep0Buffer; // Endpoint 0 data transfer address
   UEP1_DMA = (uint16_t)Ep1Buffer; // Endpoint 1 data transfer address
   UEP2_DMA = (uint16_t)Ep2Buffer; // Endpoint 2 data transfer address
+  UEP3_DMA = (uint16_t)Ep3Buffer; // Endpoint 3 data transfer address
 #endif
 
-  UEP2_3_MOD = 0x0C; // Endpoint2 double buffer
+  UEP2_3_MOD = bUEP3_TX_EN | bUEP2_RX_EN | bUEP2_TX_EN; // Endpoint2 double buffer
   UEP1_CTRL =
       bUEP_AUTO_TOG | UEP_T_RES_NAK; // Endpoint 1 automatically flips the sync
                                      // flag, and IN transaction returns NAK
@@ -552,8 +555,17 @@ void USBDeviceEndPointCfg() {
               UEP_R_RES_ACK; // Endpoint 2 automatically flips the sync flag, IN
                              // transaction returns NAK, OUT returns ACK
 
-  UEP4_1_MOD = 0X40; // endpoint1 TX enable
+  UEP3_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK |
+              UEP_R_RES_ACK; // Endpoint 3 automatically flips the sync flag, IN
+                             // transaction returns NAK, OUT returns ACK
+
+  UEP4_1_MOD = bUEP1_TX_EN; // endpoint1 TX enable
   UEP0_CTRL =
       UEP_R_RES_ACK | UEP_T_RES_NAK; // Manual flip, OUT transaction returns
                                      // ACK, IN transaction returns NAK
+
+  UEP0_T_LEN = 0;
+  UEP1_T_LEN = 0; // Pre-use send length must be cleared
+  UEP2_T_LEN = 0;
+  UEP3_T_LEN = 0;
 }
