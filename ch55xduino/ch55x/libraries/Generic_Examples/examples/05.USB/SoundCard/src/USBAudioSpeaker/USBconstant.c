@@ -10,8 +10,8 @@ __code uint8_t DevDesc[] = {
 	0x00,  	//Each interface specifies its own Subclass information  
 	0x00,  	//No protocols the device basis  
 	DEFAULT_ENDP0_SIZE,  	//Maximum packet size for endpoint zero is 8  
-	0x87,0xEA,  //Vendor ID 
-	0x46,0x20,  //Product ID
+	0x09,0x12,  //Vendor ID 
+	0x5A,0xC5,  //Product ID
 	0x02,0x00,  //The device release number is 0.02  
 	0x01,  	//The manufacturer string descriptor index is 1  
 	0x02,  	//The product string descriptor index is 2  
@@ -152,10 +152,10 @@ __code uint8_t SerDes[]={                                 //Serial String Descri
 };
 __code uint16_t SerDesLen = sizeof(SerDes);
 __code uint8_t Prod_Des[]={                                //Produce String Descriptor
-    0x1E,0x03,
+    0x22,0x03,
     'C',0x00,'H',0x00,'5',0x00,'5',0x00,'x',0x00,'d',0x00,
     'u',0x00,'i',0x00,'n',0x00,'o',0x00,
-    ' ',0x00,'M',0x00,'S',0x00,'D',0x00
+    ' ',0x00,'A',0x00,'u',0x00,'d',0x00,'i',0x00,'o',0x00
 };
 __code uint16_t Prod_DesLen = sizeof(Prod_Des);
 
