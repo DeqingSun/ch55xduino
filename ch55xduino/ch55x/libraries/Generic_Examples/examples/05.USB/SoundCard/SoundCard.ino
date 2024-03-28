@@ -2,7 +2,6 @@
 #error "This example needs to be compiled with a USER USB setting"
 #endif
 
-#include <Serial.h>
 #include "src/USBAudioSpeaker/USBAudioSpeaker.h"
 
 void setup() {
