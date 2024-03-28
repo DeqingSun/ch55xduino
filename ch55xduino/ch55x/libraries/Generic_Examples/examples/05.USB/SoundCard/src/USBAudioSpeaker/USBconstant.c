@@ -12,7 +12,7 @@ __code uint8_t DevDesc[] = {
 	DEFAULT_ENDP0_SIZE,  	//Maximum packet size for endpoint zero is 8  
 	0x09,0x12,  //Vendor ID 
 	0x5A,0xC5,  //Product ID
-	0x02,0x00,  //The device release number is 0.02  
+	0x01,0x00,  //The device release number is 0.01  
 	0x01,  	//The manufacturer string descriptor index is 1  
 	0x02,  	//The product string descriptor index is 2  
 	0x00,  	//The device doesn't have the string descriptor describing the serial number  
@@ -24,11 +24,11 @@ __code uint16_t DevDescLen = sizeof(DevDesc);
 __code uint8_t CfgDesc[] ={
   0x09,  	 //Descriptor size is 9 bytes  
   0x02,  	 //CONFIGURATION Descriptor Type  
-  0x67,0x00, //The total length of data for this configuration is 112. This includes the combined length of all the descriptors returned Warning : The Value of wTotalLength is not equal to real length  
+  sizeof(CfgDesc) & 0xff,sizeof(CfgDesc) >> 8, //The total length of data for this configuration
   0x02,  	 //This configuration supports 2 interfaces  
   0x01,  	 //The value 1 should be used to select this configuration  
   0x00,  	 //The device doesn't have the string descriptor describing this configuration  
-  0xC0,  	 //Configuration characteristics : Bit 7: Reserved (set to one) 1 Bit 6: Self-powered 1 Bit 5: Remote Wakeup 0  
+  0x80,  	 //Configuration characteristics : Bit 7: Reserved (set to one) 1 Bit 6: Self-powered 1 Bit 5: Remote Wakeup 0  
   0x32,  	 //Maximum power consumption of the device in this configuration is 100 mA  
 
   0x09,  	 //Descriptor size is 9 bytes  
@@ -55,8 +55,8 @@ __code uint8_t CfgDesc[] ={
   0x01,  	 //Constant uniquely identifying the Terminal within the audio function. This value is used in all requests to address this Terminal.  
   0x01,0x01, //A Terminal dealing with a signal carried over an endpoint in an AudioStreaming interface. The AudioStreaming interface descriptor points to the associated Terminal through the bTerminalLink field.  
   0x00,  	 //This Input Terminal has no association  
-  0x02,  	 //This Terminal's output audio channel cluster has 2 logical output channels  
-  0x03,0x00, //Spatial locations present in the cluster
+  0x01,  	 //This Terminal's output audio channel cluster has 1 logical output channels  
+  0x04,0x00, //Spatial locations present in the cluster
 			 //Bit 0: Left Front 1
 			 //Bit 1: Right Front 1
 			 //Bit 2: Center Front 0
@@ -110,12 +110,12 @@ __code uint8_t CfgDesc[] ={
   0x24,  	//CS_INTERFACE Descriptor Type  
   0x02,  	//FORMAT_TYPE descriptor subtype  
   0x01,  	//FORMAT_TYPE_I  
-  0x02,  	//Indicates the number of physical channels in the audio data stream.  
+  0x01,  	//Indicates the number of physical channels in the audio data stream.  
   0x02,  	//The number of bytes occupied by one audio subframe. Can be 1, 2, 3 or 4.  
   0x10,  	//The number of effectively used bits from the available bits in an audio subframe.  
   0x02,  	//Indicates how the sampling frequency can be programmed:  
-  0x22,0x56,0x00, //	  Sampling frequency 3 in Hz for this isochronous data endpoint.  
-  0x80,0xBB,0x00, //	  Sampling frequency 5 in Hz for this isochronous data endpoint.  
+  0x22,0x56,0x00, //	  Sampling frequency 22050 in Hz for this isochronous data endpoint.  
+  0x80,0xBB,0x00, //	  Sampling frequency 48000 in Hz for this isochronous data endpoint.  
   
 
   0x09,  	// Descriptor size is 9 bytes  
@@ -125,7 +125,7 @@ __code uint8_t CfgDesc[] ={
 			//	Transfer: ISOCHRONOUS 
 			//	Sync: Sync 
 			//	Usage: Data EP  
-  0x00,0x01, //Maximum packet size for this endpoint is 256 Bytes. If Hi-Speed, 0 additional transactions per frame  
+  0x80,0x00, //Maximum packet size for this endpoint is 128 Bytes. If Hi-Speed, 0 additional transactions per frame  
   0x01,  	 //The polling interval value is every 1 Frames. If Hi-Speed, 1 uFrames/NAK  
   0x00,  	 //Refresh Rate 2**n ms where n = 0  
   0x00,  	 //Synchronization Endpoint (if used) is endpoint 0  
