@@ -106,16 +106,15 @@ __code uint8_t CfgDesc[] ={
   0x01,  	//Delay introduced by the data path. Expressed in number of frames.  
   0x01,0x00,//PCM  
 
-  0x0E,  	//Size of the descriptor, in bytes  
+  0x0B,  	//Size of the descriptor, in bytes  
   0x24,  	//CS_INTERFACE Descriptor Type  
   0x02,  	//FORMAT_TYPE descriptor subtype  
   0x01,  	//FORMAT_TYPE_I  
   0x01,  	//Indicates the number of physical channels in the audio data stream.  
   0x02,  	//The number of bytes occupied by one audio subframe. Can be 1, 2, 3 or 4.  
   0x10,  	//The number of effectively used bits from the available bits in an audio subframe.  
-  0x02,  	//Indicates how the sampling frequency can be programmed:  
-  0x22,0x56,0x00, //	  Sampling frequency 22050 in Hz for this isochronous data endpoint.  
-  0x80,0xBB,0x00, //	  Sampling frequency 48000 in Hz for this isochronous data endpoint.  
+  0x01,  	//Indicates how the sampling frequency can be programmed:  
+  0xC0,0x5D,0x00, //	  Sampling frequency 24000 in Hz for this isochronous data endpoint.  
   
 
   0x09,  	// Descriptor size is 9 bytes  
@@ -125,7 +124,7 @@ __code uint8_t CfgDesc[] ={
 			//	Transfer: ISOCHRONOUS 
 			//	Sync: Sync 
 			//	Usage: Data EP  
-  0x80,0x00, //Maximum packet size for this endpoint is 128 Bytes. If Hi-Speed, 0 additional transactions per frame  
+  0x40,0x00, //Maximum packet size for this endpoint is 64 Bytes. If Hi-Speed, 0 additional transactions per frame  
   0x01,  	 //The polling interval value is every 1 Frames. If Hi-Speed, 1 uFrames/NAK  
   0x00,  	 //Refresh Rate 2**n ms where n = 0  
   0x00,  	 //Synchronization Endpoint (if used) is endpoint 0  
@@ -133,7 +132,7 @@ __code uint8_t CfgDesc[] ={
   0x07,  	 //Size of the descriptor, in bytes  
   0x25,  	 //CS_ENDPOINT Descriptor Type  
   0x01,  	 //AUDIO_EP_GENERAL descriptor subtype  
-  0x01,  	 //Bit 0: Sampling Frequency 1
+  0x00,  	 //Bit 0: Sampling Frequency 0
 			 //Bit 1: Pitch 0
 			 //Bit 7: MaxPacketsOnly 0  
   0x00,  	 //Indicates the units used for the wLockDelay field: 0: Undefined  

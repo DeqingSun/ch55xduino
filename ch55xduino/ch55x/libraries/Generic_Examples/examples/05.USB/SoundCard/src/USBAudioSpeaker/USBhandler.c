@@ -7,7 +7,7 @@ void AUDIO_EP1_Out();
 
 // clang-format off
 __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[8];
-__xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[128];     
+__xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[64];     
 // clang-format on
 
 #if (EP1_ADDR+128) > USER_USB_RAM
@@ -46,6 +46,8 @@ void USB_EP0_SETUP(){
       }
       case USB_REQ_TYP_CLASS: {
         switch (SetupReq) {
+        case 0x01: // SET_CUR
+          break;
         default:
           len = 0xFF; // command not supported
           break;
@@ -313,8 +315,16 @@ void USB_EP0_IN(){
 }
 
 void USB_EP0_OUT(){
+  if (SetupReq == 0x01) // SET_CUR
+  {
+    if (U_TOG_OK) {
+      UEP0_T_LEN = 0;
+      UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_ACK; // send 0-length packet
+    }
+  } else {
     UEP0_T_LEN = 0;
-    UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_NAK;  //Respond Nak
+    UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_NAK; // Respond Nak
+  }
 }
 
 
@@ -514,13 +524,11 @@ void USBDeviceEndPointCfg()
   UEP1_DMA = (uint16_t)Ep1Buffer; // Endpoint 1 data transfer address
 #endif
 
-  //UEP1_CTRL =
-  //    bUEP_AUTO_TOG | UEP_T_RES_NAK; // Endpoint 1 automatically flips the sync
-  //                                   // flag, and IN transaction returns NAK
-  UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_TOUT;
+  UEP1_CTRL =
+      bUEP_AUTO_TOG | UEP_T_RES_NAK; // Endpoint 1 automatically flips the sync
+                                     // flag, and IN transaction returns NAK
 
-  //UEP4_1_MOD = 0X40; // endpoint1 TX enable
-  UEP4_1_MOD = 0XC0; 
+  UEP4_1_MOD = 0X80; // endpoint1 RX enable
   UEP0_CTRL =
       UEP_R_RES_ACK | UEP_T_RES_NAK; // Manual flip, OUT transaction returns
                                      // ACK, IN transaction returns NAK
