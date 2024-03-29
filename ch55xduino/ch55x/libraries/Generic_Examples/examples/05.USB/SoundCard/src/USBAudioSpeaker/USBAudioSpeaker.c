@@ -20,14 +20,93 @@ __xdata volatile uint8_t soundBufferPlayBackIndex = 0;
 void sendCharDebug(char c);
 
 void Timer2Interrupt(void) __interrupt {
-  if (TF2) {
-    TF2 = 0;
-    __data signed char highByteOfPCM = Ep1Buffer[(soundBufferPlayBackIndex<<1)+1];
-    sendCharDebug(highByteOfPCM);
-    __data unsigned char highByteOfPCMUnsigned = highByteOfPCM+128;
-    PWM_DATA2 = highByteOfPCMUnsigned;
-    soundBufferPlayBackIndex++;
-  }
+    //   if (TF2) {
+    //     TF2 = 0;
+    //     __data signed char highByteOfPCM = Ep1Buffer[(soundBufferPlayBackIndex<<1)+1];
+    //     __data unsigned char highByteOfPCMUnsigned = highByteOfPCM+128;
+
+    //     PWM_CTRL |= bPWM_IF_END;
+    //     while (!(PWM_CTRL & bPWM_IF_END));
+    //     PWM_DATA2 = highByteOfPCMUnsigned;
+    //     soundBufferPlayBackIndex++;
+    //   }
+
+    // due to PWM bug, https://github.com/DeqingSun/ch55xduino/issues/135
+    // we need to carefully handle the PWM data
+    // and SDCC is not good at handling partial inline assembly.
+    // we just do everything in inline assembly.
+    __asm__(";check if TF2 is set                    \n"
+            "    jb   _TF2,notSkipTimer2INTR$        \n"
+            "    sjmp skipTimer2INTR$                \n"
+            "notSkipTimer2INTR$:                     \n"
+            "    clr  _TF2                           \n"
+
+            ";get (soundBufferPlayBackIndex<<1)+1    \n"
+            ";also inc soundBufferPlayBackIndex      \n"
+            "    mov dptr,#_soundBufferPlayBackIndex \n"
+            "    movx a,@dptr                        \n"
+            "    mov r7,a                            \n"
+            "    inc a                               \n"
+            "    movx @dptr,a                        \n"
+            "    mov a,r7                            \n"
+            "    rl	a                                \n"
+            "    inc a                               \n"
+
+            ";get Ep1Buffer[(soundBufferPlayBackIndex<<1)+1] \n"
+            "    add a,#_Ep1Buffer                   \n"
+            "    mov dpl,a                           \n"
+            "    clr a                               \n"
+            "    addc a,#(_Ep1Buffer >> 8)           \n"
+            "    mov dph,a                           \n"
+            "    movx a,@dptr                        \n"
+
+            ";add 128 for PWM                        \n"
+            "    mov r7,a                            \n"
+            "    mov a,#0x80                         \n"
+            "    add a,r7                            \n"
+            "    mov r7,a                            \n"
+
+            ";load previous PWM                      \n"
+            "    mov a,_PWM_DATA2                    \n"
+            "    add a,#232                          \n"
+            "    jnc previousPWMSmall$               \n"
+            ";if previous PWM was 20~25              \n"
+            ";we have chance to update PWM on the falling edge \n"
+            ";and that triggers bug of PWM           \n"
+            ";so we just wait after falling in that case \n"
+
+            ";previousPWM not Small, just set at beginning \n"
+            ";clear bPWM_IF_END                      \n"
+            "    orl _PWM_CTRL,#0x10                 \n"
+            ";wait for bPWM_IF_END                   \n"
+            "waitPWM_IF_END$:                        \n"
+            "    mov a,_PWM_CTRL                     \n"
+            "    jnb acc.4,waitPWM_IF_END$           \n"
+            "    mov a,r7                            \n"
+            "    mov  _PWM_DATA2,a                   \n"
+            "    sjmp pwmSetFinish$                  \n"
+
+            "previousPWMSmall$:                      \n"
+            ";clear bPWM_IF_END                      \n"
+            "    orl _PWM_CTRL,#0x10                 \n"
+            ";wait for bPWM_IF_END                   \n"
+            "waitPWM_IF_END_small$:                  \n"
+            "    mov a,_PWM_CTRL                     \n"
+            "    jnb acc.4,waitPWM_IF_END_small$     \n"
+            "    mov a,r7                            \n"
+            "    nop\n nop\n nop\n nop\n nop\n         "
+            "    nop\n nop\n nop\n nop\n nop\n         "
+            "    nop\n nop\n nop\n nop\n nop\n         "
+            "    nop\n nop\n nop\n nop\n nop\n         "
+            "    nop\n nop\n nop\n nop\n nop\n         "
+
+            "    mov  _PWM_DATA2,a                   \n"
+
+            "pwmSetFinish$:                          \n"
+
+            "skipTimer2INTR$:                        \n"
+            );
+
 }
 
 void USBInit(){
@@ -36,6 +115,10 @@ void USBInit(){
     USBDeviceIntCfg();                                                    //Interrupt configuration    
     UEP0_T_LEN = 0;
     UEP1_T_LEN = 0;                                                       //Pre-use send length must be cleared
+
+    for (uint8_t i = 0; i < 48; i++) {
+        Ep1Buffer[i] = 0;
+    }
 
     T2CON = 0x00;
     // bTMR_CLK may be set by uart0, we keep it as is.
