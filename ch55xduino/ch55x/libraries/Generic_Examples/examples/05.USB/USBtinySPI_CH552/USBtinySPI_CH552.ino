@@ -57,7 +57,7 @@ void setup() {
   P1_DIR_PU &= ~( (1 << 5) | (1 << 6) | (1 << 7) );
   P1_MOD_OC &= ~( (1 << 5) | (1 << 6) | (1 << 7) );
   SPI0_SETUP = 0;
-  SPI0_CTRL = 0x60;    //mode 0
+  SPI0_CTRL = 0;    //mode 0
   //RESET P1.1
   P1_DIR_PU &= ~( (1 << 1) );
   P1_MOD_OC &= ~( (1 << 1) );

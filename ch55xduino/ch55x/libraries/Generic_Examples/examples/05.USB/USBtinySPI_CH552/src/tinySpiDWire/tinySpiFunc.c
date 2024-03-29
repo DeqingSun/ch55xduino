@@ -84,6 +84,7 @@ uint16_t tinySpiSetupHandler() {
     }
     // INIT SPI BUS
     P1_DIR_PU |= ((1 << 5) | (1 << 7));
+    SPI0_CTRL = bS0_MOSI_OE | bS0_SCK_OE; // mode 0
     P1_DIR_PU |= ((1 << 1));
     P1_1 = 0; // Put reset pin to output low
     returnLen = 0;
@@ -101,6 +102,7 @@ uint16_t tinySpiSetupHandler() {
     // set all the pins to Hi-Z
     // SPI
     P1_DIR_PU &= ~((1 << 5) | (1 << 6) | (1 << 7));
+    SPI0_CTRL = 0;
     // RESET
     P1_DIR_PU &= ~((1 << 1));
     P1_1 = 1;
