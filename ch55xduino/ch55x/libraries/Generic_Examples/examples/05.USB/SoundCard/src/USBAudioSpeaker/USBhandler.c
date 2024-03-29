@@ -524,8 +524,7 @@ void USBDeviceEndPointCfg()
   UEP1_DMA = (uint16_t)Ep1Buffer; // Endpoint 1 data transfer address
 #endif
 
-  UEP1_CTRL =
-      bUEP_AUTO_TOG | UEP_T_RES_NAK; // Endpoint 1 automatically flips the sync
+  UEP1_CTRL = UEP_T_RES_NAK; // Endpoint 1 will not flip as isochronous endpoint
                                      // flag, and IN transaction returns NAK
 
   UEP4_1_MOD = 0X80; // endpoint1 RX enable

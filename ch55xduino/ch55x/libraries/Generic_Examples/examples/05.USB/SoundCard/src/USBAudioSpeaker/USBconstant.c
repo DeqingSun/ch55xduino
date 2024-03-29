@@ -104,7 +104,7 @@ __code uint8_t CfgDesc[] ={
   0x01,  	//AS_GENERAL descriptor subtype  
   0x01,  	//The Terminal ID of the Terminal to which the endpoint of this interface is connected.  
   0x01,  	//Delay introduced by the data path. Expressed in number of frames.  
-  0x01,0x00,//PCM  
+  0x01,0x00,//PCM. It seems PCM8 is not supported.
 
   0x0B,  	//Size of the descriptor, in bytes  
   0x24,  	//CS_INTERFACE Descriptor Type  
