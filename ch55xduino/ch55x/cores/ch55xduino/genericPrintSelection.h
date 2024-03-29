@@ -66,6 +66,12 @@ void printNothing();
       unsigned int: _Generic((_2), default: USBSerial_print_ub_func),          \
       unsigned short: _Generic((_2), default: USBSerial_print_ub_func),        \
       unsigned long: _Generic((_2), default: USBSerial_print_ub_func))
+
+/**
+ * Print a string to USB serial. This function is done with generic selection to
+ * mimic overloading in Arduino C++. So you can put any type of data in the
+ * argument list, and it will be printed as a string.
+ */
 #define USBSerial_println(...)                                                 \
   {                                                                            \
     USBSerial_print(__VA_ARGS__);                                              \

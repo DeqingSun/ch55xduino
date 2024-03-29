@@ -139,20 +139,85 @@ void init(void);
 // void serialEvent(void);		// weak
 // extern unsigned char runSerialEvent;
 
+/**
+ * Configures the specified pin to behave either as an input or an output.
+ * @param pin the Arduino pin number to set the mode of. On CH55xduino, it is
+ * PortNumber*10 + PinNumber. For example, P1.4 is 14.
+ * @param mode can be INPUT, OUTPUT, INPUT_PULLUP, OUTPUT_OD.
+ */
 void pinMode(__data uint8_t pin, __xdata uint8_t mode);
+/**
+ * Write a HIGH or a LOW value to a digital pin.
+ * @param pin the Arduino pin number to write to. On CH55xduino, it is
+ * PortNumber*10 + PinNumber. For example, P1.4 is 14.
+ * @param val can be HIGH or LOW.
+ */
 void digitalWrite(__data uint8_t pin, __xdata uint8_t val);
+/**
+ * Reads the value from a specified digital pin, either HIGH or LOW.
+ * @param pin the Arduino pin number to read from. On CH55xduino, it is
+ * PortNumber*10 + PinNumber. For example, P1.4 is 14.
+ * @return HIGH or LOW (uint8_t).
+ */
 uint8_t digitalRead(__data uint8_t pin);
 #if defined(CH559)
 uint16_t analogRead(__data uint8_t pin);
 #else
+/**
+ * Reads the value from the specified analog pin.
+ * @param pin the Arduino pin number to read from. On CH552, you can do: 11, 14,
+ * 15, 32.
+ * @return the analog value read (int8_t) 255 is VCC.
+ */
 uint8_t analogRead(__data uint8_t pin);
 #endif
+/**
+ * Writes an analog value (PWM wave) to a pin.
+ * @param pin the Arduino pin number to write to. On CH552, you can do: 15 or
+ * 30, 31 or 34.
+ * @param val the duty cycle: between 0 (always off) and 256 (always on).
+ */
 void analogWrite(__data uint8_t pin, __xdata uint16_t val);
 
+/**
+ * Returns the number of milliseconds since the Arduino board began running the
+ * current program. This number will overflow (go back to zero), after
+ * approximately 50 days.
+ * @return Number of milliseconds since the program started (uint32_t)
+ */
 uint32_t millis(void);
+/**
+ * Returns the number of microseconds since the Arduino board began running the
+ * current program. This number will overflow (go back to zero), after
+ * approximately 70 minutes.
+ * @return Number of microseconds since the program started (uint32_t)
+ */
 uint32_t micros(void);
+/**
+ * Pauses the program for the amount of time (in miliseconds) specified as
+ * parameter. (There are 1000 milliseconds in a second.)
+ * @param ms the number of milliseconds to pause (uint32_t)
+ */
 void delay(__data uint32_t ms);
+/**
+ * Pauses the program for the amount of time (in microseconds) specified as
+ * parameter. There are a thousand microseconds in a millisecond, and a million
+ * microseconds in a second.
+ * @param us the number of microseconds to pause (uint16_t)
+ */
 void delayMicroseconds(__data uint16_t us);
+/**
+ * Reads a pulse (either HIGH or LOW) on a pin. At this time the function only
+ * work correctly in 24MHz clock.
+ * @param pin the Arduino pin number to read from.
+ * @param state if HIGH, waits for the pin to go from LOW to HIGH, then LOW, and
+ * the HIGH period is measured. If LOW, waits for the pin to go from HIGH to
+ * LOW, then HIGH, and the LOW period is measured.
+ * @param timeout the number of milliseconds to wait for the pin to transition
+ * before timing out.
+ * @return the length of the pulse in microseconds (uint32_t) or 0 if no
+ * complete pulse was received within the timeout.
+ */
 uint32_t pulseIn(uint8_t pin, __xdata uint8_t state, __xdata uint16_t timeout);
 
 // void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t
@@ -162,7 +227,18 @@ void attachInterrupt(__data uint8_t interruptNum,
                      __xdata void (*userFunc)(void), __xdata uint8_t mode);
 void detachInterrupt(__data uint8_t interruptNum);
 
+/**
+ * The setup() function is called when a sketch starts. Use it to initialize
+ * variables, pin modes, start using libraries, etc. The setup() function will
+ * only run once, after each powerup or reset of the Arduino board.
+ */
 void setup(void);
+/**
+ * After creating a setup() function, which initializes and sets the initial
+ * values, the loop() function does precisely what its name suggests, and loops
+ * consecutively, allowing your program to change and respond. Use it to
+ * actively control the Arduino board.
+ */
 void loop(void);
 
 // Get the bit location within the hardware port of the given virtual pin.
@@ -203,20 +279,6 @@ long map(__data long x, __xdata long in_min, __xdata long in_max,
 inline unsigned int makeWord(unsigned char h, unsigned char l) {
   return (h << 8) | l;
 }
-
-/*
- * The new interrupt numbers are a combination of the position in the
- * internal jump table (value in LSB) and the real STM8S-Interrupt number (MSB)
- */
-#define INT_PORTA (0 | (uint16_t)(ITC_IRQ_PORTA << 8))
-#define INT_PORTB (1 | (uint16_t)(ITC_IRQ_PORTB << 8))
-#define INT_PORTC (2 | (uint16_t)(ITC_IRQ_PORTC << 8))
-#define INT_PORTD (3 | (uint16_t)(ITC_IRQ_PORTD << 8))
-#define INT_PORTE (4 | (uint16_t)(ITC_IRQ_PORTE << 8))
-#define INT_TIM1_CAPCOM (5 | (uint16_t)(ITC_IRQ_TIM1_CAPCOM << 8))
-#define INT_TIM1_OVF (6 | (uint16_t)(ITC_IRQ_TIM1_OVF << 8))
-#define INT_TIM2_CAPCOM (7 | (uint16_t)(ITC_IRQ_TIM2_CAPCOM << 8))
-#define INT_TIM2_OVF (8 | (uint16_t)(ITC_IRQ_TIM2_OVF << 8))
 
 // USB Serial functions. Don't exist in Arduino AVR core Arduino.h, may be moved
 // later

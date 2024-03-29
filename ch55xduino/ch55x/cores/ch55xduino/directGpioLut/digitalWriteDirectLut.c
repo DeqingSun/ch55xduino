@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #if defined(CH551) || defined(CH552)
-void digitalWriteHighDirectLut(uint8_t pin){
+void digitalWriteHighDirectLut(uint8_t pin) {
   //'dpl' (LSB),'dph','b' & 'acc'
   pin;
   // clang-format off
@@ -81,7 +81,7 @@ void digitalWriteHighDirectLut(uint8_t pin){
   // clang-format on
 }
 
-void digitalWriteLowDirectLut(uint8_t pin){
+void digitalWriteLowDirectLut(uint8_t pin) {
   //'dpl' (LSB),'dph','b' & 'acc'
   pin;
   // clang-format off

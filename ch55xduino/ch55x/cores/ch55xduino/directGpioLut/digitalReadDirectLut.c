@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #if defined(CH551) || defined(CH552)
-uint16_t digitalReadDirectLutAddrAndCarryReturn(uint8_t pin){
+uint16_t digitalReadDirectLutAddrAndCarryReturn(uint8_t pin) {
   //'dpl' (LSB),'dph','b' & 'acc'
   pin;
   // clang-format off

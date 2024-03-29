@@ -92,24 +92,24 @@ void USB_EP0_SETUP() {
           break;
         case 3:
           switch (UsbSetupBuf->wValueL) {
-            case 0:
-              pDescr = (__code uint8_t *)LanguageDescriptor;
-              break;
-            case 1:
-              pDescr = (__code uint8_t *)ManufacturerDescriptor;
-              break;
-            case 2:
-              pDescr = (__code uint8_t *)ProductDescriptor;
-              break;
-            case 3:
-              pDescr = (__code uint8_t *)SerialDescriptor;
-              break;
-            case 4:
-              pDescr = (__code uint8_t *)CDCDescriptor;
-              break;
-            default:
-              len = 0xff;
-              break;
+          case 0:
+            pDescr = (__code uint8_t *)LanguageDescriptor;
+            break;
+          case 1:
+            pDescr = (__code uint8_t *)ManufacturerDescriptor;
+            break;
+          case 2:
+            pDescr = (__code uint8_t *)ProductDescriptor;
+            break;
+          case 3:
+            pDescr = (__code uint8_t *)SerialDescriptor;
+            break;
+          case 4:
+            pDescr = (__code uint8_t *)CDCDescriptor;
+            break;
+          default:
+            len = 0xff;
+            break;
           }
           len = pDescr[0];
           break;

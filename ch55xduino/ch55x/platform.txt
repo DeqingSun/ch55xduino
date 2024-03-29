@@ -38,7 +38,6 @@ compiler.warning_flags.all=-Wp-Wall -V
 compiler.path={runtime.tools.sdcc.path}/bin
 compiler.wrapper.path={runtime.tools.MCS51Tools.path}/wrapper
 compiler.wrapper.path.windows={runtime.tools.MCS51Tools.path}/win/busybox" ash "{runtime.tools.MCS51Tools.path}/wrapper
-compiler.tools.path={runtime.tools.avr-gcc.path}/bin
 
 compiler.c.cmd=sdcc
 compiler.c.wrapper=sdcc.sh
@@ -57,11 +56,11 @@ compiler.ar.cmd=sdar
 compiler.ar.wrapper=sdar.sh
 compiler.ar.flags=rcs
 
-compiler.objcopy.cmd=avr-objcopy
+compiler.objcopy.cmd=avr-objcopy_7_3_0
 #compiler.objcopy.eep.flags=-O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0
 #compiler.objcopy.eep.flags=-O ihex -j EEPROM EEPROM=0
 
-compiler.elf2hex.cmd=avr-objcopy
+compiler.elf2hex.cmd=avr-objcopy_7_3_0
 compiler.elf2hex.flags=-O ihex -R DATA -R INITIALIZED -R SSEG
 
 compiler.syslibs.stdlib.path={runtime.tools.sdcc.path}/share/sdcc
@@ -109,8 +108,8 @@ recipe.ar.pattern="{compiler.wrapper.path}/{compiler.ar.wrapper}" "{compiler.pat
 recipe.c.combine.pattern="{compiler.wrapper.path}/{compiler.c.elf.wrapper}" "{compiler.path}/{compiler.c.elf.cmd}" --nostdlib "-L{build.path}" "-L{compiler.syslibs.stdlib.path}/lib/large_int_calc_stack_auto" {compiler.c.elf.flags} -mmcs51 -D{build.mcu} {compiler.c.elf.extra_flags} {object_files} "{build.path}/{archive_file}" -lmcs51 -llibsdcc -lliblong -lliblonglong -llibint -llibfloat --out-fmt-ihx -o "{build.path}/{build.project_name}.elf"
 
 ## Create output files (.eep and .hex)
-#recipe.objcopy.eep.pattern="{compiler.tools.path}/{compiler.objcopy.cmd}" {compiler.objcopy.eep.flags} {compiler.objcopy.eep.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.eep"
-recipe.objcopy.hex.pattern="{compiler.tools.path}/{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
+#recipe.objcopy.eep.pattern="{compiler.path}/{compiler.objcopy.cmd}" {compiler.objcopy.eep.flags} {compiler.objcopy.eep.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.eep"
+recipe.objcopy.hex.pattern="{compiler.path}/{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
 
 ## Save hex
 recipe.output.tmp_file={build.project_name}.hex

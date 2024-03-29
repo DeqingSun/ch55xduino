@@ -14,15 +14,16 @@ void digitalWriteHighDirectLut(uint8_t pin);
 void digitalWriteLowDirectLut(uint8_t pin);
 
 #if F_CPU > 24000000
-  #error Current clock is too fast for this version of library. Please use 24M or lower.
+#error Current clock is too fast for this version of library. Please use 24M or lower.
 #endif
 
-//each 5536 is 60000tick, 2.5ms in 24MHz
-volatile __xdata uint16_t listRCAP2[16] = {5536,5536,5536,5536,5536,5536,5536,5536};
+// each 5536 is 60000tick, 2.5ms in 24MHz
+volatile __xdata uint16_t listRCAP2[16] = {5536, 5536, 5536, 5536,
+                                           5536, 5536, 5536, 5536};
 volatile __xdata uint8_t listRCAP2Ptr = 0;
-volatile __xdata uint8_t listRCAP2Limit = (8+0);
+volatile __xdata uint8_t listRCAP2Limit = (8 + 0);
 //*8 *9 pin not exist
-volatile __xdata uint8_t servoPin[16] = {9,9,9,9,9,9,9,9};
+volatile __xdata uint8_t servoPin[16] = {9, 9, 9, 9, 9, 9, 9, 9};
 volatile __xdata uint8_t servoPinNext = 9;
 volatile __xdata uint8_t servoPinPrevious = 9;
 
@@ -53,12 +54,11 @@ void Timer2Interrupt(void) __interrupt {
     }
 
     listRCAP2Ptr = listRCAP2PtrCache;
-    
   }
 }
 
-void Servo_wait_till_no_action(){
-  while(1){
+void Servo_wait_till_no_action() {
+  while (1) {
     ET2 = 0;
     __idata uint8_t listRCAP2PtrCache = listRCAP2Ptr;
     ET2 = 1;
@@ -68,19 +68,19 @@ void Servo_wait_till_no_action(){
   }
 }
 
-void Servo_init(){
+void Servo_init() {
   listRCAP2Limit = 8;
-  __idata uint16_t valueRCAP2_2_5ms = (65536-F_CPU*0.0025);
-  for (__idata uint8_t i=0;i<8;i++) {
+  __idata uint16_t valueRCAP2_2_5ms = (65536 - F_CPU * 0.0025);
+  for (__idata uint8_t i = 0; i < 8; i++) {
     listRCAP2[i] = valueRCAP2_2_5ms;
   }
-  for (__idata uint8_t i=0;i<8;i++) {
+  for (__idata uint8_t i = 0; i < 8; i++) {
     servoPin[i] = 9;
   }
 
   T2CON = 0x00;
-  //bTMR_CLK may be set by uart0, we keep it as is.
-  T2MOD |= bTMR_CLK | bT2_CLK; //use Fsys for T2
+  // bTMR_CLK may be set by uart0, we keep it as is.
+  T2MOD |= bTMR_CLK | bT2_CLK; // use Fsys for T2
 
   TL2 = 0;
   TH2 = 0;
@@ -92,9 +92,9 @@ void Servo_init(){
   TR2 = 1;
 }
 
-uint8_t Servo_search_pin(uint8_t pin){
+uint8_t Servo_search_pin(uint8_t pin) {
   __idata uint8_t listRCAP2LimitCache = listRCAP2Limit;
-  for (__idata uint8_t i=8;i<listRCAP2LimitCache;i++) {
+  for (__idata uint8_t i = 8; i < listRCAP2LimitCache; i++) {
     if (servoPin[i] == pin) {
       return i;
     }
@@ -102,7 +102,7 @@ uint8_t Servo_search_pin(uint8_t pin){
   return 0;
 }
 
-bool Servo_attach(uint8_t pin){
+bool Servo_attach(uint8_t pin) {
   if (pin > 37) {
     return false;
   }
@@ -113,14 +113,14 @@ bool Servo_attach(uint8_t pin){
   if (pinMod10 == 8) {
     return false;
   }
-  if (listRCAP2Limit >= 16){
+  if (listRCAP2Limit >= 16) {
     return false;
   }
   if (Servo_search_pin(pin) != 0) {
     return false;
   }
   Servo_wait_till_no_action();
-  __idata uint16_t valueRCAP2_1_5ms = (65536-F_CPU*0.0015);
+  __idata uint16_t valueRCAP2_1_5ms = (65536 - F_CPU * 0.0015);
   __idata uint8_t listRCAP2LimitCache = listRCAP2Limit;
   servoPin[listRCAP2LimitCache] = pin;
   listRCAP2[listRCAP2LimitCache] = valueRCAP2_1_5ms;
@@ -129,7 +129,7 @@ bool Servo_attach(uint8_t pin){
   return true;
 }
 
-bool Servo_detach(uint8_t pin){
+bool Servo_detach(uint8_t pin) {
   __idata uint8_t pinIndex = Servo_search_pin(pin);
   if (pinIndex == 0) {
     return false;
@@ -137,9 +137,9 @@ bool Servo_detach(uint8_t pin){
   Servo_wait_till_no_action();
   ET2 = 0;
   __idata uint8_t listRCAP2LimitCache = listRCAP2Limit;
-  for (__idata uint8_t i=pinIndex;i<listRCAP2LimitCache-1;i++) {
-    servoPin[i] = servoPin[i+1];
-    listRCAP2[i] = listRCAP2[i+1];
+  for (__idata uint8_t i = pinIndex; i < listRCAP2LimitCache - 1; i++) {
+    servoPin[i] = servoPin[i + 1];
+    listRCAP2[i] = listRCAP2[i + 1];
   }
   listRCAP2LimitCache--;
   listRCAP2Limit = listRCAP2LimitCache;
@@ -147,37 +147,38 @@ bool Servo_detach(uint8_t pin){
   return true;
 }
 
-bool Servo_writeMicroseconds(uint8_t pin, __xdata uint16_t pulseUs){
+bool Servo_writeMicroseconds(uint8_t pin, __xdata uint16_t pulseUs) {
   __idata uint8_t pinIndex = Servo_search_pin(pin);
   if (pinIndex == 0) {
     return false;
   }
-  __idata uint16_t value = (65536-((F_CPU/1000000)*pulseUs));
+  __idata uint16_t value = (65536 - ((F_CPU / 1000000) * pulseUs));
   ET2 = 0;
   listRCAP2[pinIndex] = value;
   ET2 = 1;
   return true;
 }
 
-bool Servo_write(uint8_t pin, __xdata int16_t value){
+bool Servo_write(uint8_t pin, __xdata int16_t value) {
   __idata uint8_t pinIndex = Servo_search_pin(pin);
   __idata uint16_t pulseValue;
   if (pinIndex == 0) {
     return false;
   }
   if (value <= 200) {
-    //value is angle when value <= 200
+    // value is angle when value <= 200
     if (value < 0) {
       value = 0;
     }
     if (value > 180) {
       value = 180;
     }
-    uint16_t pulseUs = Servo_min + ((Servo_max-Servo_min)*((uint32_t)value))/180;
-    pulseValue = (65536-((F_CPU/1000000)*(pulseUs)));
-  }else{
-    //value is pulseUs when value > 200
-    pulseValue = (65536-((F_CPU/1000000)*value));
+    uint16_t pulseUs =
+        Servo_min + ((Servo_max - Servo_min) * ((uint32_t)value)) / 180;
+    pulseValue = (65536 - ((F_CPU / 1000000) * (pulseUs)));
+  } else {
+    // value is pulseUs when value > 200
+    pulseValue = (65536 - ((F_CPU / 1000000) * value));
   }
   ET2 = 0;
   listRCAP2[pinIndex] = pulseValue;
