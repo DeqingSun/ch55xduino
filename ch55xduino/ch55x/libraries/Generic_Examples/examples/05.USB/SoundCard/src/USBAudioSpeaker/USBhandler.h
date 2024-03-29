@@ -11,7 +11,6 @@
 // clang-format off
 extern __xdata __at (EP0_ADDR) uint8_t Ep0Buffer[];
 extern __xdata __at (EP1_ADDR) uint8_t Ep1Buffer[];
-//extern __xdata __at (EP2_ADDR) uint8_t Ep2Buffer[];
 // clang-format on
 
 extern __data uint16_t SetupLen;

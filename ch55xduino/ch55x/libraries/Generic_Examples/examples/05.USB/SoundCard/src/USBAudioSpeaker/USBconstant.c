@@ -95,15 +95,15 @@ __code uint8_t CfgDesc[] = {
           // logical channel.
     0x00, // Index of a string descriptor, describing the Input Terminal.
 
-    0x09, // Size of the descriptor, in bytes
-    0x24, // CS_INTERFACE Descriptor Type
-    0x03, // OUTPUT_TERMINAL descriptor subtype
-    0x02, // Constant uniquely identifying the Terminal within the audio
-          // function. This value is used in all requests to address this
-          // Terminal.
+    0x09,       // Size of the descriptor, in bytes
+    0x24,       // CS_INTERFACE Descriptor Type
+    0x03,       // OUTPUT_TERMINAL descriptor subtype
+    0x02,       // Constant uniquely identifying the Terminal within the audio
+                // function. This value is used in all requests to address this
+                // Terminal.
     0x01, 0x03, // A generic speaker or set of speakers that does not fit under
                 // any of the other classifications.
-    0x00, // This Output Terminal has no association
+    0x00,       // This Output Terminal has no association
     0x01, // ID of the Unit or Terminal to which this Terminal is connected.
     0x00, // Index of a string descriptor, describing the Output Terminal.
 
@@ -150,9 +150,9 @@ __code uint8_t CfgDesc[] = {
           // or 4.
     0x10, // The number of effectively used bits from the available bits in an
           // audio subframe.
-    0x01,             // Indicates how the sampling frequency can be programmed:
+    0x01, // Indicates how the sampling frequency can be programmed:
     0xC0, 0x5D, 0x00, //	  Sampling frequency 24000 in Hz for this
-                      //isochronous data endpoint.
+                      // isochronous data endpoint.
 
     0x09,       // Descriptor size is 9 bytes
     0x05,       // ENDPOINT Descriptor Type
@@ -163,10 +163,10 @@ __code uint8_t CfgDesc[] = {
                 //	Usage: Data EP
     0x40, 0x00, // Maximum packet size for this endpoint is 64 Bytes. If
                 // Hi-Speed, 0 additional transactions per frame
-    0x01, // The polling interval value is every 1 Frames. If Hi-Speed, 1
-          // uFrames/NAK
-    0x00, // Refresh Rate 2**n ms where n = 0
-    0x00, // Synchronization Endpoint (if used) is endpoint 0
+    0x01,       // The polling interval value is every 1 Frames. If Hi-Speed, 1
+                // uFrames/NAK
+    0x00,       // Refresh Rate 2**n ms where n = 0
+    0x00,       // Synchronization Endpoint (if used) is endpoint 0
 
     0x07, // Size of the descriptor, in bytes
     0x25, // CS_ENDPOINT Descriptor Type
