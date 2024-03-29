@@ -1,7 +1,8 @@
+// clang-format off
 #include <arduino.h>
 #include "USBhandler.h"
-
 #include "USBconstant.h"
+// clang-format on
 
 void AUDIO_EP1_Out();
 

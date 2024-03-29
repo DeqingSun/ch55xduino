@@ -1,3 +1,4 @@
+// clang-format off
 #include <Arduino.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -6,6 +7,7 @@
 #include "USBconstant.h"
 #include "USBhandler.h"
 #include "USBAudioSpeaker.h"
+// clang-format on
 
 __xdata volatile uint8_t soundBufferPlayBackIndex = 0;
 
