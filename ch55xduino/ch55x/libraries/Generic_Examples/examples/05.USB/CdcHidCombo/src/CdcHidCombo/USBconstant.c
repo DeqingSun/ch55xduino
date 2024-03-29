@@ -146,7 +146,7 @@ __code USB_Descriptor_Configuration_t ConfigurationDescriptor = {
                                           ENDPOINT_USAGE_DATA),
                            .EndpointSize = CDC_TXRX_EPSIZE,
                            .PollingIntervalMS = 0x00},
-                           
+
     .HID_Interface = {.Header = {.Size = sizeof(USB_Descriptor_Interface_t),
                                  .Type = DTYPE_Interface},
 
@@ -180,8 +180,8 @@ __code USB_Descriptor_Configuration_t ConfigurationDescriptor = {
                                   ENDPOINT_USAGE_DATA),
                              .EndpointSize = KEYBOARD_EPSIZE,
                              .PollingIntervalMS = 10}
-                           
-    };
+
+};
 
 // String Descriptors
 __code uint8_t LanguageDescriptor[] = {0x04, 0x03, 0x09,

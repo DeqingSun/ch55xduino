@@ -547,7 +547,8 @@ void USBDeviceEndPointCfg() {
   UEP3_DMA = (uint16_t)Ep3Buffer; // Endpoint 3 data transfer address
 #endif
 
-  UEP2_3_MOD = bUEP3_TX_EN | bUEP2_RX_EN | bUEP2_TX_EN; // Endpoint2 double buffer
+  UEP2_3_MOD =
+      bUEP3_TX_EN | bUEP2_RX_EN | bUEP2_TX_EN; // Endpoint2 double buffer
   UEP1_CTRL =
       bUEP_AUTO_TOG | UEP_T_RES_NAK; // Endpoint 1 automatically flips the sync
                                      // flag, and IN transaction returns NAK
