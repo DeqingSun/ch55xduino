@@ -16,9 +16,6 @@ __xdata volatile uint8_t soundBufferPlayBackIndex = 0;
 #define T2_RELOAD_VALUE_NEAR_FINISH_LOW (T2_RELOAD_VALUE_NEAR_FINISH & 0xFF)
 #define T2_RELOAD_VALUE_NEAR_FINISH_HIGH ((T2_RELOAD_VALUE_NEAR_FINISH >> 8) & 0xFF)
 
-#pragma callee_saves sendCharDebug
-void sendCharDebug(char c);
-
 void Timer2Interrupt(void) __interrupt {
     //   if (TF2) {
     //     TF2 = 0;
@@ -46,6 +43,12 @@ void Timer2Interrupt(void) __interrupt {
             "    mov dptr,#_soundBufferPlayBackIndex \n"
             "    movx a,@dptr                        \n"
             "    mov r7,a                            \n"
+            ";check if soundBufferPlayBackIndex is too big \n"
+            "    add a,#232                          \n"
+            "    jnc soundBufferPlayBackIndexNotBig$ \n"
+            "    sjmp skipTimer2INTR$                \n"
+            "soundBufferPlayBackIndexNotBig$:        \n"
+            "    mov a,r7                            \n"
             "    inc a                               \n"
             "    movx @dptr,a                        \n"
             "    mov a,r7                            \n"

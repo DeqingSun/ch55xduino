@@ -4,9 +4,6 @@
 
 #include "src/USBAudioSpeaker/USBAudioSpeaker.h"
 
-#pragma callee_saves sendCharDebug
-void sendCharDebug(char c);
-
 void setup() {
 
   USBInit();
@@ -23,7 +20,5 @@ void setup() {
 
 
 void loop() {
-  // 实践证明,P3 = P3 | 0x08 P3 = P3 & 0x08;这种直接拉最高只能达到950KHz 
-  // 因此，无法使用编程的方式实现这种高频率的 PWM
-  //sendCharDebug('a');
+
 }
