@@ -18,10 +18,6 @@ void USBInit(void);
 } // extern "C"
 #endif
 
-
-
-
-void AUDIO_EP1_Out (void);
+void AUDIO_EP1_Out(void);
 
 #endif
-

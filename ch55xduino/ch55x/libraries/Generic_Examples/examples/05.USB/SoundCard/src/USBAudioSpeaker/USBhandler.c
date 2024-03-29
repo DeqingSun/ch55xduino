@@ -8,10 +8,10 @@ void AUDIO_EP1_Out();
 
 // clang-format off
 __xdata __at (EP0_ADDR) uint8_t  Ep0Buffer[8];
-__xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[64];     
+__xdata __at (EP1_ADDR) uint8_t  Ep1Buffer[64];
 // clang-format on
 
-#if (EP1_ADDR+128) > USER_USB_RAM
+#if (EP1_ADDR + 128) > USER_USB_RAM
 #error "This example needs more USB ram. Increase this setting in menu."
 #endif
 
@@ -23,7 +23,7 @@ __code uint8_t *__data pDescr;
 
 inline void NOP_Process(void) {}
 
-void USB_EP0_SETUP(){
+void USB_EP0_SETUP() {
   __data uint8_t len = USB_RX_LEN;
   if (len == (sizeof(USB_SETUP_REQ))) {
     SetupLen = ((uint16_t)UsbSetupBuf->wLengthH << 8) | (UsbSetupBuf->wLengthL);
@@ -134,7 +134,7 @@ void USB_EP0_SETUP(){
         {
           if ((((uint16_t)UsbSetupBuf->wValueH << 8) | UsbSetupBuf->wValueL) ==
               0x01) {
-            if (CfgDesc[ 7 ] & 0x20) {
+            if (CfgDesc[7] & 0x20) {
               // wake up
             } else {
               len = 0xFF; // Failed
@@ -171,12 +171,12 @@ void USB_EP0_SETUP(){
                 UEP2_CTRL & ~(bUEP_R_TOG | MASK_UEP_R_RES) | UEP_R_RES_ACK;
             break;
           case 0x81:
-            //UEP1_CTRL =
-            //    UEP1_CTRL & ~(bUEP_T_TOG | MASK_UEP_T_RES) | UEP_T_RES_NAK;
+            // UEP1_CTRL =
+            //     UEP1_CTRL & ~(bUEP_T_TOG | MASK_UEP_T_RES) | UEP_T_RES_NAK;
             break;
           case 0x01:
-            //UEP1_CTRL =
-            //    UEP1_CTRL & ~(bUEP_R_TOG | MASK_UEP_R_RES) | UEP_R_RES_ACK;
+            // UEP1_CTRL =
+            //     UEP1_CTRL & ~(bUEP_R_TOG | MASK_UEP_R_RES) | UEP_R_RES_ACK;
             break;
           default:
             len = 0xFF; // Unsupported endpoint
@@ -192,7 +192,7 @@ void USB_EP0_SETUP(){
         {
           if ((((uint16_t)UsbSetupBuf->wValueH << 8) | UsbSetupBuf->wValueL) ==
               0x01) {
-            if (CfgDesc[ 7 ] & 0x20) {
+            if (CfgDesc[7] & 0x20) {
               // suspend
 
               // while ( XBUS_AUX & bUART0_TX );    //Wait till uart0 sending
@@ -289,7 +289,7 @@ void USB_EP0_SETUP(){
   }
 }
 
-void USB_EP0_IN(){
+void USB_EP0_IN() {
   switch (SetupReq) {
   case USB_GET_DESCRIPTOR: {
     __data uint8_t len = SetupLen >= DEFAULT_ENDP0_SIZE
@@ -315,7 +315,7 @@ void USB_EP0_IN(){
   }
 }
 
-void USB_EP0_OUT(){
+void USB_EP0_OUT() {
   if (SetupReq == 0x01) // SET_CUR
   {
     if (U_TOG_OK) {
@@ -327,7 +327,6 @@ void USB_EP0_OUT(){
     UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_NAK; // Respond Nak
   }
 }
-
 
 #pragma save
 #pragma nooverlay
@@ -468,8 +467,7 @@ void USBInterrupt(void) { // inline not really working in multiple files in SDCC
 }
 #pragma restore
 
-void USBDeviceCfg()
-{
+void USBDeviceCfg() {
   USB_CTRL = 0x00;            // Clear USB control register
   USB_CTRL &= ~bUC_HOST_MODE; // This bit is the device selection mode
   USB_CTRL |= bUC_DEV_PU_EN | bUC_INT_BUSY |
@@ -491,8 +489,7 @@ void USBDeviceCfg()
   UDEV_CTRL |= bUD_PORT_EN; // Enable physical port
 }
 
-void USBDeviceIntCfg()
-{
+void USBDeviceIntCfg() {
   USB_INT_EN |= bUIE_SUSPEND;  // Enable device hang interrupt
   USB_INT_EN |= bUIE_TRANSFER; // Enable USB transfer completion interrupt
   USB_INT_EN |= bUIE_BUS_RST;  // Enable device mode USB bus reset interrupt
@@ -501,18 +498,16 @@ void USBDeviceIntCfg()
   EA = 1;                      // Enable global interrupts
 }
 
-void USBDeviceEndPointCfg()
-{
-    // UEP1_DMA = (uint16_t) Ep1Buffer;                                                      //Endpoint 1 data transfer address
-    // //UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK;                //Endpoint 1 automatically flips the sync flag, and IN transaction returns NAK
-	// UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_TOUT;
+void USBDeviceEndPointCfg() {
+  // UEP1_DMA = (uint16_t) Ep1Buffer; //Endpoint 1 data transfer address
+  // //UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK;                //Endpoint 1
+  // automatically flips the sync flag, and IN transaction returns NAK UEP1_CTRL
+  // = bUEP_AUTO_TOG | UEP_T_RES_TOUT;
 
-    // UEP0_DMA = (uint16_t) Ep0Buffer;                                                      //Endpoint 0 data transfer address
-    // UEP4_1_MOD = 0XC0;                                                         //endpoint1 TX RX enable
-    // UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;                //Manual flip, OUT transaction returns ACK, IN transaction returns NAK
-
-
-
+  // UEP0_DMA = (uint16_t) Ep0Buffer; //Endpoint 0 data transfer address
+  // UEP4_1_MOD = 0XC0; //endpoint1 TX RX enable UEP0_CTRL = UEP_R_RES_ACK |
+  // UEP_T_RES_NAK;                //Manual flip, OUT transaction returns ACK,
+  // IN transaction returns NAK
 
 #if defined(CH559)
   // CH559 use differend endianness for these registers
@@ -526,12 +521,10 @@ void USBDeviceEndPointCfg()
 #endif
 
   UEP1_CTRL = UEP_T_RES_NAK; // Endpoint 1 will not flip as isochronous endpoint
-                                     // flag, and IN transaction returns NAK
+                             // flag, and IN transaction returns NAK
 
   UEP4_1_MOD = 0X80; // endpoint1 RX enable
   UEP0_CTRL =
       UEP_R_RES_ACK | UEP_T_RES_NAK; // Manual flip, OUT transaction returns
                                      // ACK, IN transaction returns NAK
-
-
 }
