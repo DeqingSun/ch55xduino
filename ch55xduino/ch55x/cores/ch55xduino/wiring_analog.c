@@ -81,21 +81,33 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val) {
     case PIN_PWM1:
       PIN_FUNC &= ~(bPWM1_PIN_X);
       PWM_CTRL |= bPWM1_OUT_EN;
+      PWM_CTRL |= bPWM_IF_END;
+      while ((PWM_CTRL & bPWM_IF_END) == 0)
+        ;
       PWM_DATA1 = val;
       break;
     case PIN_PWM2:
       PIN_FUNC &= ~(bPWM2_PIN_X);
       PWM_CTRL |= bPWM2_OUT_EN;
+      PWM_CTRL |= bPWM_IF_END;
+      while ((PWM_CTRL & bPWM_IF_END) == 0)
+        ;
       PWM_DATA2 = val;
       break;
     case PIN_PWM1_:
       PIN_FUNC |= (bPWM1_PIN_X);
       PWM_CTRL |= bPWM1_OUT_EN;
+      PWM_CTRL |= bPWM_IF_END;
+      while ((PWM_CTRL & bPWM_IF_END) == 0)
+        ;
       PWM_DATA1 = val;
       break;
     case PIN_PWM2_:
       PIN_FUNC |= (bPWM2_PIN_X);
       PWM_CTRL |= bPWM2_OUT_EN;
+      PWM_CTRL |= bPWM_IF_END;
+      while ((PWM_CTRL & bPWM_IF_END) == 0)
+        ;
       PWM_DATA2 = val;
       break;
     case NOT_ON_PWM:

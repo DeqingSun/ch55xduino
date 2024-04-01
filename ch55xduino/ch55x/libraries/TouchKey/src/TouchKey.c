@@ -42,9 +42,11 @@ void TouchKey_ISR_Handler(void) {
   uint8_t index = TKEY_CTRL & 0x07;
   touchRawValue[index - 1] = TKEY_DAT;
 
-  index++;
-  if (index > 6)
-    index = 1;
+  do {
+    index++;
+    if (index > 6)
+      index = 1;
+  } while ((channelEnabled & (1 << (index - 1))) == 0);
 
   TKEY_CTRL = bTKC_2MS | index;
   touchISRCounter++;
@@ -53,6 +55,10 @@ void TouchKey_ISR_Handler(void) {
 
 // TIN0(P1.0), TIN1(P1.1), TIN2(P1.4), TIN3(P1.5), TIN4(P1.6), TIN5(P1.7)
 void TouchKey_begin(uint8_t channelToEnableBitMask) {
+
+  if ((channelToEnableBitMask & 0b111111) == 0) {
+    return;
+  }
 
   channelEnabled = channelToEnableBitMask;
 
@@ -94,13 +100,20 @@ void TouchKey_begin(uint8_t channelToEnableBitMask) {
 
   // sample all channels to prefill baselines
   for (uint8_t i = 0; i < 6; i++) {
-    TKEY_CTRL = bTKC_2MS | (1 + i);
-    while ((TKEY_CTRL & bTKC_IF) == 0)
-      ;
-    touchBaseline[i] = TKEY_DAT;
+    if (channelEnabled & (1 << i)) {
+      TKEY_CTRL = bTKC_2MS | (1 + i);
+      while ((TKEY_CTRL & bTKC_IF) == 0)
+        ;
+      touchBaseline[i] = TKEY_DAT;
+    }
   }
 
-  TKEY_CTRL = bTKC_2MS | 1;
+  for (uint8_t i = 0; i < 6; i++) {
+    if (channelEnabled & (1 << i)) {
+      TKEY_CTRL = bTKC_2MS | (1 + i);
+      break;
+    }
+  }
 
   IE_TKEY = 1;
 }
