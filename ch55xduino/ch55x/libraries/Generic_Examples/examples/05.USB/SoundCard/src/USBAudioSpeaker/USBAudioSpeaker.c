@@ -112,6 +112,10 @@ void Timer2Interrupt(void) __interrupt {
           "pwmSetFinish$:                          \n"
 
           "skipTimer2INTR$:                        \n");
+
+  // at this point, R7 is the data to be played back
+  // maybe we do not need Goertzel, we just need to do zero-crossing detection
+
 }
 
 void USBInit() {
