@@ -20,4 +20,7 @@ void USBInit(void);
 
 void AUDIO_EP1_Out(void);
 
+// must be a power of 2
+#define ZERO_CROSSING_BUFFER_SIZE 16
+
 #endif

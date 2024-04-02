@@ -35,7 +35,28 @@ void setup() {
   PWM_DATA2 = 128;
 }
 
+#pragma callee_saves sendCharDebug
+void sendCharDebug(char c);
 
+extern __xdata volatile uint8_t zeroCrossingBufferIndex;
+extern __xdata volatile uint8_t zeroCrossingBuffer[];
+__xdata uint8_t prevZeroCrossingBufferIndex = 0;
 void loop() {
+  __idata uint8_t zeroCrossingBufferIndexCached = zeroCrossingBufferIndex;
+
+  if (prevZeroCrossingBufferIndex != zeroCrossingBufferIndexCached) {
+
+    __idata uint8_t loopVar = prevZeroCrossingBufferIndex;
+    while (loopVar != zeroCrossingBufferIndexCached) {
+      sendCharDebug(zeroCrossingBuffer[loopVar]);
+      loopVar++;
+      loopVar &= ZERO_CROSSING_BUFFER_SIZE-1;
+    }
+    prevZeroCrossingBufferIndex = zeroCrossingBufferIndexCached;
+  }
+
+  delay(2);
+  
+
 
 }
