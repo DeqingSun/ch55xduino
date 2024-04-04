@@ -130,7 +130,7 @@ void Timer2Interrupt(void) __interrupt {
           "pwmSetFinish$:                          \n"
 
   // at this point, R7 is the data to be played back
-  // maybe we do not need Goertzel, we just need to do zero-crossing detection
+  // we just need to do zero-crossing detection because we don't have much cpu time
 
           "    mov dptr,#_lastSampleAboveZero      \n"
           "    movx	a,@dptr                        \n"
@@ -163,12 +163,6 @@ void Timer2Interrupt(void) __interrupt {
           "    movx a,@dptr                        \n"
           "    add a,#1                            \n"
           "    movx @dptr,a                        \n"
-          "    jnc notCrossingNoTooLong$           \n"
-          //todo: we need to reset the zero crossing detection here
-
-
-          "notCrossingNoTooLong$:                  \n"
-
 
           "    sjmp endOfCrossingDetection$        \n"
 
@@ -203,18 +197,12 @@ void Timer2Interrupt(void) __interrupt {
           "    mov a,r6                            \n"
           "    movx @dptr,a                        \n"
 
-
           "endOfCrossingDetection$:                \n"
-
-
 
           "skipTimer2INTR$:                        \n"
 
           "    pop ar6                             \n"
           "    pop ar7                             \n"
-          
-          
-          
           );
 
 
