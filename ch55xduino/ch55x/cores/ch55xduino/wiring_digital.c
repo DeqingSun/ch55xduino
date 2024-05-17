@@ -175,19 +175,23 @@ void pinMode(__data uint8_t pin,
 #if defined(CH559) || defined(CH558)
     // open drain settings - see table 10.2.2 on page 28.
     // Selected as "High-impedance input weak standard bi-directional mode with open drain output, pins without pull-up resistor."
+    // Ports P0-P3 support pure input, push-pull output and standard bi-direction modes, P4 supports pure input and push-pull output modes. 
     if (port == P0PORT) {
       PORT_CFG |= bP0_OC; // clear bP0_OC bit to get open drain and bi-dir modes.
       P0_DIR &= ~bit;
-      P0_U &= ~bit; 
+      P0_PU &= ~bit; 
     } else if (port == P1PORT) {
       PORT_CFG |= bP1_OC;
       P1_DIR |= bit;
+      P1_PU &= ~bit; 
     } else if (port == P2PORT) {
       PORT_CFG |= bP2_OC;
       P2_DIR |= bit;
+      P2_PU &= ~bit; 
     } else if (port == P3PORT) {
       PORT_CFG |= bP3_OC;
       P3_DIR |= bit;
+      P3_PU &= ~bit; 
     } else if (port == P4PORT) {
       P4_DIR |= bit; // Open Drain not supported; fall back to normal output.
     }
