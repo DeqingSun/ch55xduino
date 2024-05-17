@@ -298,17 +298,17 @@ ch558.upload.wait_for_upload_port=false
 ## USB Memory Settings
 ## ----------------------------------------------
 ch558.menu.usb_settings.usbcdc=Default CDC
-ch558.menu.usb_settings.usbcdc.upload.maximum_data_size=5996
+ch558.menu.usb_settings.usbcdc.upload.maximum_data_size=3948
 ch558.menu.usb_settings.usbcdc.upload.xdata_location=148
 ch558.menu.usb_settings.usbcdc.build.extra_flags=-DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
 ## ----
 ch558.menu.usb_settings.user148=USER CODE w/ 148B USB ram
-ch558.menu.usb_settings.user148.upload.maximum_data_size=5996
+ch558.menu.usb_settings.user148.upload.maximum_data_size=3948
 ch558.menu.usb_settings.user148.upload.xdata_location=148
 ch558.menu.usb_settings.user148.build.extra_flags=-DUSER_USB_RAM=148
 ## ----
 ch558.menu.usb_settings.user0=USER CODE w/ 0B USB ram
-ch558.menu.usb_settings.user0.upload.maximum_data_size=6144
+ch558.menu.usb_settings.user0.upload.maximum_data_size=4096
 ch558.menu.usb_settings.user0.upload.xdata_location=0
 ch558.menu.usb_settings.user0.build.extra_flags=-DUSER_USB_RAM=0
 
