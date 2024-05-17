@@ -26,7 +26,7 @@ void Serial1_begin(__data unsigned long baud) {
 
   IE_UART1 = 1;
   EA = 1; // Enable serial 1 interrupt
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
   __data uint32_t x;
   __data uint8_t x2;
   SER1_LCR |= bLCR_DLAB; // change baudrate
@@ -65,7 +65,7 @@ uint8_t Serial1_write(__data uint8_t SendDat) {
     uart1_flag_sending = 1;
 #if defined(CH551) || defined(CH552)
     SBUF1 = SendDat;
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
     SER1_THR = SendDat;
 #elif defined(CH549)
     SBUF1 = SendDat;

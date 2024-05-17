@@ -43,7 +43,7 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU &= ~bit;
     }
 #endif
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
     if (port == P0PORT) {
       PORT_CFG &= ~bP0_OC;
       P0_PU &= ~bit;
@@ -88,7 +88,7 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU |= bit;
     }
 #endif
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
     if (port == P0PORT) {
       PORT_CFG &= ~bP0_OC;
       P0_PU |= bit;
@@ -133,7 +133,7 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU |= bit;
     }
 #endif
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
     if (port == P0PORT) {
       PORT_CFG &= ~bP0_OC;
       P0_DIR |= bit;
@@ -172,7 +172,7 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU &= ~bit;
     }
 #endif
-    // todo: OC mode for CH559
+    // todo: OC mode for CH559 and CH558
   }
 }
 
@@ -200,7 +200,7 @@ static void turnOffPWM(__data uint8_t pwm) {
     }
     break;
   }
-#elif defined(CH559)
+#elif defined(CH559) | defined(CH558)
   switch (pwm) {
   case PIN_PWM1:
     if ((PIN_FUNC & bPWM1_PIN_X) == 0) {
@@ -241,7 +241,7 @@ static void turnOffPWM(__data uint8_t pwm) {
   pwm;
   return;
 #endif
-  // todo: PWM mode for CH559
+  // todo: PWM mode for CH559 and CHA558
 }
 
 uint8_t digitalRead(__data uint8_t pin) {
@@ -260,7 +260,7 @@ uint8_t digitalRead(__data uint8_t pin) {
   __data uint8_t portBuf = 0;
 
   switch (port) {
-#if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559)
+#if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559) || defined(CH558)
   case P1PORT:
     portBuf = P1;
     break;
@@ -281,7 +281,7 @@ uint8_t digitalRead(__data uint8_t pin) {
   case P5PORT:
     portBuf = P5;
     break;
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
   case P0PORT:
     portBuf = P0;
     break;
@@ -318,7 +318,7 @@ void digitalWrite(__data uint8_t pin, __xdata uint8_t val) {
   EA = 0;
 
   switch (port) {
-#if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559)
+#if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559) || defined(CH558)
   case P1PORT:
     if (val == LOW) {
       P1 &= ~bit;
@@ -363,7 +363,7 @@ void digitalWrite(__data uint8_t pin, __xdata uint8_t val) {
       P5 |= bit;
     }
     break;
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
   case P0PORT:
     if (val == LOW) {
       P0 &= ~bit;

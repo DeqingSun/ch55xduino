@@ -8,7 +8,7 @@
 #include "pins_arduino_include.h"
 // clang-format on
 
-#if defined(CH559)
+#if defined(CH559)  || defined(CH558)
 uint16_t analogRead(__data uint8_t pin)
 #else
 uint8_t analogRead(__data uint8_t pin)
@@ -30,7 +30,7 @@ uint8_t analogRead(__data uint8_t pin)
     ;
 
   return ADC_DATA;
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
 
   __data uint8_t pinMask = 1 << pin;
   P1_IE &= ~(pinMask); // Close other data functions of P1 port, if only part of
@@ -119,7 +119,7 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val) {
       }
     }
   }
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
   pinMode(pin, OUTPUT);
   if (val == 0) {
     digitalWrite(pin, LOW);

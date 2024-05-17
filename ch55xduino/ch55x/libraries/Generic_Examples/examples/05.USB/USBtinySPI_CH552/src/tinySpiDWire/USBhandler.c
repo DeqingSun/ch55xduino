@@ -583,7 +583,7 @@ void USBDeviceCfg() {
 #if defined(CH551) || defined(CH552) || defined(CH549)
   UDEV_CTRL = bUD_PD_DIS; // Disable DP/DM pull-down resistor
 #endif
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
   UDEV_CTRL = bUD_DP_PD_DIS; // Disable DP/DM pull-down resistor
 #endif
   UDEV_CTRL |= bUD_PORT_EN; // Enable physical port
