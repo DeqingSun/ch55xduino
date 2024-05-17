@@ -172,8 +172,27 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU &= ~bit;
     }
 #endif
-    // todo: OC mode for CH559 and CH558
-  }
+#if defined(CH559) || defined(CH558)
+    // open drain settings - see table 10.2.2 on page 28.
+    // Selected as "High-impedance input weak standard bi-directional mode with open drain output, pins without pull-up resistor."
+    if (port == P0PORT) {
+      PORT_CFG |= bP0_OC; // clear bP0_OC bit to get open drain and bi-dir modes.
+      P0_DIR &= ~bit;
+      P0_U &= ~bit; 
+    } else if (port == P1PORT) {
+      PORT_CFG |= bP1_OC;
+      P1_DIR |= bit;
+    } else if (port == P2PORT) {
+      PORT_CFG |= bP2_OC;
+      P2_DIR |= bit;
+    } else if (port == P3PORT) {
+      PORT_CFG |= bP3_OC;
+      P3_DIR |= bit;
+    } else if (port == P4PORT) {
+      P4_DIR |= bit; // Open Drain not supported; fall back to normal output.
+    }
+#endif
+  } // End of Open Drain mode.
 }
 
 static void turnOffPWM(__data uint8_t pwm) {
