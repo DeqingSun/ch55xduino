@@ -1229,7 +1229,11 @@ void init() {
 
   // init PWM
   PWM_CK_SE = 93; // DIV by 94 for 1K freq on 24M clk
+#if defined(CH558)
+  PWM3_CTRL = 0;
+#else
   PWM_CTRL = 0;
+#endif
 
   // init T0 for millis
   TMOD = (TMOD & ~0x0F) | (bT0_M1); // mode 2 for autoreload

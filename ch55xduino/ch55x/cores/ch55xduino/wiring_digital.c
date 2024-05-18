@@ -225,6 +225,7 @@ static void turnOffPWM(__data uint8_t pwm) {
   }
 #elif defined(CH559) | defined(CH558)
   switch (pwm) {
+#if defined(CH559)  // CH558 only has one PWM(3)
   case PIN_PWM1:
     if ((PIN_FUNC & bPWM1_PIN_X) == 0) {
       PWM_CTRL &= ~bPWM_OUT_EN;
@@ -245,6 +246,7 @@ static void turnOffPWM(__data uint8_t pwm) {
       PWM_CTRL &= ~bPWM2_OUT_EN;
     }
     break;
+#endif
   case PIN_PWM3:
     if ((PIN_FUNC & bTMR3_PIN_X) == 0) {
       if (T3_CTRL & bT3_OUT_EN) {

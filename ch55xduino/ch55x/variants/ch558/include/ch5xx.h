@@ -121,7 +121,7 @@ SFR(SLEEP_CTRL, 0xEA);      // sleep control, Write@SafeMode
 #define bSLP_OFF_USB 0x80   // clock off for USB
 #define bSLP_OFF_ADC 0x40   // clock off for ADC
 #define bSLP_OFF_UART1 0x20 // clock off for UART1
-#define bSLP_OFF_P1S1 0x10  // clock off for PWM1 / SPI1
+#define bSLP_OFF_P1S1 0x10  // clock off for SPI1
 #define bSLP_OFF_SPI0 0x08  // clock off for SPI0
 #define bSLP_OFF_TMR3 0x04  // clock off for timer3
 #define bSLP_OFF_LED 0x02   // clock off for LED
@@ -168,7 +168,6 @@ SBIT(PX0, 0xB8, 0);      // external interrupt INT0 priority level
 SFR(IE_EX, 0xE8);        // extend interrupt enable
 SBIT(IE_WDOG, 0xE8, 7);  // enable watch-dog timer interrupt
 SBIT(IE_GPIO, 0xE8, 6);  // enable GPIO input interrupt
-SBIT(IE_PWM1, 0xE8, 5);  // enable PWM1 interrupt
 SBIT(IE_UART1, 0xE8, 4); // enable UART1 interrupt
 SBIT(IE_ADC, 0xE8, 3);   // enable ADC interrupt
 SBIT(IE_USB, 0xE8, 2);   // enable USB interrupt
@@ -179,7 +178,6 @@ SFR(IP_EX, 0xE9);        // extend interrupt priority
   0x80 // ReadOnly: current interrupt nested level: 0=no interrupt or two
        // levels, 1=one level
 #define bIP_GPIO 0x40  // GPIO input interrupt priority level
-#define bIP_PWM1 0x20  // PWM1 interrupt priority level
 #define bIP_UART1 0x10 // UART1 interrupt priority level
 #define bIP_ADC 0x08   // ADC interrupt priority level
 #define bIP_USB 0x04   // USB interrupt priority level
@@ -269,6 +267,7 @@ SBIT(MISO, 0x90, 6); // master serial data input or slave serial data output for
 SBIT(MOSI, 0x90, 5); // master serial data output or slave serial data input for
                      // SPI0, not 5VT
 SBIT(SCS, 0x90, 4);  // slave chip-selection input for SPI0, not 5VT
+SFR(PWM3_CTRL, 0x9D);  // PWM 3 control (no PWM 1 and 2)
 SBIT(PWM3, 0x90, 2); // PWM output for timer3, not 5VT
 SBIT(CAP3, 0x90, 2); // capture input for timer3, not 5VT
 SBIT(T2EX, 0x90,
@@ -304,10 +303,8 @@ SBIT(TXD1, 0xA0, 7);  // TXD output for UART1
 SBIT(DA7, 0xA0, 7);   // address 7 output for direct low address mode
 SBIT(RXD1, 0xA0, 6);  // RXD input for UART1
 SBIT(TNOW, 0xA0, 5);  // tx now output for UART1, indicate transmitting
-SBIT(PWM2, 0xA0, 5);  // second PWM output for PWM1
 SBIT(T2EX_, 0xA0, 5); // alternate pin for T2EX
 SBIT(CAP2_, 0xA0, 5); // alternate pin for CAP2
-SBIT(PWM1, 0xA0, 4);  // PWM output for PWM1
 SBIT(SCK1, 0xA0, 3);  // serial clock output for SPI1
 SBIT(MISO1, 0xA0, 2); // master serial data input for SPI1
 SBIT(MOSI1, 0xA0, 1); // master serial data output for SPI1
@@ -324,10 +321,8 @@ SFR(P2_DIR, 0xBC);    // port 2 direction
 #define bDA7 0x80     // address 7 output for direct low address mode
 #define bRXD1 0x40    // RXD input for UART1
 #define bTNOW 0x20    // tx now output for UART1, indicate transmitting
-#define bPWM2 0x20    // second PWM output for PWM1
 #define bT2EX_ 0x20   // alternate pin for T2EX
 #define bCAP2_ bT2EX_ // alternate pin for CAP2
-#define bPWM1 0x10    // PWM output for PWM1
 #define bSCK1 0x08    // serial clock output for SPI1
 #define bMISO1 0x04   // master serial data input for SPI1
 #define bMOSI1 0x02   // master serial data output for SPI1
@@ -374,11 +369,9 @@ SFR(P3_PU, 0xBF);     // port 3 pullup enable
 SFR(P4_OUT, 0xC0);    // port 4 output
 SBIT(SCK_, 0xC0, 7);  // alternate pin for SCK
 SBIT(SCS_, 0xC0, 6);  // alternate pin for SCS
-SBIT(PWM2_, 0xC0, 5); // alternate pin for PWM2
 SBIT(LED3, 0xC0, 4);  // LED3 data output
 SBIT(TNOW_, 0xC0, 4); // alternate pin for TNOW
 SBIT(TXD1_, 0xC0, 4); // alternate pin for TXD1
-SBIT(PWM1_, 0xC0, 3); // alternate pin for PWM1
 SBIT(PWM3_, 0xC0, 2); // alternate pin for PWM3
 SBIT(CAP3_, 0xC0, 2); // alternate pin for CAP3
 SBIT(LED2, 0xC0, 0);  // LED2 data output
@@ -394,11 +387,9 @@ SBIT(P4_OUT_0, 0xC0, 0);
 SFR(P4_IN, 0xC1);        // ReadOnly: port 4 input
 #define bSCK_ 0x80       // alternate pin for SCK, not 5VT
 #define bSCS_ 0x40       // alternate pin for SCS, not 5VT
-#define bPWM2_ 0x20      // alternate pin for PWM2
 #define bLED3 0x10       // LED3 data output
 #define bTNOW_ 0x10      // alternate pin for TNOW
 #define bTXD1_ bTNOW_    // alternate pin for TXD1
-#define bPWM1_ 0x08      // alternate pin for PWM1
 #define bPWM3_ 0x04      // alternate pin for PWM3
 #define bCAP3_ bPWM3_    // alternate pin for CAP3
 #define bLED2 0x01       // LED2 data output
@@ -443,9 +434,6 @@ SFR(PORT_CFG, 0xC6); // port 0/1/2/3 config
 //   output with pullup resistance, just driving high level strongly for 2
 //   clocks if turning output level from low to high
 SFR(PIN_FUNC, 0xCE); // pin function selection
-#define bPWM1_PIN_X                                                            \
-  0x80 // PWM1/PWM2 alternate pin enable: 0=PWM1/PWM2 on P2.4/P2.5, 1=PWM1/PWM2
-       // on P4.3/P4.5
 #define bTMR3_PIN_X                                                            \
   0x40 // PWM3/CAP3 alternate pin enable: 0=PWM3/CAP3 on P1.2, 1=PWM3/CAP3 on
        // P4.2
@@ -721,15 +709,8 @@ SFR16(T3_FIFO, 0xAE); // FIFO word, little-endian
 SFR(T3_FIFO_L, 0xAE); // FIFO low byte
 SFR(T3_FIFO_H, 0xAF); // FIFO high byte
 
-/*  PWM1/2 Registers  */
-SFR(PWM_DATA2, 0x9B); // PWM data for PWM2
-SFR(PWM_DATA, 0x9C);  // PWM data for PWM1
-SFR(PWM_CTRL, 0x9D);  // PWM 1/2 control
 #define bPWM_IE_END                                                            \
   0x80 // enable interrupt for PWM mode cycle end or MFM empty buffer
-#define bPWM2_POLAR                                                            \
-  0x40 // PWM2 output polarity if bPWM_MOD_MFM=0: 0=default low and high action,
-       // 1=default high and low action
 #define bMFM_BUF_EMPTY                                                         \
   0x40 // ReadOnly: MFM empty buffer status if bPWM_MOD_MFM=1
 #define bPWM_POLAR                                                             \
@@ -738,13 +719,9 @@ SFR(PWM_CTRL, 0x9D);  // PWM 1/2 control
 #define bPWM_IF_END                                                            \
   0x10 // interrupt flag for cycle end, write 1 to clear or write PWM_CYCLE or
        // load new data to clear
-#define bPWM_OUT_EN 0x08  // PWM1 output enable
-#define bPWM2_OUT_EN 0x04 // PWM2 output enable if bPWM_MOD_MFM=0
 #define bMFM_BIT_CNT2                                                          \
   0x04 // ReadOnly: MFM encode bit count status if bPWM_MOD_MFM=1: 0=lower 4
        // bits, 1=upper 4 bits
-#define bPWM_CLR_ALL 0x02 // force clear FIFO and count of PWM1/2
-#define bPWM_MOD_MFM 0x01 // MFM encode mode for PWM: 0=PWM, 1=MFM encode
 SFR(PWM_CK_SE, 0x9E);     // clock divisor setting
 SFR(PWM_CYCLE, 0x9F);     // PWM cycle
 
@@ -1585,7 +1562,6 @@ extern volatile __pdata uint8_t pLED_DMA_XL;
 #define INT_ADDR_USB 0x0043   // interrupt vector address for USB
 #define INT_ADDR_ADC 0x004B   // interrupt vector address for ADC
 #define INT_ADDR_UART1 0x0053 // interrupt vector address for UART1
-#define INT_ADDR_PWM1 0x005B  // interrupt vector address for PWM1
 #define INT_ADDR_GPIO 0x0063  // interrupt vector address for GPIO
 #define INT_ADDR_WDOG 0x006B  // interrupt vector address for watch-dog timer
 #define INT_NO_INT0 0         // interrupt number for INT0 or LED
@@ -1599,7 +1575,6 @@ extern volatile __pdata uint8_t pLED_DMA_XL;
 #define INT_NO_USB 8          // interrupt number for USB
 #define INT_NO_ADC 9          // interrupt number for ADC
 #define INT_NO_UART1 10       // interrupt number for UART1
-#define INT_NO_PWM1 11        // interrupt number for PWM1
 #define INT_NO_GPIO 12        // interrupt number for GPIO
 #define INT_NO_WDOG 13        // interrupt number for watch-dog timer
 
