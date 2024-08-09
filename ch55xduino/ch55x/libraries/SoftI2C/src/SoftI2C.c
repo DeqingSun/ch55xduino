@@ -66,15 +66,18 @@ uint8_t I2CSend(uint8_t i2cData) {
     digitalWrite(scl_pin, LOW);
     i2cData <<= 1;
   }
+  pinMode(sda_pin, INPUT_PULLUP);
   digitalWrite(sda_pin, HIGH);
   digitalWrite(scl_pin, HIGH);
   ack_bit = digitalRead(sda_pin);
+  pinMode(sda_pin, OUTPUT_OD);
   digitalWrite(scl_pin, LOW);
   return ack_bit;
 }
 
 uint8_t I2CRead() {
   uint8_t i, Data = 0;
+  pinMode(sda_pin, INPUT_PULLUP);
   for (i = 0; i < 8; i++) {
     digitalWrite(scl_pin, HIGH);
     if (digitalRead(sda_pin))
@@ -83,5 +86,6 @@ uint8_t I2CRead() {
       Data <<= 1;
     digitalWrite(scl_pin, LOW);
   }
+  pinMode(sda_pin, OUTPUT_OD);
   return Data;
 }
