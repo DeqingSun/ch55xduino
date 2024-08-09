@@ -10,7 +10,7 @@ void loop() {
   if (!Wire_scan(0x50)) {
     USBSerial_println("No response from 0x50");
     USBSerial_flush();
-  }else{
+  } else {
     USBSerial_println("\nDump first 8 bytes of 24C32 on 0x50 addr:");
     USBSerial_flush();
 
@@ -46,5 +46,4 @@ void loop() {
   }
 
   delay(1000);
-
 }
