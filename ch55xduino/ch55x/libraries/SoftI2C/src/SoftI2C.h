@@ -27,9 +27,13 @@ uint8_t I2CRead();
 
 void Wire_begin(uint8_t scl, __xdata uint8_t sda);
 bool Wire_scan(uint8_t i2caddr);
-bool Wire_writeBytes(uint8_t i2caddr, uint8_t* __xdata data, __xdata uint8_t bytes);
-bool Wire_readBytes(uint8_t i2caddr, uint8_t* __xdata data, __xdata uint8_t bytes);
-bool Wire_readRegister(uint8_t i2caddr, __xdata uint8_t regaddr, uint8_t* __xdata data, __xdata uint8_t bytes);
-bool Wire_readRegister16bitAddr(uint8_t i2caddr, __xdata uint16_t regaddr, uint8_t* __xdata data, __xdata uint8_t bytes);
+bool Wire_writeBytes(uint8_t i2caddr, uint8_t *__xdata data,
+                     __xdata uint8_t bytes);
+bool Wire_readBytes(uint8_t i2caddr, uint8_t *__xdata data,
+                    __xdata uint8_t bytes);
+bool Wire_readRegister(uint8_t i2caddr, __xdata uint8_t regaddr,
+                       uint8_t *__xdata data, __xdata uint8_t bytes);
+bool Wire_readRegister16bitAddr(uint8_t i2caddr, __xdata uint16_t regaddr,
+                                uint8_t *__xdata data, __xdata uint8_t bytes);
 
 #endif
