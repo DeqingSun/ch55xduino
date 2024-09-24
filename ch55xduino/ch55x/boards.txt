@@ -198,6 +198,7 @@ ch559.upload.speed=1
 
 ##############################################################
 
+
 ch549.name=CH549 (experimental)
 ch549.upload.protocol=ch55x2_3_1
 ch549.upload.maximum_size=61439
@@ -259,5 +260,67 @@ ch549.menu.bootloader_pin.p15.upload.bootcfg=2
 # meaningless variables just to keep the makefile happy
 
 ch549.upload.speed=1
+
+##############################################################
+
+ch558.name=CH558 Board
+ch558.upload.tool=vnproch55x_usb
+ch558.upload.protocol=ch55x2_3_1
+#CH558 has 40K flash (48k)
+ch558.upload.maximum_size=40960
+ch558.build.mcu=mcs51
+ch558.menu.clock.24internal=24 MHz (internal)
+ch558.menu.clock.24internal.build.f_cpu=24000000L
+ch558.menu.clock.24internal.build.f_oscillator_external=0L
+ch558.menu.clock.16internal=16 MHz (internal)
+ch558.menu.clock.16internal.build.f_cpu=16000000L
+ch558.menu.clock.16internal.build.f_oscillator_external=0L
+ch558.menu.clock.56internal=56 MHz (internal)
+ch558.menu.clock.56internal.build.f_cpu=56000000L
+ch558.menu.clock.56internal.build.f_oscillator_external=0L
+ch558.menu.clock.24external=24 MHz (external 12M osc)
+ch558.menu.clock.24external.build.f_cpu=24000000L
+ch558.menu.clock.24external.build.f_oscillator_external=12000000L
+ch558.menu.clock.16external=16 MHz (external 12M osc)
+ch558.menu.clock.16external.build.f_cpu=16000000L
+ch558.menu.clock.16external.build.f_oscillator_external=12000000L
+ch558.menu.clock.56external=56 MHz (external 12M osc)
+ch558.menu.clock.56external.build.f_cpu=56000000L
+ch558.menu.clock.56external.build.f_oscillator_external=12000000L
+ch558.build.board=ch558
+ch558.build.core=ch55xduino
+ch558.build.variant=ch558
+ch558.build.mcu=CH558
+
+ch558.upload.use_1200bps_touch=true
+ch558.upload.wait_for_upload_port=false
+
+## USB Memory Settings
+## ----------------------------------------------
+ch558.menu.usb_settings.usbcdc=Default CDC
+ch558.menu.usb_settings.usbcdc.upload.maximum_data_size=3948
+ch558.menu.usb_settings.usbcdc.upload.xdata_location=148
+ch558.menu.usb_settings.usbcdc.build.extra_flags=-DEP0_ADDR=0 -DEP1_ADDR=10 -DEP2_ADDR=20
+## ----
+ch558.menu.usb_settings.user148=USER CODE w/ 148B USB ram
+ch558.menu.usb_settings.user148.upload.maximum_data_size=3948
+ch558.menu.usb_settings.user148.upload.xdata_location=148
+ch558.menu.usb_settings.user148.build.extra_flags=-DUSER_USB_RAM=148
+## ----
+ch558.menu.usb_settings.user0=USER CODE w/ 0B USB ram
+ch558.menu.usb_settings.user0.upload.maximum_data_size=4096
+ch558.menu.usb_settings.user0.upload.xdata_location=0
+ch558.menu.usb_settings.user0.build.extra_flags=-DUSER_USB_RAM=0
+
+## ----------------------------------------------
+ch558.menu.bootloader_pin.p46=P4.6 pull-down
+ch558.menu.bootloader_pin.p46.upload.bootcfg=3
+## ----
+ch558.menu.bootloader_pin.p51=P5.1 (D+) pull-up
+ch558.menu.bootloader_pin.p51.upload.bootcfg=1
+
+# meaningless variables just to keep the makefile happy
+
+ch558.upload.speed=1
 
 ##############################################################

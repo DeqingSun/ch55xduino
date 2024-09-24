@@ -43,7 +43,7 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU &= ~bit;
     }
 #endif
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
     if (port == P0PORT) {
       PORT_CFG &= ~bP0_OC;
       P0_PU &= ~bit;
@@ -88,7 +88,7 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU |= bit;
     }
 #endif
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
     if (port == P0PORT) {
       PORT_CFG &= ~bP0_OC;
       P0_PU |= bit;
@@ -133,7 +133,7 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU |= bit;
     }
 #endif
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
     if (port == P0PORT) {
       PORT_CFG &= ~bP0_OC;
       P0_DIR |= bit;
@@ -172,8 +172,31 @@ void pinMode(__data uint8_t pin,
       P4_DIR_PU &= ~bit;
     }
 #endif
-    // todo: OC mode for CH559
-  }
+#if defined(CH559) || defined(CH558)
+    // open drain settings - see table 10.2.2 on page 28.
+    // Selected as "High-impedance input weak standard bi-directional mode with open drain output, pins without pull-up resistor."
+    // Ports P0-P3 support pure input, push-pull output and standard bi-direction modes, P4 supports pure input and push-pull output modes. 
+    if (port == P0PORT) {
+      PORT_CFG |= bP0_OC; // clear bP0_OC bit to get open drain and bi-dir modes.
+      P0_DIR &= ~bit;
+      P0_PU &= ~bit; 
+    } else if (port == P1PORT) {
+      PORT_CFG |= bP1_OC;
+      P1_DIR |= bit;
+      P1_PU &= ~bit; 
+    } else if (port == P2PORT) {
+      PORT_CFG |= bP2_OC;
+      P2_DIR |= bit;
+      P2_PU &= ~bit; 
+    } else if (port == P3PORT) {
+      PORT_CFG |= bP3_OC;
+      P3_DIR |= bit;
+      P3_PU &= ~bit; 
+    } else if (port == P4PORT) {
+      P4_DIR |= bit; // Open Drain not supported; fall back to normal output.
+    }
+#endif
+  } // End of Open Drain mode.
 }
 
 static void turnOffPWM(__data uint8_t pwm) {
@@ -200,8 +223,9 @@ static void turnOffPWM(__data uint8_t pwm) {
     }
     break;
   }
-#elif defined(CH559)
+#elif defined(CH559) | defined(CH558)
   switch (pwm) {
+#if defined(CH559)  // CH558 only has one PWM(3)
   case PIN_PWM1:
     if ((PIN_FUNC & bPWM1_PIN_X) == 0) {
       PWM_CTRL &= ~bPWM_OUT_EN;
@@ -222,6 +246,7 @@ static void turnOffPWM(__data uint8_t pwm) {
       PWM_CTRL &= ~bPWM2_OUT_EN;
     }
     break;
+#endif
   case PIN_PWM3:
     if ((PIN_FUNC & bTMR3_PIN_X) == 0) {
       if (T3_CTRL & bT3_OUT_EN) {
@@ -241,7 +266,7 @@ static void turnOffPWM(__data uint8_t pwm) {
   pwm;
   return;
 #endif
-  // todo: PWM mode for CH559
+  // todo: PWM mode for CH559 and CHA558
 }
 
 uint8_t digitalRead(__data uint8_t pin) {
@@ -260,7 +285,7 @@ uint8_t digitalRead(__data uint8_t pin) {
   __data uint8_t portBuf = 0;
 
   switch (port) {
-#if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559)
+#if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559) || defined(CH558)
   case P1PORT:
     portBuf = P1;
     break;
@@ -281,7 +306,7 @@ uint8_t digitalRead(__data uint8_t pin) {
   case P5PORT:
     portBuf = P5;
     break;
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
   case P0PORT:
     portBuf = P0;
     break;
@@ -318,7 +343,7 @@ void digitalWrite(__data uint8_t pin, __xdata uint8_t val) {
   EA = 0;
 
   switch (port) {
-#if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559)
+#if defined(CH551) || defined(CH552) || defined(CH549) || defined(CH559) || defined(CH558)
   case P1PORT:
     if (val == LOW) {
       P1 &= ~bit;
@@ -363,7 +388,7 @@ void digitalWrite(__data uint8_t pin, __xdata uint8_t val) {
       P5 |= bit;
     }
     break;
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
   case P0PORT:
     if (val == LOW) {
       P0 &= ~bit;

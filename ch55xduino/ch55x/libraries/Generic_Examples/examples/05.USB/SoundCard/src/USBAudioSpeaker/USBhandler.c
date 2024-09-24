@@ -483,7 +483,7 @@ void USBDeviceCfg() {
 #if defined(CH551) || defined(CH552) || defined(CH549)
   UDEV_CTRL = bUD_PD_DIS; // Disable DP/DM pull-down resistor
 #endif
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
   UDEV_CTRL = bUD_DP_PD_DIS; // Disable DP/DM pull-down resistor
 #endif
   UDEV_CTRL |= bUD_PORT_EN; // Enable physical port
@@ -509,7 +509,7 @@ void USBDeviceEndPointCfg() {
   // UEP_T_RES_NAK;                //Manual flip, OUT transaction returns ACK,
   // IN transaction returns NAK
 
-#if defined(CH559)
+#if defined(CH559) || defined(CH558)
   // CH559 use differend endianness for these registers
   UEP0_DMA_H = ((uint16_t)Ep0Buffer >> 8); // Endpoint 0 data transfer address
   UEP0_DMA_L = ((uint16_t)Ep0Buffer >> 0); // Endpoint 0 data transfer address

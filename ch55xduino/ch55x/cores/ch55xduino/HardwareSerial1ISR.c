@@ -16,7 +16,7 @@ void uart1IntRxHandler() {
   if (nextHead != uart1_rx_buffer_tail) {
 #if defined(CH551) || defined(CH552)
     Receive_Uart1_Buf[uart1_rx_buffer_head] = SBUF1;
-#elif defined(CH559)
+#elif defined(CH559)  || defined(CH558)
     Receive_Uart1_Buf[uart1_rx_buffer_head] = SER1_RBR;
 #elif defined(CH549)
     Receive_Uart1_Buf[uart1_rx_buffer_head] = SBUF1;
@@ -33,7 +33,7 @@ void uart1IntTxHandler() {
     } else {
 #if defined(CH551) || defined(CH552)
       SBUF1 = Transmit_Uart1_Buf[uart1_tx_buffer_tail];
-#elif defined(CH559)
+#elif defined(CH559)  || defined(CH558)
       SER1_THR = Transmit_Uart1_Buf[uart1_tx_buffer_tail];
 #elif defined(CH549)
       SBUF1 = Transmit_Uart1_Buf[uart1_tx_buffer_tail];
