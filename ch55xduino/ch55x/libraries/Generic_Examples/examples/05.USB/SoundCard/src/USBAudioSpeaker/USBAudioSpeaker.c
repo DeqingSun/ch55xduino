@@ -9,20 +9,7 @@
 #include "USBAudioSpeaker.h"
 // clang-format on
 
-#define STR_INDIR(x) #x
-#define STR(x) STR_INDIR(x)
-
-#pragma callee_saves sendCharDebug
-void sendCharDebug(char c);
-
 __xdata volatile uint8_t soundBufferPlayBackIndex = 0;
-
-//variables for zero crossing detection
-__xdata volatile uint8_t lastSampleAboveZero = 0;
-__xdata volatile uint8_t countInbetweenZeroCrossing = 0;
-__xdata volatile uint8_t zeroCrossingCount = 0;
-__xdata volatile uint8_t zeroCrossingBufferIndex = 0;
-__xdata volatile uint8_t zeroCrossingBuffer[ZERO_CROSSING_BUFFER_SIZE];
 
 #define T2_RELOAD_VALUE (65536 - F_CPU / 24000)
 #define T2_RELOAD_VALUE_LOW (T2_RELOAD_VALUE & 0xFF)
@@ -49,14 +36,9 @@ void Timer2Interrupt(void) __interrupt {
   // we need to carefully handle the PWM data
   // and SDCC is not good at handling partial inline assembly.
   // we just do everything in inline assembly.
-  __asm__(
-          "    push ar7                            \n"
-          "    push ar6                            \n"
-    
-    
-          ";check if TF2 is set                    \n"
+  __asm__(";check if TF2 is set                    \n"
           "    jb   _TF2,notSkipTimer2INTR$        \n"
-          "    ajmp skipTimer2INTR$                \n"
+          "    sjmp skipTimer2INTR$                \n"
           "notSkipTimer2INTR$:                     \n"
           "    clr  _TF2                           \n"
 
@@ -68,7 +50,7 @@ void Timer2Interrupt(void) __interrupt {
           ";check if soundBufferPlayBackIndex is too big \n"
           "    add a,#232                          \n"
           "    jnc soundBufferPlayBackIndexNotBig$ \n"
-          "    ajmp skipTimer2INTR$                \n"
+          "    sjmp skipTimer2INTR$                \n"
           "soundBufferPlayBackIndexNotBig$:        \n"
           "    mov a,r7                            \n"
           "    inc a                               \n"
@@ -129,83 +111,7 @@ void Timer2Interrupt(void) __interrupt {
 
           "pwmSetFinish$:                          \n"
 
-  // at this point, R7 is the data to be played back
-  // we just need to do zero-crossing detection because we don't have much cpu time
-
-          "    mov dptr,#_lastSampleAboveZero      \n"
-          "    movx	a,@dptr                        \n"
-          "    jnz  lookForFallingCrossing$        \n"
-
-          "lookForRisingCrossing$:                 \n"
-          "    mov a,r7                            \n"
-          ";check if the value is bigger or equal than 128+2\n"
-          "    add a,#(256-128-2)                  \n"
-          "    jnc   notCrossing$                  \n"
-          ";found rising, will track falling next\n"
-          "    mov dptr,#_lastSampleAboveZero      \n"
-          "    mov a,#1                            \n"
-          "    movx @dptr,a                        \n"
-          "    sjmp crossing$                      \n"
-
-          "lookForFallingCrossing$:                \n"
-          "    mov a,r7                            \n"
-          ";check if the value is less or equal than 128-2\n"
-          "    add a,#(256-128+1)                  \n"
-          "    jc   notCrossing$                   \n"
-          ";found falling, will track rising next  \n"
-          "    mov dptr,#_lastSampleAboveZero      \n"
-          "    mov a,#0                            \n"
-          "    movx @dptr,a                        \n"
-          "    sjmp crossing$                      \n"
-
-          "notCrossing$:                           \n"
-          "    mov dptr,#_countInbetweenZeroCrossing\n"
-          "    movx a,@dptr                        \n"
-          "    add a,#1                            \n"
-          "    movx @dptr,a                        \n"
-
-          "    sjmp endOfCrossingDetection$        \n"
-
-          "crossing$:                              \n"
-          "; increase zeroCrossingCount            \n"
-          "    mov dptr,#_zeroCrossingCount        \n"
-          "    movx a,@dptr                        \n"
-          "    inc a                               \n"
-          "    movx @dptr,a                        \n"
-
-          "    mov dptr,#_countInbetweenZeroCrossing\n"
-          "    movx a,@dptr                        \n"
-          "    mov r6,a                            \n"
-          "    clr a                               \n"
-          "    movx @dptr,a                        \n"
-
-          "    mov dptr,#_zeroCrossingBufferIndex  \n"
-          "    movx a,@dptr                        \n"
-          ";reuse r7 to store the index            \n"
-          "    mov r7,a                            \n"
-          "    inc a                               \n"
-          "    anl a,#("STR(ZERO_CROSSING_BUFFER_SIZE)"-1)\n"
-          "    movx @dptr,a                        \n"  
-
-          "    mov dptr,#_zeroCrossingBuffer       \n"
-          "    mov a,r7                            \n"     
-          "    add a,dpl                           \n"
-          "    mov dpl,a                           \n"
-          "    mov a,dph                           \n"
-          "    addc a,#0                           \n"
-          "    mov dph,a                           \n"
-          "    mov a,r6                            \n"
-          "    movx @dptr,a                        \n"
-
-          "endOfCrossingDetection$:                \n"
-
-          "skipTimer2INTR$:                        \n"
-
-          "    pop ar6                             \n"
-          "    pop ar7                             \n"
-          );
-
-
+          "skipTimer2INTR$:                        \n");
 }
 
 void USBInit() {
@@ -245,5 +151,5 @@ void AUDIO_EP1_Out(void) {
   soundBufferPlayBackIndex = 0;
   TR2 = 1;
 
-  UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_TOUT;
+  UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_R_RES | UEP_R_RES_TOUT;
 }

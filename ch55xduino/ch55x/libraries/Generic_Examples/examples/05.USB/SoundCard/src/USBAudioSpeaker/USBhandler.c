@@ -1,5 +1,5 @@
 // clang-format off
-#include <arduino.h>
+#include <Arduino.h>
 #include "USBhandler.h"
 #include "USBconstant.h"
 // clang-format on

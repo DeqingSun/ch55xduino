@@ -31,6 +31,8 @@ volatile uint8_t usbMsgFlags = 0; // uint8_t usbMsgFlags copied from VUSB
 // 0 is boot protocol, 1 is report protocol
 __xdata uint8_t keyboardProtocol = 1;
 
+__xdata uint8_t keyboardLedStatus = 0;
+
 inline void NOP_Process(void) {}
 
 void USB_EP0_SETUP() {
@@ -345,7 +347,7 @@ void USB_EP0_IN() {
 
 void USB_EP0_OUT() {
   if ((SetupReq == HID_SET_REPORT)) {
-    // does not care led status for now
+    keyboardLedStatus = Ep0Buffer[0];
   }
   UEP0_T_LEN = 0;
   UEP0_CTRL ^= bUEP_R_TOG;

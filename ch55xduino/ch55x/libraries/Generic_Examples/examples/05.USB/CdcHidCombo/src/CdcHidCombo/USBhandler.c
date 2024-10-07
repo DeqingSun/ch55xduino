@@ -30,6 +30,8 @@ __data uint16_t SetupLen;
 __data uint8_t SetupReq;
 volatile __xdata uint8_t UsbConfig;
 
+__xdata uint8_t keyboardLedStatus = 0;
+
 __code uint8_t *__data pDescr;
 
 inline void NOP_Process(void) {}
@@ -66,6 +68,9 @@ void USB_EP0_SETUP() {
           setControlLineStateHandler();
           break;
         case SET_LINE_CODING: // 0x20  Configure
+          break;
+        case HID_SET_REPORT:
+          // LED status for caps lock, num lock, scroll lock, etc
           break;
 
         default:
@@ -348,6 +353,10 @@ void USB_EP0_OUT() {
       UEP0_T_LEN = 0;
       UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_ACK; // send 0-length packet
     }
+  } else if (SetupReq == HID_SET_REPORT) {
+    keyboardLedStatus = Ep0Buffer[0];
+    UEP0_T_LEN = 0;
+    UEP0_CTRL ^= bUEP_R_TOG;
   } else {
     UEP0_T_LEN = 0;
     UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_NAK; // Respond Nak

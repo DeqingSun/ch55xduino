@@ -24,17 +24,18 @@ __xdata __at (EP3_ADDR) uint8_t Ep3Buffer[128];     //IN and OUT buffer, must be
 #error "This example needs more USB ram. Increase this setting in menu."
 #endif
 
-uint16_t SetupLen;
-uint8_t SetupReq, UsbConfig;
+__data uint16_t SetupLen;
+__data uint8_t SetupReq;
+volatile __xdata uint8_t UsbConfig;
 
-__code uint8_t *pDescr;
+__code uint8_t *__data pDescr;
 
-volatile uint8_t usbMsgFlags = 0; // uint8_t usbMsgFlags copied from VUSB
+volatile __data uint8_t usbMsgFlags = 0; // uint8_t usbMsgFlags copied from VUSB
 
 inline void NOP_Process(void) {}
 
 void USB_EP0_SETUP() {
-  uint8_t len = USB_RX_LEN;
+  __data uint8_t len = USB_RX_LEN;
   if (len == (sizeof(USB_SETUP_REQ))) {
     SetupLen = ((uint16_t)UsbSetupBuf->wLengthH << 8) | (UsbSetupBuf->wLengthL);
     len = 0; // Default is success and upload 0 length
@@ -150,7 +151,7 @@ void USB_EP0_SETUP() {
           len = SetupLen >= DEFAULT_ENDP0_SIZE
                     ? DEFAULT_ENDP0_SIZE
                     : SetupLen; // transmit length for this packet
-          for (uint8_t i = 0; i < len; i++) {
+          for (__data uint8_t i = 0; i < len; i++) {
             Ep0Buffer[i] = pDescr[i];
           }
           SetupLen -= len;
@@ -358,9 +359,10 @@ void USB_EP0_IN() {
   } else {
     switch (SetupReq) {
     case USB_GET_DESCRIPTOR: {
-      uint8_t len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE
-                                                   : SetupLen; // send length
-      for (uint8_t i = 0; i < len; i++) {
+      __data uint8_t len = SetupLen >= DEFAULT_ENDP0_SIZE
+                               ? DEFAULT_ENDP0_SIZE
+                               : SetupLen; // send length
+      for (__data uint8_t i = 0; i < len; i++) {
         Ep0Buffer[i] = pDescr[i];
       }
       // memcpy( Ep0Buffer, pDescr, len );
@@ -429,7 +431,7 @@ void USB_EP2_IN() {
 void USBInterrupt(void) { // inline not really working in multiple files in SDCC
   if (UIF_TRANSFER) {
     // Dispatch to service functions
-    uint8_t callIndex = USB_INT_ST & MASK_UIS_ENDP;
+    __data uint8_t callIndex = USB_INT_ST & MASK_UIS_ENDP;
     switch (USB_INT_ST & MASK_UIS_TOKEN) {
     case UIS_TOKEN_OUT: { // SDCC will take IRAM if array of function pointer is
                           // used.

@@ -6,9 +6,9 @@ __code uint8_t DevDesc[] = {
     0x01, // DEVICE Descriptor Type
     0x00,
     0x02,               // USB Specification version 2.00
-    0x00,               // Each interface specifies its own class information
-    0x00,               // Each interface specifies its own Subclass information
-    0x00,               // No protocols the device basis
+    0xEF,               // IAD class information
+    0x02,               // IAD Subclass information
+    0x01,               // IAD protocols
     DEFAULT_ENDP0_SIZE, // Maximum packet size for endpoint zero is 8
     0x09,
     0x12, // Vendor ID
@@ -38,6 +38,10 @@ __code uint8_t CfgDesc[] = {
           // 6: Self-powered 1 Bit 5: Remote Wakeup 0
     0x32, // Maximum power consumption of the device in this configuration is
           // 100 mA
+
+    // Interface Association Descriptor, IAD
+    // This packes following 2 interfaces into 1
+    0x08, 0x0B, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00,
 
     0x09, // Descriptor size is 9 bytes
     0x04, // INTERFACE Descriptor Type

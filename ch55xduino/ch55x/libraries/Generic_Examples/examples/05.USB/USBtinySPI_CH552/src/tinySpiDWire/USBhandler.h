@@ -15,11 +15,13 @@ extern __xdata __at (EP2_ADDR) uint8_t Ep2Buffer[];
 extern __xdata __at (EP3_ADDR) uint8_t Ep3Buffer[];
 // clang-format on
 
-extern uint16_t SetupLen;
-extern uint8_t SetupReq, UsbConfig;
-extern const __code uint8_t *pDescr;
+extern __data uint16_t SetupLen;
+extern __data uint8_t SetupReq;
+volatile extern __xdata uint8_t UsbConfig;
+extern const __code uint8_t *__data pDescr;
 
-extern volatile uint8_t usbMsgFlags; // uint8_t usbMsgFlags copied from VUSB
+extern volatile __data uint8_t
+    usbMsgFlags; // uint8_t usbMsgFlags copied from VUSB
 #define USB_FLG_USE_USER_RW (1 << 0)
 #define USB_FLG_DW_IN (1 << 1)
 #define USB_FLG_DW_OUT (1 << 2)

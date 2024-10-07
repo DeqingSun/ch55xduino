@@ -6,14 +6,14 @@
 
 volatile __xdata uint8_t ledState;
 
-volatile uint8_t sck_period = 10;  // SCK period in microseconds (1..250)
-volatile uint8_t poll1;            // first poll byte for write
-volatile uint8_t poll2;            // second poll byte for write
-volatile __xdata uint16_t address; // read/write address
-volatile __xdata uint16_t timeout; // write timeout in usec
-volatile uint8_t cmd0;             // current read/write command byte
-volatile __xdata uint8_t cmd[4];   // SPI command buffer
-volatile __xdata uint8_t res[4];   // SPI result buffer
+volatile __data uint8_t sck_period = 10; // SCK period in microseconds (1..250)
+volatile __data uint8_t poll1;           // first poll byte for write
+volatile __data uint8_t poll2;           // second poll byte for write
+volatile __xdata uint16_t address;       // read/write address
+volatile __xdata uint16_t timeout;       // write timeout in usec
+volatile __data uint8_t cmd0;            // current read/write command byte
+volatile __xdata uint8_t cmd[4];         // SPI command buffer
+volatile __xdata uint8_t res[4];         // SPI result buffer
 
 extern __xdata uint8_t debugWireAutoQuit;
 
@@ -21,7 +21,7 @@ extern __xdata uint8_t debugWireAutoQuit;
 // Issue one SPI command.
 // ----------------------------------------------------------------------
 static void spi(uint8_t *cmd, uint8_t *res) {
-  uint8_t i;
+  __data uint8_t i;
   for (i = 0; i < 4; i++) {
     SPI0_DATA = *cmd++;
     while (S0_FREE == 0)
@@ -33,7 +33,7 @@ static void spi(uint8_t *cmd, uint8_t *res) {
 // Create and issue a read or write SPI command.
 // ----------------------------------------------------------------------
 static void spi_rw(void) {
-  uint16_t a;
+  __data uint16_t a;
 
   a = address++;
   if (cmd0 & 0x80) { // eeprom
@@ -49,8 +49,8 @@ static void spi_rw(void) {
 }
 
 uint16_t tinySpiSetupHandler() {
-  uint8_t i;
-  uint16_t returnLen = 0;
+  __data uint8_t i;
+  __data uint16_t returnLen = 0;
   switch (SetupReq) {
   case USBTINY_ECHO: // not fully tested yet...
     Ep0Buffer[1] = 0x21;
@@ -167,10 +167,10 @@ uint16_t tinySpiSetupHandler() {
 }
 
 void tinySpiInHandler() {
-  uint8_t i;
-  uint16_t returnLen = SetupLen >= DEFAULT_ENDP0_SIZE
-                           ? DEFAULT_ENDP0_SIZE
-                           : SetupLen; // 本次传输长度
+  __data uint8_t i;
+  __data uint16_t returnLen = SetupLen >= DEFAULT_ENDP0_SIZE
+                                  ? DEFAULT_ENDP0_SIZE
+                                  : SetupLen; // 本次传输长度
   for (i = 0; i < returnLen; i++) {
     spi_rw();
     Ep0Buffer[i] = res[3];
@@ -181,12 +181,12 @@ void tinySpiInHandler() {
 }
 
 void tinySpiOutHandler() {
-  uint16_t usec;
-  uint8_t i;
-  uint8_t r;
-  uint16_t returnLen = SetupLen >= DEFAULT_ENDP0_SIZE
-                           ? DEFAULT_ENDP0_SIZE
-                           : SetupLen; // 本次传输长度
+  __data uint16_t usec;
+  __data uint8_t i;
+  __data uint8_t r;
+  __data uint16_t returnLen = SetupLen >= DEFAULT_ENDP0_SIZE
+                                  ? DEFAULT_ENDP0_SIZE
+                                  : SetupLen; // 本次传输长度
   for (i = 0; i < returnLen; i++) {
     cmd[3] = Ep0Buffer[i];
     spi_rw();

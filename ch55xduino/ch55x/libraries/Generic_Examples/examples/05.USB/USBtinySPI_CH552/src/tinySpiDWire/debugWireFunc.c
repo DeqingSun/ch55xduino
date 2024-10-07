@@ -21,24 +21,25 @@ dwTXRXPtr; extern volatile uint8_t dwInterrputStatus; extern volatile uint16_t
 dwRead1stBitT2Val;*/
 
 // ----------------------------------------------------------------------
-volatile uint8_t jobState = 0;
+volatile __data uint8_t jobState = 0;
 // ----------------------------------------------------------------------
 // debugWIRE support
 volatile __xdata uint8_t dwBuf[128];
-volatile uint8_t dwLen;       // Length being received from host or avr device
-volatile uint8_t dwState = 0; // Current debugWIRE action underway, 0 if none
+volatile __data uint8_t dwLen; // Length being received from host or avr device
+volatile __data uint8_t dwState =
+    0; // Current debugWIRE action underway, 0 if none
 volatile __xdata uint16_t
     dwBitTime; // Each bit takes 4*dwBitTime+8 cycles to transmit
 volatile __xdata uint16_t dwselfCalcBitTime; // Each bit use T2 to transmit
-volatile uint8_t dwUsbIOFinishedLen = 0;
-volatile uint8_t dwIOStatus = 0;
-volatile uint8_t dwInterrputStatus = 0;
-volatile uint8_t dwTXbitCount;
-volatile uint8_t dwTXRXBuf;
-volatile uint8_t dwTXRXPtr;
-volatile uint16_t dwRead1stBitT2Val;
+volatile __data uint8_t dwUsbIOFinishedLen = 0;
+volatile __data uint8_t dwIOStatus = 0;
+volatile __data uint8_t dwInterrputStatus = 0;
+volatile __data uint8_t dwTXbitCount;
+volatile __data uint8_t dwTXRXBuf;
+volatile __data uint8_t dwTXRXPtr;
+volatile __data uint16_t dwRead1stBitT2Val;
 
-uint8_t dwBreakDelayCounter = 0;
+__data uint8_t dwBreakDelayCounter = 0;
 
 __xdata uint8_t debugWireAutoQuit =
     0; // if there is no signal back on MISO in ISP, we do a DW quit operation
@@ -199,7 +200,7 @@ void dwCaptureWidths() { // TODO: Seems only capture max 4ms wait. Not working
   // calc dwselfCalcBitTime
   {
     __xdata uint32_t dwSum; // same iRam
-    uint8_t i;
+    __data uint8_t i;
     dwSum = 0;
     if (dwLen >= 18) {
       for (i = (dwLen - 18); i < (dwLen); i += 2) {
@@ -218,8 +219,8 @@ void dwCaptureWidths() { // TODO: Seems only capture max 4ms wait. Not working
 
 void dwSendBytesBlocking() {
   // dwselfCalcBitTime;
-  uint8_t i;
-  uint8_t sendByte;
+  __data uint8_t i;
+  __data uint8_t sendByte;
 
   TR2 = 0;
 
@@ -333,7 +334,7 @@ void dwSendBytesBlocking() {
 
 void dwReadBytesBlocking() {
 
-  uint8_t receiveByte;
+  __data uint8_t receiveByte;
   dwLen = 0;
 
   TR2 = 0;
@@ -620,7 +621,7 @@ void timer2IntrHandler() {
       }
 
     } else if (dwInterrputStatus & DWIO_READ_BYTES) {
-      uint8_t dataBuffer = P1_1;
+      __data uint8_t dataBuffer = P1_1;
       if (dwTXbitCount == 0xFF) { // not get the first bit, timeout
         EXEN2 = 0;
         ET2 = 0;
@@ -679,7 +680,7 @@ void timer2IntrHandler() {
 }
 
 uint16_t debugWireSetupHandler() {
-  uint16_t returnLen;
+  __data uint16_t returnLen;
   dwUsbIOFinishedLen = 0;
   if (dwState) {
     returnLen = 0; // Prior operation has not yet completed
@@ -688,7 +689,7 @@ uint16_t debugWireSetupHandler() {
       // IN transfer - device to host: return buffered data
       returnLen = dwLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : dwLen;
       // memcpy(Ep0Buffer,dwBuf+dwUsbIOFinishedLen,returnLen);
-      for (uint8_t i = 0; i < returnLen; i++) {
+      for (__data uint8_t i = 0; i < returnLen; i++) {
         ((uint8_t *)Ep0Buffer)[i] = ((uint8_t *)dwBuf)[i + dwUsbIOFinishedLen];
       }
       dwUsbIOFinishedLen += returnLen;
@@ -712,14 +713,14 @@ uint16_t debugWireSetupHandler() {
 }
 
 void debugWireInHandler() {
-  uint8_t returnLen;
-  uint8_t dwLeftOver;
+  __data uint8_t returnLen;
+  __data uint8_t dwLeftOver;
   if ((usbMsgFlags & USB_FLG_DW_IN)) {
     dwLeftOver = dwLen - dwUsbIOFinishedLen;
     returnLen =
         dwLeftOver >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : dwLeftOver;
     // memcpy(Ep0Buffer,dwBuf+dwUsbIOFinishedLen,len);
-    for (uint8_t i = 0; i < returnLen; i++) {
+    for (__data uint8_t i = 0; i < returnLen; i++) {
       ((uint8_t *)Ep0Buffer)[i] = ((uint8_t *)dwBuf)[i + dwUsbIOFinishedLen];
     }
     dwUsbIOFinishedLen += returnLen;
@@ -732,8 +733,8 @@ void debugWireInHandler() {
 }
 
 void debugWireOutHandler() {
-  uint8_t returnLen;
-  uint8_t dwLeftOver;
+  __data uint8_t returnLen;
+  __data uint8_t dwLeftOver;
   if ((usbMsgFlags & USB_FLG_DW_OUT)) {
     dwLeftOver = dwLen - dwUsbIOFinishedLen;
     if (dwLeftOver <= DEFAULT_ENDP0_SIZE) { // isLastBlock
@@ -743,7 +744,7 @@ void debugWireOutHandler() {
       returnLen = DEFAULT_ENDP0_SIZE;
     }
     // memcpy(dwBuf+dwUsbIOFinishedLen,Ep0Buffer,len);
-    for (uint8_t i = 0; i < returnLen; i++) {
+    for (__data uint8_t i = 0; i < returnLen; i++) {
       ((uint8_t *)dwBuf)[i + dwUsbIOFinishedLen] = ((uint8_t *)Ep0Buffer)[i];
     }
     dwUsbIOFinishedLen += returnLen;

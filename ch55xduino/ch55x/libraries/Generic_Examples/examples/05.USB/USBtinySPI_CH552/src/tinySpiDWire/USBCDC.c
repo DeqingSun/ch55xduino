@@ -30,7 +30,7 @@ __xdata uint8_t usbWritePointer = 0;
 
 typedef void (*pTaskFn)(void);
 
-void delayMicroseconds(uint16_t us);
+void delayMicroseconds(__data uint16_t us);
 
 void resetCDCParameters() {
 
@@ -39,7 +39,7 @@ void resetCDCParameters() {
 }
 
 void setLineCodingHandler() {
-  for (uint8_t i = 0;
+  for (__data uint8_t i = 0;
        i < ((LINE_CODEING_SIZE <= USB_RX_LEN) ? LINE_CODEING_SIZE : USB_RX_LEN);
        i++) {
     LineCoding[i] = Ep0Buffer[i];
@@ -47,10 +47,10 @@ void setLineCodingHandler() {
 }
 
 uint16_t getLineCodingHandler() {
-  uint16_t returnLen;
+  __data uint16_t returnLen;
 
   returnLen = LINE_CODEING_SIZE;
-  for (uint8_t i = 0; i < returnLen; i++) {
+  for (__data uint8_t i = 0; i < returnLen; i++) {
     Ep0Buffer[i] = LineCoding[i];
   }
 
@@ -73,7 +73,7 @@ void setControlLineStateHandler() {
 }
 
 bool USBSerial() {
-  bool result = false;
+  __data bool result = false;
   if (controlLineState > 0)
     result = true;
   // delay(10); not doing it for now
@@ -89,8 +89,8 @@ void USBSerial_flush(void) {
   }
 }
 
-uint8_t USBSerial_write(char c) { // 3 bytes generic pointer
-  uint16_t waitWriteCount;
+uint8_t USBSerial_write(__data char c) { // 3 bytes generic pointer
+  __data uint16_t waitWriteCount;
   if (controlLineState > 0) {
     while (true) {
       waitWriteCount = 0;
@@ -117,7 +117,7 @@ uint8_t
 USBSerial_print_n(uint8_t *__xdata buf,
                   __xdata int len) { // 3 bytes generic pointer, not using
                                      // USBSerial_write for a bit efficiency
-  uint16_t waitWriteCount;
+  __data uint16_t waitWriteCount;
   if (controlLineState > 0) {
     while (len > 0) {
       waitWriteCount = 0;
@@ -148,7 +148,7 @@ uint8_t USBSerial_available() { return USBByteCountEP3; }
 char USBSerial_read() {
   if (USBByteCountEP3 == 0)
     return 0;
-  char data = Ep3Buffer[USBBufOutPointEP3];
+  __data char data = Ep3Buffer[USBBufOutPointEP3];
   USBBufOutPointEP3++;
   USBByteCountEP3--;
   if (USBByteCountEP3 == 0) {

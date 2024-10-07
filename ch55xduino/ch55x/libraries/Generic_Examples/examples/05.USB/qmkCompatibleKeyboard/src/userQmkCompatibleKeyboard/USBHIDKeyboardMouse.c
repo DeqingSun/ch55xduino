@@ -14,14 +14,14 @@ extern __xdata __at (EP1_ADDR) uint8_t Ep1Buffer[];
 extern __xdata __at (EP2_ADDR) uint8_t Ep2Buffer[];
 // clang-format on
 
+__xdata uint8_t keyboardLedStatus = 0;
+
 // Flag of whether upload pointer is busy
 volatile __xdata uint8_t UpPoint1_Busy = 0;
 volatile __xdata uint8_t UpPoint2_Busy = 0;
 
 __xdata uint8_t HIDKey[8] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 __xdata uint8_t HIDMouse[4] = {0x0, 0x0, 0x0, 0x0};
-
-__xdata uint8_t statusLED = 0;
 
 typedef void (*pTaskFn)(void);
 
@@ -53,7 +53,7 @@ void USB_EP1_OUT() {
   {
     switch (Ep1Buffer[0]) {
     case 1:
-      statusLED = Ep1Buffer[1];
+      keyboardLedStatus = Ep1Buffer[1];
       break;
     default:
       break;
@@ -191,7 +191,8 @@ void Keyboard_releaseAll(void) {
 }
 
 uint8_t Keyboard_getLEDStatus() {
-  return Ep1Buffer[0]; // The only info we gets
+  // keyboardLedStatus is updated from USB_EP1_OUT
+  return keyboardLedStatus;
 }
 
 uint8_t Mouse_press(__data uint8_t k) {

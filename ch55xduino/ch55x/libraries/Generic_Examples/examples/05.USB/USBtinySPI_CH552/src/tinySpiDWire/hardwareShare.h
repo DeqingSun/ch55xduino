@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-void delayMicroseconds(uint16_t us);
+void delayMicroseconds(__data uint16_t us);
 
 extern volatile __xdata uint8_t ledState;
 #define LED_FLG_SPI (1 << 0)

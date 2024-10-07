@@ -491,6 +491,7 @@ uint8_t Keyboard_release(__data uint8_t k);
 void Keyboard_releaseAll(void);
 
 uint8_t Keyboard_write(__data uint8_t c);
+void Keyboard_print(const char *str);
 
 uint8_t Consumer_press(__data uint16_t k);
 uint8_t Consumer_release(__data uint16_t k);

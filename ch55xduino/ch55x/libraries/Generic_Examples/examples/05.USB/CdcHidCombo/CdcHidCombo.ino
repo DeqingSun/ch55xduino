@@ -9,7 +9,7 @@
 
   This example code is in the public domain.
 
-  cli board options: usb_settings=user148
+  cli board options: usb_settings=user266
 
 */
 
