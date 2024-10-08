@@ -30,7 +30,7 @@ void dwReadBytesInterrupt();
 void dwWaitForBitInterrupt();
 void dwSendBytesWaitInterrupt();
 
-void timer2IntrHandler();
+//void timer2IntrHandler();
 uint16_t debugWireSetupHandler();
 void debugWireInHandler();
 void debugWireOutHandler();

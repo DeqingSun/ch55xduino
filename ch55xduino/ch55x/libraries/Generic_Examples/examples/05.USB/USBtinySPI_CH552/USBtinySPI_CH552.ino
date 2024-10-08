@@ -34,11 +34,6 @@
 #include "src/tinySpiDWire/hardwareShare.h"
 #include "src/tinySpiDWire/debugWireFunc.h"
 
-void Timer2Interrupt(void) __interrupt (INT_NO_TMR2)
-{
-    timer2IntrHandler();//debugwire related
-}
-
 extern __xdata uint8_t LineCoding[]; //lineCoding of CDC is located in this array
 __xdata uint32_t oldBaudRate = 9600;
 extern volatile __xdata uint8_t controlLineState;

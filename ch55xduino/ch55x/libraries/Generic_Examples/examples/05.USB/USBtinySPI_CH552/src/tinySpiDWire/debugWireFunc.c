@@ -593,7 +593,7 @@ void dwWaitForBitInterrupt() {
   dwWaitForBitInterruptInit();
 }
 
-void timer2IntrHandler() {
+void Timer2Interrupt(void) __interrupt (INT_NO_TMR2) {
   if (TF2) {
     TF2 = 0;
     if (dwInterrputStatus & DWIO_SEND_BYTES) { // send bytes
