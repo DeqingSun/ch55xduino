@@ -20,9 +20,9 @@ void dwCaptureWidths();
 void dwSendBytesBlocking();
 void dwReadBytesBlocking();
 
-void dwWaitForBitInterruptInit();
+inline void dwWaitForBitInterruptInit();
 void dwSendBytesInterruptInit();
-void dwReadBytesInterruptInit();
+inline void dwReadBytesInterruptInit();
 
 void dwSendBytesInterrupt();
 void dwSendReadBytesInterrupt();
@@ -30,7 +30,6 @@ void dwReadBytesInterrupt();
 void dwWaitForBitInterrupt();
 void dwSendBytesWaitInterrupt();
 
-//void timer2IntrHandler();
 uint16_t debugWireSetupHandler();
 void debugWireInHandler();
 void debugWireOutHandler();

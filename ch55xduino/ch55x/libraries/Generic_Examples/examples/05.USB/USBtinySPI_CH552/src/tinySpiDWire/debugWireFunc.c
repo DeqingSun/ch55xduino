@@ -494,7 +494,7 @@ endOfDwReceive:
   EA = 1; // enable Interrupt
 }
 
-void dwWaitForBitInterruptInit() {
+inline void dwWaitForBitInterruptInit() {
   dwBuf[0] = 0;
   dwLen = 1;
   P1_DIR_PU &= ~((1 << 1));
@@ -538,7 +538,7 @@ void dwSendBytesInterruptInit() {
   ET2 = 1;
 }
 
-void dwReadBytesInterruptInit() {
+inline void dwReadBytesInterruptInit() {
   dwLen = 0;
 
   TR2 = 0;
