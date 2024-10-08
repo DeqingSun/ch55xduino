@@ -629,7 +629,6 @@ void Timer2Interrupt(void) __interrupt (INT_NO_TMR2) {
       }
 
     } else if (dwInterrputStatus & DWIO_READ_BYTES) {
-      __data uint8_t dataBuffer = P1_1;
       if (dwTXbitCount == 0xFF) { // not get the first bit, timeout
         EXEN2 = 0;
         ET2 = 0;
@@ -640,11 +639,14 @@ void Timer2Interrupt(void) __interrupt (INT_NO_TMR2) {
       } else if (dwTXbitCount >= 8) {
 
         EXEN2 = 1; // ready to capture next falling edge
+        TL2 = RCAP2L; // give timer a bit extra time to capture
+        TH2 = RCAP2H;
         dwTXbitCount = 0xFF;
 
       } else {
+        __data uint8_t dataBufferRead = P1_1;
         dwTXRXBuf >>= 1;
-        if (dataBuffer)
+        if (dataBufferRead)
           dwTXRXBuf |= (1 << 7);
         if (dwTXbitCount == 7) {
           dwBuf[dwLen] = dwTXRXBuf;
