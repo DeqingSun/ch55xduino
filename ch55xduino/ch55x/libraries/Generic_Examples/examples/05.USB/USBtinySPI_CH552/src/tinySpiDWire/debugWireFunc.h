@@ -20,9 +20,9 @@ void dwCaptureWidths();
 void dwSendBytesBlocking();
 void dwReadBytesBlocking();
 
-inline void dwWaitForBitInterruptInit();
+void dwWaitForBitInterruptInit();
 void dwSendBytesInterruptInit();
-inline void dwReadBytesInterruptInit();
+void dwReadBytesInterruptInit();
 
 void dwSendBytesInterrupt();
 void dwSendReadBytesInterrupt();

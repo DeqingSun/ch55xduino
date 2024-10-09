@@ -30,7 +30,8 @@ volatile __data uint8_t dwState =
     0; // Current debugWIRE action underway, 0 if none
 volatile __xdata uint16_t
     dwBitTime; // Each bit takes 4*dwBitTime+8 cycles to transmit
-volatile __xdata uint16_t dwselfCalcBitTime; // Each bit use T2 to transmit
+volatile __data uint16_t dwselfCalcBitTime; // Each bit use T2 to transmit
+volatile __data uint16_t dwselfCalcBitTimeForRCAP2; // Each bit use T2 to transmit
 volatile __data uint8_t dwUsbIOFinishedLen = 0;
 volatile __data uint8_t dwIOStatus = 0;
 volatile __data uint8_t dwInterrputStatus = 0;
@@ -211,6 +212,7 @@ void dwCaptureWidths() { // TODO: Seems only capture max 4ms wait. Not working
         dwSum = dwSum + *((__xdata uint16_t * __data)(&dwBuf[i]));
       }
       dwselfCalcBitTime = dwSum / 9;
+      dwselfCalcBitTimeForRCAP2 = 65535 - dwselfCalcBitTime + 1;
       // for 24M CH552 and 16M Arduino Uno. The datarate is 125K and the
       // dwselfCalcBitTime is mesured to be 0xC1 So 24M/(193-1) = 125K.
     }
@@ -239,7 +241,7 @@ void dwSendBytesBlocking() {
   EXEN2 = 0;          // clear EXEN2 in T2CON to disable T2EX
   T2MOD |= (bT2_CLK); // set bT2_CLK, for fast clk.Using Fsys/4
   CP_RL2 = 0;         // clear CP_RL2 in T2CON for 16bit timer, reload mode
-  RCAP2 = 65535 - dwselfCalcBitTime + 1;
+  RCAP2 = dwselfCalcBitTimeForRCAP2;
   // init output
   P1_1 = 1;
   P1_DIR_PU |= (1 << 1);
@@ -495,7 +497,7 @@ endOfDwReceive:
   EA = 1; // enable Interrupt
 }
 
-inline void dwWaitForBitInterruptInit() {
+void dwWaitForBitInterruptInit() {
   dwBuf[0] = 0;
   dwLen = 1;
   P1_DIR_PU &= ~((1 << 1));
@@ -518,7 +520,7 @@ void dwSendBytesInterruptInit() {
   EXEN2 = 0;          // clear EXEN2 in T2CON to disable T2EX
   T2MOD |= (bT2_CLK); // set bT2_CLK, for fast clk.Using Fsys/4
   CP_RL2 = 0;         // clear CP_RL2 in T2CON for 16bit timer, reload mode
-  RCAP2 = 65535 - dwselfCalcBitTime + 1;
+  RCAP2 = dwselfCalcBitTimeForRCAP2;
   dwRead1stBitT2Val = 65535 - dwselfCalcBitTime - (dwselfCalcBitTime >> 1) +
                       171; // make some compensation
   // init output
@@ -539,7 +541,7 @@ void dwSendBytesInterruptInit() {
   ET2 = 1;
 }
 
-inline void dwReadBytesInterruptInit() {
+void dwReadBytesInterruptInit() {
   dwLen = 0;
 
   TR2 = 0;
@@ -553,7 +555,7 @@ inline void dwReadBytesInterruptInit() {
   EXEN2 = 1;         // set EXEN2 in T2CON to enable T2EX
   T2MOD |= (bT2_CLK); // set bT2_CLK, for fast clk.Using Fsys/4
   CP_RL2 = 0;         // clear CP_RL2 in T2CON for 16bit timer, reload mode
-  RCAP2 = 65535 - (dwselfCalcBitTime) + 1; // single speed to capture
+  RCAP2 = dwselfCalcBitTimeForRCAP2; // single speed to capture
 
   P1_DIR_PU &= ~(1 << 1);
 
@@ -607,9 +609,51 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
           if (dwInterrputStatus == 0) { // write only
             dwInterrputStatus = (uint8_t)DWIO_FINISHED;
           } else if (dwInterrputStatus & DWIO_WAIT_FOR_BIT) {
-            dwWaitForBitInterruptInit();
+            //dwWaitForBitInterruptInit();
+            //copy code here for optimization
+            dwBuf[0] = 0;
+            dwLen = 1;
+            P1_DIR_PU &= ~((1 << 1));
+
+            // SET Timer 2 to 16bit counter, just as catcher
+            TR2 = 0;
+            EXEN2 = 1; // connect EXF2
+            TF2 = 0;
+            EXF2 = 0;
+            ET2 = 1;
           } else if (dwInterrputStatus & DWIO_READ_BYTES) {
-            dwReadBytesInterruptInit();
+            //dwReadBytesInterruptInit();
+            //copy code here for optimization
+            dwLen = 0;
+
+            TR2 = 0;
+
+            RCLK = 0;
+            TCLK = 0; // clear RCLK,TCLK in T2CON
+            C_T2 = 0; // clear C_T2 in T2CON for using internal clk
+            T2MOD &=
+                ~(bT2_CAP_M0 |
+                  bT2_CAP_M1); // Set bT2_CAP_M1 to 0, bT2_CAP_M0 to 0, catch falling edge
+            EXEN2 = 1;         // set EXEN2 in T2CON to enable T2EX
+            T2MOD |= (bT2_CLK); // set bT2_CLK, for fast clk.Using Fsys/4
+            CP_RL2 = 0;         // clear CP_RL2 in T2CON for 16bit timer, reload mode
+            RCAP2 = dwselfCalcBitTimeForRCAP2; // single speed to capture
+
+            P1_DIR_PU &= ~(1 << 1);
+
+            dwTXbitCount = 0xFF;
+            dwTXRXPtr = 0;
+
+            TF2 = 0;
+            EXF2 = 0;
+
+            TR2 = 1; // start timer
+
+            TL2 = 0x00; // seem only work when timer is on?
+            TH2 = 0x00;
+            TF2 = 0;
+
+            ET2 = 1;
           }
         } else {
           dwTXRXBuf = dwBuf[dwTXRXPtr];
@@ -645,10 +689,16 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
         dwTXbitCount = 0xFF;
 
       } else {
-        __data uint8_t dataBufferRead = P1_1;
-        dwTXRXBuf >>= 1;
-        if (dataBufferRead)
-          dwTXRXBuf |= (1 << 7);
+        // __data uint8_t dataBufferRead = P1_1;
+        // dwTXRXBuf >>= 1;
+        // if (dataBufferRead)
+        //   dwTXRXBuf |= (1 << 7);
+        __asm__("; shift P1_1 to dwTXRXBuf\n" // 65535-dwselfCalcBitTime
+                "    mov	c,_P1_1                       \n"
+                "    mov	a,_dwTXRXBuf                  \n"
+                "    rrc	a                             \n"
+                "    mov	_dwTXRXBuf,a                  \n"
+                );
         if (dwTXbitCount == 7) {
           dwBuf[dwLen] = dwTXRXBuf;
           dwLen++;
