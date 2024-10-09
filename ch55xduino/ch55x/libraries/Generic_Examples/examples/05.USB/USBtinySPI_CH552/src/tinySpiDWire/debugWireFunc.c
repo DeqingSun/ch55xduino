@@ -198,8 +198,9 @@ void dwCaptureWidths() { // TODO: Seems only capture max 4ms wait. Not working
   TR2 = 0;
 
   // calc dwselfCalcBitTime
-  // dwBuf was used as temp buffer, storing the pulse width for 9 falling/rising after break signal.
-  // we do an average of the pulse width, and then convert it to bit time. 
+  // dwBuf was used as temp buffer, storing the pulse width for 9 falling/rising
+  // after break signal. we do an average of the pulse width, and then convert
+  // it to bit time.
   {
     __xdata uint32_t dwSum; // same iRam
     __data uint8_t i;
@@ -207,11 +208,11 @@ void dwCaptureWidths() { // TODO: Seems only capture max 4ms wait. Not working
     if (dwLen >= 18) {
       for (i = (dwLen - 18); i < (dwLen); i += 2) {
         /// pointer physically in data ram pointing to xdata
-        dwSum = dwSum + *((__xdata uint16_t *__data)(&dwBuf[i]));
+        dwSum = dwSum + *((__xdata uint16_t * __data)(&dwBuf[i]));
       }
       dwselfCalcBitTime = dwSum / 9;
-      //for 24M CH552 and 16M Arduino Uno. The datarate is 125K and the dwselfCalcBitTime is mesured to be 0xC1
-      //So 24M/(193-1) = 125K.
+      // for 24M CH552 and 16M Arduino Uno. The datarate is 125K and the
+      // dwselfCalcBitTime is mesured to be 0xC1 So 24M/(193-1) = 125K.
     }
 
     // send calcuted value to mimic attiny
@@ -219,8 +220,8 @@ void dwCaptureWidths() { // TODO: Seems only capture max 4ms wait. Not working
 
     for (i = 0; i < (dwLen); i += 2) {
       __xdata uint16_t *__data dataPtr = ((uint16_t *)(&dwBuf[i]));
-      #define CLOCK_IN_MHZ (F_CPU / 1000000)
-      *dataPtr = ((33 * ((*dataPtr)) / (2*CLOCK_IN_MHZ)) - 8) / 6;
+#define CLOCK_IN_MHZ (F_CPU / 1000000)
+      *dataPtr = ((33 * ((*dataPtr)) / (2 * CLOCK_IN_MHZ)) - 8) / 6;
     }
   }
 }
@@ -593,7 +594,7 @@ void dwWaitForBitInterrupt() {
   dwWaitForBitInterruptInit();
 }
 
-void Timer2Interrupt(void) __interrupt (INT_NO_TMR2) {
+void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
   if (TF2) {
     TF2 = 0;
     if (dwInterrputStatus & DWIO_SEND_BYTES) { // send bytes
@@ -638,7 +639,7 @@ void Timer2Interrupt(void) __interrupt (INT_NO_TMR2) {
         }
       } else if (dwTXbitCount >= 8) {
 
-        EXEN2 = 1; // ready to capture next falling edge
+        EXEN2 = 1;    // ready to capture next falling edge
         TL2 = RCAP2L; // give timer a bit extra time to capture
         TH2 = RCAP2H;
         dwTXbitCount = 0xFF;
