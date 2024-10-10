@@ -31,7 +31,8 @@ volatile __data uint8_t dwState =
 volatile __xdata uint16_t
     dwBitTime; // Each bit takes 4*dwBitTime+8 cycles to transmit
 volatile __data uint16_t dwselfCalcBitTime; // Each bit use T2 to transmit
-volatile __data uint16_t dwselfCalcBitTimeForRCAP2; // Each bit use T2 to transmit
+volatile __data uint16_t
+    dwselfCalcBitTimeForRCAP2; // Each bit use T2 to transmit
 volatile __data uint8_t dwUsbIOFinishedLen = 0;
 volatile __data uint8_t dwIOStatus = 0;
 volatile __data uint8_t dwInterrputStatus = 0;
@@ -609,8 +610,8 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
           if (dwInterrputStatus == 0) { // write only
             dwInterrputStatus = (uint8_t)DWIO_FINISHED;
           } else if (dwInterrputStatus & DWIO_WAIT_FOR_BIT) {
-            //dwWaitForBitInterruptInit();
-            //copy code here for optimization
+            // dwWaitForBitInterruptInit();
+            // copy code here for optimization
             dwBuf[0] = 0;
             dwLen = 1;
             P1_DIR_PU &= ~((1 << 1));
@@ -622,9 +623,10 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
             EXF2 = 0;
             ET2 = 1;
           } else if (dwInterrputStatus & DWIO_READ_BYTES) {
-            //dwReadBytesInterruptInit();
-            //copy code here for optimization
-            //transit from send to receive takes 9.58us in 16M clock, longer than 8us but timer stops
+            // dwReadBytesInterruptInit();
+            // copy code here for optimization
+            // transit from send to receive takes 9.58us in 16M clock, longer
+            // than 8us but timer stops
             dwLen = 0;
 
             TR2 = 0;
@@ -633,11 +635,11 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
             TCLK = 0; // clear RCLK,TCLK in T2CON
             C_T2 = 0; // clear C_T2 in T2CON for using internal clk
             T2MOD &=
-                ~(bT2_CAP_M0 |
-                  bT2_CAP_M1); // Set bT2_CAP_M1 to 0, bT2_CAP_M0 to 0, catch falling edge
-            EXEN2 = 1;         // set EXEN2 in T2CON to enable T2EX
+                ~(bT2_CAP_M0 | bT2_CAP_M1); // Set bT2_CAP_M1 to 0, bT2_CAP_M0
+                                            // to 0, catch falling edge
+            EXEN2 = 1;                      // set EXEN2 in T2CON to enable T2EX
             T2MOD |= (bT2_CLK); // set bT2_CLK, for fast clk.Using Fsys/4
-            CP_RL2 = 0;         // clear CP_RL2 in T2CON for 16bit timer, reload mode
+            CP_RL2 = 0; // clear CP_RL2 in T2CON for 16bit timer, reload mode
             RCAP2 = dwselfCalcBitTimeForRCAP2; // single speed to capture
 
             P1_DIR_PU &= ~(1 << 1);
@@ -662,7 +664,7 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
           dwTXbitCount = 9;
         }
       } else if (dwTXbitCount <= 8) {
-        //send a bit takes 5.7us in 16M clock 
+        // send a bit takes 5.7us in 16M clock
         if (dwTXRXBuf & (1 << 0)) {
           P1_1 = 1;
         } else {
@@ -700,9 +702,8 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
                 "    mov	c,_P1_1                       \n"
                 "    mov	a,_dwTXRXBuf                  \n"
                 "    rrc	a                             \n"
-                "    mov	_dwTXRXBuf,a                  \n"
-                );
-        if (dwTXbitCount == 7) {  //7.5us in 16M clock
+                "    mov	_dwTXRXBuf,a                  \n");
+        if (dwTXbitCount == 7) { // 7.5us in 16M clock
           dwBuf[dwLen] = dwTXRXBuf;
           dwLen++;
         }
@@ -723,7 +724,7 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
     }
     if (dwInterrputStatus &
         DWIO_READ_BYTES) { // this is 1st pin change in Read bytes
-      //transit from send to receive takes 5.57us in 16M clock
+      // transit from send to receive takes 5.57us in 16M clock
       EXEN2 = 0;
       dwTXbitCount = 0;
       TF2 = 0;

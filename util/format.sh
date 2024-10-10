@@ -1,0 +1,1 @@
+python3 run-clang-format.py --clang-format-executable ./clang-format-14-mac -i -r ../ch55xduino/ch55x
