@@ -624,6 +624,7 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
           } else if (dwInterrputStatus & DWIO_READ_BYTES) {
             //dwReadBytesInterruptInit();
             //copy code here for optimization
+            //transit from send to receive takes 9.58us in 16M clock, longer than 8us but timer stops
             dwLen = 0;
 
             TR2 = 0;
@@ -661,6 +662,7 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
           dwTXbitCount = 9;
         }
       } else if (dwTXbitCount <= 8) {
+        //send a bit takes 5.7us in 16M clock 
         if (dwTXRXBuf & (1 << 0)) {
           P1_1 = 1;
         } else {
@@ -689,6 +691,7 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
         dwTXbitCount = 0xFF;
 
       } else {
+        // read bit takes 6.26us in 16M clock
         // __data uint8_t dataBufferRead = P1_1;
         // dwTXRXBuf >>= 1;
         // if (dataBufferRead)
@@ -720,6 +723,7 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
     }
     if (dwInterrputStatus &
         DWIO_READ_BYTES) { // this is 1st pin change in Read bytes
+      //transit from send to receive takes 5.57us in 16M clock
       EXEN2 = 0;
       dwTXbitCount = 0;
       TF2 = 0;
