@@ -522,7 +522,7 @@ void dwSendBytesInterruptInit() {
   CP_RL2 = 0;         // clear CP_RL2 in T2CON for 16bit timer, reload mode
   RCAP2 = dwselfCalcBitTimeForRCAP2;
   dwRead1stBitT2Val = 65535 - dwselfCalcBitTime - (dwselfCalcBitTime >> 1) +
-                      171; // make some compensation
+                      143; // make some compensation
   // init output
   P1_1 = 1;
   P1_DIR_PU |= (1 << 1);
@@ -702,7 +702,7 @@ void Timer2Interrupt(void) __interrupt(INT_NO_TMR2) {
                 "    rrc	a                             \n"
                 "    mov	_dwTXRXBuf,a                  \n"
                 );
-        if (dwTXbitCount == 7) {
+        if (dwTXbitCount == 7) {  //7.5us in 16M clock
           dwBuf[dwLen] = dwTXRXBuf;
           dwLen++;
         }
