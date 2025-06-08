@@ -450,7 +450,7 @@ void SCSI_Read10_Cmd() { // Global_LBA_BlockNbr
         TransferState = TXFR_IDLE;
       }
     } // if (TransferState == TXFR_ONGOING )
-  }   // if (Bot_State == BOT_DATA_IN)
+  } // if (Bot_State == BOT_DATA_IN)
 }
 
 void SCSI_Write10_Cmd() { // Global_LBA_BlockNbr
@@ -497,7 +497,7 @@ void SCSI_Write10_Cmd() { // Global_LBA_BlockNbr
         Set_CSW(CSW_CMD_PASSED, SEND_CSW_ENABLE);
       }
     } // if (TransferState == TXFR_ONGOING )
-  }   // else if (Bot_State == BOT_DATA_OUT)
+  } // else if (Bot_State == BOT_DATA_OUT)
 }
 
 uint8_t SCSI_Address_Management(uint8_t Cmd) {
