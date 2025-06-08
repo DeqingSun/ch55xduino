@@ -29,8 +29,8 @@
 #define CDC_RX_EPADDR 0x02
 #define CDC_TXRX_EPSIZE 0x40
 
-#define KEYBOARD_EPADDR 0x83
-#define KEYBOARD_EPSIZE 8
+#define MOUSE_EPADDR 0x83
+#define MOUSE_EPSIZE 5
 
 /* Type Defines: */
 /** Type define for the device configuration descriptor structure. This must be

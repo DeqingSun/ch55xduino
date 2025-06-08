@@ -30,8 +30,6 @@ __data uint16_t SetupLen;
 __data uint8_t SetupReq;
 volatile __xdata uint8_t UsbConfig;
 
-__xdata uint8_t keyboardLedStatus = 0;
-
 __code uint8_t *__data pDescr;
 
 inline void NOP_Process(void) {}
@@ -354,7 +352,6 @@ void USB_EP0_OUT() {
       UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_ACK; // send 0-length packet
     }
   } else if (SetupReq == HID_SET_REPORT) {
-    keyboardLedStatus = Ep0Buffer[0];
     UEP0_T_LEN = 0;
     UEP0_CTRL ^= bUEP_R_TOG;
   } else {
