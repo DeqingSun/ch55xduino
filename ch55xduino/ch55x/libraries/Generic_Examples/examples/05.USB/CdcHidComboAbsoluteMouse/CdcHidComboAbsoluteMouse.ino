@@ -1,10 +1,9 @@
 /*
-  CDCinUserCode
+  HID Absolute Mouse Example with CDC Serial
 
-  A simple example echoes back every line of data it receives.
-  Also it prints how many lines it has echoed.
+  This will send mouse movement back from USB CDC Serial command.
 
-  created 2020
+  created 2025
   by Deqing Sun for use with CH55xduino
 
   This example code is in the public domain.
@@ -13,6 +12,7 @@
 
 */
 
+#define LED_PIN 14
 
 #ifndef USER_USB_RAM
 #error "This example needs to be compiled with a USER USB setting"
@@ -25,7 +25,12 @@
 __xdata char recvStr[64];
 uint8_t recvStrPtr = 0;
 bool stringComplete = false;
-uint16_t echoCounter = 0;
+bool ledState = false;
+unsigned long lastBlinkTime = 0;
+uint16_t lastX = 0;
+uint16_t lastY = 0;
+uint8_t lastButtons = 0;
+unsigned long lastMouseCommandTime = 0;
 
 uint16_t str_to_uint16(const char *str) {
   uint16_t result = 0;
@@ -38,6 +43,8 @@ uint16_t str_to_uint16(const char *str) {
 
 void setup() {
   USBInit();
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW); // Turn off LED initially
 }
 
 void loop() {
@@ -89,6 +96,13 @@ void loop() {
               USBSerial_print(buttons);
               USBSerial_println("");
               Mouse_moveAbsolute(x, y, buttons);
+              lastBlinkTime = millis();
+              ledState = true;
+              digitalWrite(LED_PIN, HIGH); // Turn on LED to indicate mouse movement
+              lastX = x;
+              lastY = y;
+              lastButtons = buttons;
+              lastMouseCommandTime = millis();
             }
             USBSerial_flush();
           }
@@ -98,5 +112,17 @@ void loop() {
 
     stringComplete = false;
     recvStrPtr = 0;
+  }
+
+  if (ledState && ((signed long)((millis() - lastBlinkTime)) > 200)) {
+    ledState = false;
+    digitalWrite(LED_PIN, LOW); // Turn off LED after a short time
+  }
+
+  if ((lastButtons != 0) && (signed long)((millis() - lastMouseCommandTime)) > 1000) {
+    // If no mouse command for 1 seconds, reset mouse position to last known position
+    lastButtons = 0; // Reset buttons
+    Mouse_moveAbsolute(lastX, lastY, lastButtons);
+    lastMouseCommandTime = millis();
   }
 }
