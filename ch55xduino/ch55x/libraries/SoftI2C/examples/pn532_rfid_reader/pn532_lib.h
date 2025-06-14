@@ -74,6 +74,7 @@
 #define MIFARE_CMD_DECREMENT (0xC0)
 #define MIFARE_CMD_INCREMENT (0xC1)
 #define MIFARE_CMD_STORE (0xC2)
+#define MIFARE_ULTRALIGHT_CMD_WRITE (0xA2) ///< Write (MiFare Ultralight)
 
 // Prefixes for NDEF Records (to identify record type)
 #define NDEF_URIPREFIX_NONE (0x00)
@@ -128,5 +129,18 @@ uint8_t pn532_readPassiveTargetID(uint8_t cardbaudrate,
                                   __xdata uint8_t *__xdata uidLength,
                                   __xdata uint16_t timeout);
 void pn532_PrintHex(uint8_t *__xdata data, __xdata uint32_t numBytes);
+uint8_t pn532_mifareclassic_AuthenticateBlock(uint8_t *__xdata uid,
+                                              __xdata uint8_t uidLen,
+                                              __xdata uint32_t blockNumber,
+                                              __xdata uint8_t keyNumber,
+                                              __xdata uint8_t *__xdata keyData);
+uint8_t pn532_mifareclassic_ReadDataBlock(uint8_t blockNumber,
+                                          __xdata uint8_t *__xdata data);
+uint8_t pn532_mifareclassic_WriteDataBlock(uint8_t blockNumber,
+                                           __xdata uint8_t *__xdata data);
+uint8_t pn532_mifareultralight_ReadPage(uint8_t page,
+                                        __xdata uint8_t *__xdata buffer);
+uint8_t pn532_mifareultralight_WritePage(uint8_t page,
+                                         __xdata uint8_t *__xdata buffer);
 
 #endif
