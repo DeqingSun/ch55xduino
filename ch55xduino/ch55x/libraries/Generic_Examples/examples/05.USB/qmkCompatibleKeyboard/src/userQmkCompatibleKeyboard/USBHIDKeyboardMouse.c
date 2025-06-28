@@ -22,6 +22,7 @@ volatile __xdata uint8_t UpPoint2_Busy = 0;
 
 __xdata uint8_t HIDKey[8] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 __xdata uint8_t HIDMouse[4] = {0x0, 0x0, 0x0, 0x0};
+__xdata uint16_t HIDConsumer[4] = {0x0, 0x0, 0x0, 0x0};
 
 typedef void (*pTaskFn)(void);
 
@@ -97,6 +98,13 @@ uint8_t USB_EP1_send(__data uint8_t reportID) {
       Ep1Buffer[64 + 1 + i] = ((uint8_t *)HIDMouse)[i];
     }
     UEP1_T_LEN = 1 + sizeof(HIDMouse); // data length
+  } else if (reportID == 3) {
+    Ep1Buffer[64 + 0] = 3;
+    for (__data uint8_t i = 0; i < sizeof(HIDConsumer); i++) {
+      // load data for upload
+      Ep1Buffer[64 + 1 + i] = ((uint8_t *)HIDConsumer)[i];
+    }
+    UEP1_T_LEN = 1 + sizeof(HIDConsumer);  // data length
   } else if (reportID == 8) {
     Ep1Buffer[64 + 0] = 8;
     UEP1_T_LEN = 33;
@@ -228,4 +236,57 @@ uint8_t Mouse_scroll(__data int8_t tilt) {
   USB_EP1_send(2);
   HIDMouse[3] = 0;
   return 1;
+}
+
+uint8_t Consumer_press(__data uint16_t k) {
+  __data uint8_t i;
+
+  // Add k to the consumer report only if it's not already present
+  // and if there is an empty slot.
+  if (HIDConsumer[0] != k && HIDConsumer[1] != k && HIDConsumer[2] != k &&
+      HIDConsumer[3] != k) {
+
+    for (i = 0; i < 4; i++) {
+      if (HIDConsumer[i] == 0x00) {
+        HIDConsumer[i] = k;
+        break;
+      }
+    }
+    if (i == 4) {
+      // setWriteError();
+      return 0;
+    }
+      }
+  USB_EP1_send(3);
+  return 1;
+}
+
+uint8_t Consumer_release(__data uint16_t k) {
+  __data uint8_t i;
+
+  // Test the consumer report to see if k is present.  Clear it if it exists.
+  // Check all positions in case the key is present more than once (which it
+  // shouldn't be)
+  for (i = 0; i < 4; i++) {
+    if (0 != k && HIDConsumer[i] == k) {
+      HIDConsumer[i] = 0x00;
+    }
+  }
+
+  USB_EP1_send(3);
+  return 1;
+}
+
+void Consumer_releaseAll(void) {
+  for (__data uint8_t i = 0; i < 4; i++) { // load data for upload
+    HIDConsumer[i] = 0;
+  }
+  USB_EP1_send(3);
+}
+
+uint8_t Consumer_write(__data uint16_t c) {
+  __data uint8_t p = Consumer_press(c); // Keydown
+  Consumer_release(c);                  // Keyup
+  return p; // just return the result of press() since release() almost always
+  // returns 1
 }
