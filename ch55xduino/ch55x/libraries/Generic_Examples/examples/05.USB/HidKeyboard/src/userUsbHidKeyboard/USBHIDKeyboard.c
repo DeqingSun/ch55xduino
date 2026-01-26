@@ -205,6 +205,11 @@ uint8_t USB_EP1_send() {
 }
 
 uint8_t Keyboard_press(__data uint8_t k) {
+  if (USB_RemoteWakeup()) {
+    // Don't register this key press - it was used for wakeup
+    return 0;
+  }
+
   __data uint8_t i;
   if (k >= 136) { // it's a non-printing key (not a modifier)
     k = k - 136;

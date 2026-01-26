@@ -18,6 +18,9 @@ extern __data uint8_t SetupReq;
 volatile extern __xdata uint8_t UsbConfig;
 
 extern const __code uint8_t *__data pDescr;
+extern __xdata uint8_t keyboardProtocol;
+extern __xdata uint8_t keyboardLedStatus;
+extern volatile __bit usbSuspended;
 
 void USB_EP1_IN();
 void USB_EP1_OUT();
@@ -56,5 +59,7 @@ void USBInterrupt(void);
 void USBDeviceCfg();
 void USBDeviceIntCfg();
 void USBDeviceEndPointCfg();
+uint8_t
+USB_RemoteWakeup(); // Trigger remote wakeup, returns 1 if wakeup was performed
 
 #endif

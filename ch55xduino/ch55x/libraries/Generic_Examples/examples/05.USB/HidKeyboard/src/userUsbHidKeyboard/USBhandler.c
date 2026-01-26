@@ -33,6 +33,10 @@ __xdata uint8_t keyboardProtocol = 1;
 
 __xdata uint8_t keyboardLedStatus = 0;
 
+// Track USB suspend state for remote wakeup
+volatile __bit usbSuspended = 0;
+
+void delayMicroseconds(__data uint16_t us);
 inline void NOP_Process(void) {}
 
 void USB_EP0_SETUP() {
@@ -472,15 +476,16 @@ void USBInterrupt(void) { // inline not really working in multiple files in SDCC
   if (UIF_SUSPEND) {
     UIF_SUSPEND = 0;
     if (USB_MIS_ST & bUMS_SUSPEND) { // Suspend
-
+      usbSuspended = 1;              // Mark USB as suspended
+      // Optionally put MCU to sleep here if needed
       // while ( XBUS_AUX & bUART0_TX );                    // Wait for Tx
       // SAFE_MOD = 0x55;
       // SAFE_MOD = 0xAA;
       // WAKE_CTRL = bWAK_BY_USB | bWAK_RXD0_LO;    // Wake up by USB or RxD0
       // PCON |= PD; // Chip sleep SAFE_MOD = 0x55; SAFE_MOD = 0xAA; WAKE_CTRL =
       // 0x00;
-
-    } else {             // Unexpected interrupt, not supposed to happen !
+    } else {             // Resume
+      usbSuspended = 0;  // USB is active again
       USB_INT_FG = 0xFF; // Clear interrupt flag
     }
   }
@@ -536,4 +541,22 @@ void USBDeviceEndPointCfg() {
   UEP0_CTRL =
       UEP_R_RES_ACK | UEP_T_RES_NAK; // Manual flip, OUT transaction returns
                                      // ACK, IN transaction returns NAK
+}
+
+// Trigger USB remote wakeup to wake host from suspend
+// Returns 1 if wakeup was performed, 0 if not needed
+uint8_t USB_RemoteWakeup() {
+  if (usbSuspended && (ConfigurationDescriptor.Config.ConfigAttributes &
+                       USB_CONFIG_ATTR_REMOTEWAKEUP)) {
+    // Send resume signal: force DP/DM output resume/K state
+    // The Usb was running at full speed 12M mode
+
+    UDEV_CTRL |= bUD_LOW_SPEED;
+    delayMicroseconds(50000);
+    UDEV_CTRL &= ~bUD_LOW_SPEED;
+    usbSuspended = 0; // Mark as no longer suspended
+    delayMicroseconds(50000);
+    return 1; // Wakeup was performed
+  }
+  return 0; // No wakeup needed
 }
