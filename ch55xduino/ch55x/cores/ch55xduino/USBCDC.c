@@ -119,8 +119,8 @@ void USBSerial_flush(void) {
     usbIntCopy = USB_INT_EN;
     USB_INT_EN &= ~bUIE_TRANSFER; // Disable USB interrupts
     UEP2_T_LEN = usbWritePointer;
-    UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
     UpPoint2BusyFlag = 1;
+    UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
     USB_INT_EN = usbIntCopy; // Restore USB interrupt state
 
     if (usbWritePointer ==
@@ -131,8 +131,8 @@ void USBSerial_flush(void) {
         usbIntCopy = USB_INT_EN;
         USB_INT_EN &= ~bUIE_TRANSFER; // Disable USB interrupts
         UEP2_T_LEN = 0;
-        UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
         UpPoint2BusyFlag = 1;
+        UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
         USB_INT_EN = usbIntCopy; // Restore USB interrupt state
       }
     }
