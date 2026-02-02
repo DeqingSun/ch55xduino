@@ -196,10 +196,14 @@ uint8_t USB_EP1_send() {
     Ep1Buffer[64 + i] = HIDKey[i];
   }
 
-  UEP1_T_LEN = sizeof(HIDKey); // data length
+  __data uint8_t usbIntCopy;
+  usbIntCopy = USB_INT_EN;
+  USB_INT_EN &= ~bUIE_TRANSFER; // Disable USB interrupts
+  UEP1_T_LEN = sizeof(HIDKey);  // data length
   UpPoint1_Busy = 1;
   UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES |
               UEP_T_RES_ACK; // upload data and respond ACK
+  USB_INT_EN = usbIntCopy;   // Restore USB interrupt state
 
   return 1;
 }
