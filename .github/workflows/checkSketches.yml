@@ -1,6 +1,14 @@
 name: check sketches
 
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+    branches:
+      - ch55xduino
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
 
@@ -59,6 +67,9 @@ jobs:
         path: compiled_hex.tar
   
   real_hardware_test_on_self_hosted_runner:
+    # Only run on trusted events (push to default branch or manual dispatch) to prevent
+    # untrusted PR code from executing on the self-hosted runner.
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: arduino-cli_compile_all
     runs-on: self-hosted
     
