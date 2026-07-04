@@ -82,20 +82,50 @@ REL=${OBJ%.o}.rel
 MARK=$4
 shift 4
 
+PREPROCESS=0
+DEPFILE=""
+ARGS=()
+while [ $# -gt 0 ]; do
+	if [ "$1" == "-E" ]; then
+		PREPROCESS=1
+		ARGS+=("$1")
+		shift
+	elif [ "$1" == "-MF" ] && [ $# -ge 2 ]; then
+		DEPFILE=$2
+		shift 2
+	else
+		ARGS+=("$1")
+		shift
+	fi
+done
+
+PREPROCESS_OBJ=$OBJ
+if [ $PREPROCESS -gt 0 ] && [ -n "$DEPFILE" ] && [ "$OBJ" == "/dev/null" ]; then
+	PREPROCESS_OBJ=${DEPFILE%.d}
+fi
+
 if [ $VERBOSE -gt 0 ]; then
 	>&2 echo -ne "${GREEN}Mark $MARK:${OFF}"
-	>&2 echo "$SDCC" "$@" "$SRC" -o "$OBJ"
+	>&2 echo "$SDCC" "${ARGS[@]}" "$SRC" -o "$PREPROCESS_OBJ"
 fi
 
 case "$SRC" in
 	*.cpp)
 		# use -x c to compile as c, add a reference to main to pull in main.c
-		"$SDCC" "$@" -x c --include dummy_variable_main.h "$SRC"  -o "$OBJ"
+		if [ $PREPROCESS -gt 0 ]; then
+			"$SDCC" "${ARGS[@]}" -x c --include dummy_variable_main.h "$SRC" -o "$PREPROCESS_OBJ" > "$OBJ"
+		else
+			"$SDCC" "${ARGS[@]}" -x c --include dummy_variable_main.h "$SRC" -o "$OBJ"
+		fi
 		ERR=$?
 		;;
 	*.c)
 		# compile a .c file
-		"$SDCC" "$@" "$SRC" -o "$OBJ"
+		if [ $PREPROCESS -gt 0 ]; then
+			"$SDCC" "${ARGS[@]}" "$SRC" -o "$PREPROCESS_OBJ" > "$OBJ"
+		else
+			"$SDCC" "${ARGS[@]}" "$SRC" -o "$OBJ"
+		fi
 		ERR=$?
 		;;
 esac
@@ -103,13 +133,13 @@ esac
 # Deqing: For some reason my version of SDCC don't generate rel file, it creates o file directly, so I modified the SDCC command below
 # copy the generated .rel files as an .o file to avoid recompiling the next time
 # if OBJ is a .o file we copy back
-if [[ ${OBJ%.o} != $OBJ ]]
+if [ $PREPROCESS -eq 0 ] && [[ ${OBJ%.o} != $OBJ ]]
 then
 	cp -a "${OBJ}" "${REL}"
 fi
 
 #check rel file size, if it is odd, add by 1 to align code
-if [ -f ${REL} ]; then
+if [ $PREPROCESS -eq 0 ] && [ -f ${REL} ]; then
     #check CSEG size
     CSEG_STR="$(grep -o '^A CSEG size [0-9A-F]\+' ${REL})"
     if [[ -z "$CSEG_STR" ]]; then
