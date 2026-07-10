@@ -35,8 +35,6 @@ jobs:
     # On 20240702, cli was installed at /opt/hostedtoolcache/arduino-cli/1.0.3/x64/arduino-cli
     - name: Install Arduino CLI
       uses: arduino/setup-arduino-cli@v2
-      with:
-        version: 1.0.3
 
     - name: Add JSON URL to Arduino CLI config
       run: arduino-cli config init; arduino-cli config add board_manager.additional_urls https://raw.githubusercontent.com/DeqingSun/ch55xduino/ch55xduino/package_ch55xduino_mcs51_index.json
