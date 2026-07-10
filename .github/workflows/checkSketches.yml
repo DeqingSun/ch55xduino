@@ -50,6 +50,10 @@ jobs:
         CH55XDUINO_VER=$(arduino-cli core list | grep 'CH55xDuino:mcs51' | awk '{print $2}')
         echo "CH55xDuino:mcs51 version: $CH55XDUINO_VER"
         cp -rf $GITHUB_WORKSPACE/ch55xduino/ch55x/* $HOME/.arduino15/packages/CH55xDuino/hardware/mcs51/$CH55XDUINO_VER/
+        MCS51TOOLS_DIR=$(find $HOME/.arduino15/packages/CH55xDuino/tools/MCS51Tools -mindepth 1 -maxdepth 1 -type d | head -1)
+        echo "MCS51Tools path: $MCS51TOOLS_DIR"
+        cp -f $GITHUB_WORKSPACE/ch55xduino/tools/wrapper/*.sh $MCS51TOOLS_DIR/wrapper/
+        chmod +x $MCS51TOOLS_DIR/wrapper/*.sh
 
     - name: build all with python script
       run: |
