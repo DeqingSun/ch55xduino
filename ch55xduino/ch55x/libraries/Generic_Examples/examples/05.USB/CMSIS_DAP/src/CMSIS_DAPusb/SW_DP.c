@@ -48,7 +48,7 @@
 #define SW_WRITE_BIT(bits)                                                     \
   while (!TF2)                                                                 \
     ;                                                                          \
-  SWD = (bits)&1;                                                              \
+  SWD = (bits) & 1;                                                            \
   SWK = 0;                                                                     \
   TR2 = 0;                                                                     \
   TL2 = RCAP2L;                                                                \

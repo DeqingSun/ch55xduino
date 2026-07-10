@@ -50,7 +50,7 @@ typedef struct _File_Entry {
 #define TIME_LB(H, M, S) (((0)) | ((M) << 5) | (S))
 
 // Get high byte of date format in 16bits format
-#define DATE_HB(Y, M, D) (((((Y)-1980) << 1) | ((M) >> 3)))
+#define DATE_HB(Y, M, D) (((((Y) - 1980) << 1) | ((M) >> 3)))
 // Get low byte of date format in 16bits format
 #define DATE_LB(Y, M, D) ((0) | ((M) << 5) | (D))
 

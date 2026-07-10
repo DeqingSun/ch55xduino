@@ -6,17 +6,23 @@
 
 #include "USBconstant.h"
 
-// Keyboard functions:
-
+// CDC functions:
+void resetCDCParameters();
+void setLineCodingHandler();
+uint16_t getLineCodingHandler();
+void setControlLineStateHandler();
 void USB_EP2_IN();
 void USB_EP2_OUT();
+void USB_EP3_IN();
 
 // clang-format off
 __xdata __at (EP0_ADDR) uint8_t Ep0Buffer[8];
-__xdata __at (EP1_ADDR) uint8_t Ep1Buffer[128];       //on page 47 of data sheet, the receive buffer need to be min(possible packet size+2,64), IN and OUT buffer, must be even address
+__xdata __at (EP1_ADDR) uint8_t Ep1Buffer[8];       //on page 47 of data sheet, the receive buffer need to be min(possible packet size+2,64)
+__xdata __at (EP2_ADDR) uint8_t Ep2Buffer[128];     //IN and OUT buffer, must be even address
+__xdata __at (EP3_ADDR) uint8_t Ep3Buffer[64];     //IN and OUT buffer, must be even address
 // clang-format on
 
-#if (EP1_ADDR + 128) > USER_USB_RAM
+#if (EP3_ADDR + 64) > USER_USB_RAM
 #error "This example needs more USB ram. Increase this setting in menu."
 #endif
 
@@ -26,17 +32,6 @@ volatile __xdata uint8_t UsbConfig;
 
 __code uint8_t *__data pDescr;
 
-volatile uint8_t usbMsgFlags = 0; // uint8_t usbMsgFlags copied from VUSB
-
-// 0 is boot protocol, 1 is report protocol
-__xdata uint8_t keyboardProtocol = 1;
-
-__xdata uint8_t keyboardLedStatus = 0;
-
-// Track USB suspend state for remote wakeup
-volatile __bit usbSuspended = 0;
-
-void delayMicroseconds(__data uint16_t us);
 inline void NOP_Process(void) {}
 
 void USB_EP0_SETUP() {
@@ -45,7 +40,6 @@ void USB_EP0_SETUP() {
     SetupLen = ((uint16_t)UsbSetupBuf->wLengthH << 8) | (UsbSetupBuf->wLengthL);
     len = 0; // Default is success and upload 0 length
     SetupReq = UsbSetupBuf->bRequest;
-    usbMsgFlags = 0;
     if ((UsbSetupBuf->bRequestType & USB_REQ_TYP_MASK) !=
         USB_REQ_TYP_STANDARD) // Not standard request
     {
@@ -63,22 +57,20 @@ void USB_EP0_SETUP() {
         break;
       }
       case USB_REQ_TYP_CLASS: {
-        // make boot protocol somehow work
         switch (SetupReq) {
-        case HID_GET_PROTOCOL:
-          Ep0Buffer[0] = keyboardProtocol;
-          len = 1;
+        case GET_LINE_CODING: // 0x21  currently configured
+          len = getLineCodingHandler();
           break;
-        case HID_SET_PROTOCOL:
-          keyboardProtocol = UsbSetupBuf->wValueL;
+        case SET_CONTROL_LINE_STATE: // 0x22  generates RS-232/V.24 style
+                                     // control signals
+          setControlLineStateHandler();
           break;
-        case HID_SET_IDLE:
+        case SET_LINE_CODING: // 0x20  Configure
           break;
         case HID_SET_REPORT:
           // LED status for caps lock, num lock, scroll lock, etc
           break;
-        case HID_GET_REPORT:
-          break;
+
         default:
           len = 0xFF; // command not supported
           break;
@@ -114,6 +106,8 @@ void USB_EP0_SETUP() {
             pDescr = (__code uint8_t *)ProductDescriptor;
           } else if (UsbSetupBuf->wValueL == 3) {
             pDescr = (__code uint8_t *)SerialDescriptor;
+          } else if (UsbSetupBuf->wValueL == 4) {
+            pDescr = (__code uint8_t *)CDCDescriptor;
           } else {
             len = 0xff;
             break;
@@ -350,11 +344,25 @@ void USB_EP0_IN() {
 }
 
 void USB_EP0_OUT() {
-  if ((SetupReq == HID_SET_REPORT)) {
-    keyboardLedStatus = Ep0Buffer[0];
+  if (SetupReq == SET_LINE_CODING) // Set line coding
+  {
+    if (U_TOG_OK) {
+      setLineCodingHandler();
+      UEP0_T_LEN = 0;
+      UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_ACK; // send 0-length packet
+    }
+  } else if (SetupReq == HID_SET_REPORT) {
+    UEP0_T_LEN = 0;
+    UEP0_CTRL ^= bUEP_R_TOG;
+  } else {
+    UEP0_T_LEN = 0;
+    UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_NAK; // Respond Nak
   }
-  UEP0_T_LEN = 0;
-  UEP0_CTRL ^= bUEP_R_TOG;
+}
+
+void USB_EP1_IN() {
+  UEP1_T_LEN = 0;
+  UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_NAK; // Default NAK
 }
 
 #pragma save
@@ -460,32 +468,38 @@ void USBInterrupt(void) { // inline not really working in multiple files in SDCC
   // Device mode USB bus reset
   if (UIF_BUS_RST) {
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
-    UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;
+    UEP1_CTRL = bUEP_AUTO_TOG |
+                UEP_T_RES_NAK; // Endpoint 1 automatically flips the sync flag,
+                               // and IN transaction returns NAK
+    UEP2_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK |
+                UEP_R_RES_ACK; // Endpoint 2 automatically flips the sync flag,
+                               // IN transaction returns NAK, OUT returns ACK
+    // UEP4_CTRL = UEP_T_RES_NAK | UEP_R_RES_ACK;  //bUEP_AUTO_TOG only work for
+    // endpoint 1,2,3
 
     USB_DEV_AD = 0x00;
     UIF_SUSPEND = 0;
     UIF_TRANSFER = 0;
-    UIF_BUS_RST = 0;
+    UIF_BUS_RST = 0; // Clear interrupt flag
 
     UsbConfig = 0;
 
-    // Clear interrupt flag
+    resetCDCParameters();
   }
 
   // USB bus suspend / wake up
   if (UIF_SUSPEND) {
     UIF_SUSPEND = 0;
     if (USB_MIS_ST & bUMS_SUSPEND) { // Suspend
-      usbSuspended = 1;              // Mark USB as suspended
-      // Optionally put MCU to sleep here if needed
+
       // while ( XBUS_AUX & bUART0_TX );                    // Wait for Tx
       // SAFE_MOD = 0x55;
       // SAFE_MOD = 0xAA;
       // WAKE_CTRL = bWAK_BY_USB | bWAK_RXD0_LO;    // Wake up by USB or RxD0
       // PCON |= PD; // Chip sleep SAFE_MOD = 0x55; SAFE_MOD = 0xAA; WAKE_CTRL =
       // 0x00;
-    } else {             // Resume
-      usbSuspended = 0;  // USB is active again
+
+    } else {             // Unexpected interrupt, not supposed to happen !
       USB_INT_FG = 0xFF; // Clear interrupt flag
     }
   }
@@ -504,6 +518,7 @@ void USBDeviceCfg() {
   //     UDEV_CTRL |= bUD_LOW_SPEED; //Run for 1.5M
   USB_CTRL &= ~bUC_LOW_SPEED;
   UDEV_CTRL &= ~bUD_LOW_SPEED; // Select full speed 12M mode, default mode
+
 #if defined(CH551) || defined(CH552) || defined(CH549)
   UDEV_CTRL = bUD_PD_DIS; // Disable DP/DM pull-down resistor
 #endif
@@ -529,34 +544,35 @@ void USBDeviceEndPointCfg() {
   UEP0_DMA_L = ((uint16_t)Ep0Buffer >> 0); // Endpoint 0 data transfer address
   UEP1_DMA_H = ((uint16_t)Ep1Buffer >> 8); // Endpoint 1 data transfer address
   UEP1_DMA_L = ((uint16_t)Ep1Buffer >> 0); // Endpoint 1 data transfer address
+  UEP2_DMA_H = ((uint16_t)Ep2Buffer >> 8); // Endpoint 2 data transfer address
+  UEP2_DMA_L = ((uint16_t)Ep2Buffer >> 0); // Endpoint 2 data transfer address
 #else
   UEP0_DMA = (uint16_t)Ep0Buffer; // Endpoint 0 data transfer address
   UEP1_DMA = (uint16_t)Ep1Buffer; // Endpoint 1 data transfer address
+  UEP2_DMA = (uint16_t)Ep2Buffer; // Endpoint 2 data transfer address
+  UEP3_DMA = (uint16_t)Ep3Buffer; // Endpoint 3 data transfer address
 #endif
 
-  UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK |
+  UEP2_3_MOD =
+      bUEP3_TX_EN | bUEP2_RX_EN | bUEP2_TX_EN; // Endpoint2 double buffer
+  UEP1_CTRL =
+      bUEP_AUTO_TOG | UEP_T_RES_NAK; // Endpoint 1 automatically flips the sync
+                                     // flag, and IN transaction returns NAK
+  UEP2_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK |
               UEP_R_RES_ACK; // Endpoint 2 automatically flips the sync flag, IN
                              // transaction returns NAK, OUT returns ACK
-  UEP4_1_MOD = 0XC0;         // endpoint1 TX RX enable
+
+  UEP3_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK |
+              UEP_R_RES_ACK; // Endpoint 3 automatically flips the sync flag, IN
+                             // transaction returns NAK, OUT returns ACK
+
+  UEP4_1_MOD = bUEP1_TX_EN; // endpoint1 TX enable
   UEP0_CTRL =
       UEP_R_RES_ACK | UEP_T_RES_NAK; // Manual flip, OUT transaction returns
                                      // ACK, IN transaction returns NAK
-}
 
-// Trigger USB remote wakeup to wake host from suspend
-// Returns 1 if wakeup was performed, 0 if not needed
-uint8_t USB_RemoteWakeup() {
-  if (usbSuspended && (ConfigurationDescriptor.Config.ConfigAttributes &
-                       USB_CONFIG_ATTR_REMOTEWAKEUP)) {
-    // Send resume signal: force DP/DM output resume/K state
-    // The Usb was running at full speed 12M mode
-
-    UDEV_CTRL |= bUD_LOW_SPEED;
-    delayMicroseconds(50000);
-    UDEV_CTRL &= ~bUD_LOW_SPEED;
-    usbSuspended = 0; // Mark as no longer suspended
-    delayMicroseconds(50000);
-    return 1; // Wakeup was performed
-  }
-  return 0; // No wakeup needed
+  UEP0_T_LEN = 0;
+  UEP1_T_LEN = 0; // Pre-use send length must be cleared
+  UEP2_T_LEN = 0;
+  UEP3_T_LEN = 0;
 }

@@ -104,9 +104,13 @@ uint8_t USB_EP1_send(__data uint8_t reportID) {
     UEP1_T_LEN = 0;
   }
 
+  __data uint8_t usbIntCopy;
+  usbIntCopy = USB_INT_EN;
+  USB_INT_EN &= ~bUIE_TRANSFER; // Disable USB interrupts
   UpPoint1_Busy = 1;
   UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES |
               UEP_T_RES_ACK; // upload data and respond ACK
+  USB_INT_EN = usbIntCopy;   // Restore USB interrupt state
 
   return 1;
 }
@@ -126,11 +130,14 @@ uint8_t USB_EP2_send() {
       return 0;
   }
 
+  __data uint8_t usbIntCopy;
+  usbIntCopy = USB_INT_EN;
+  USB_INT_EN &= ~bUIE_TRANSFER; // Disable USB interrupts
   UEP2_T_LEN = 32;
-
   UpPoint2_Busy = 1;
   UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES |
               UEP_T_RES_ACK; // upload data and respond ACK
+  USB_INT_EN = usbIntCopy;   // Restore USB interrupt state
 
   return 1;
 }
@@ -218,11 +225,14 @@ uint8_t Mouse_move(__data int8_t x, __xdata int8_t y) {
   HIDMouse[1] = x;
   HIDMouse[2] = y;
   USB_EP1_send(2);
+  HIDMouse[1] = 0;
+  HIDMouse[2] = 0;
   return 1;
 }
 
 uint8_t Mouse_scroll(__data int8_t tilt) {
   HIDMouse[3] = tilt;
   USB_EP1_send(2);
+  HIDMouse[3] = 0;
   return 1;
 }

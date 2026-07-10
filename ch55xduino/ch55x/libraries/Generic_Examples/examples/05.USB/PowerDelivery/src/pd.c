@@ -767,7 +767,7 @@ uint8_t SendHandle() {
   SndDataCount = SndDataCount + 4;
   SndBufEncode4B5B();
   // (data+crc)*2 + SOP + EOP
-  SndDataCount = (SndDataCount)*2 + 4 + 1;
+  SndDataCount = (SndDataCount) * 2 + 4 + 1;
   // EOP 01101
   SndDataBuf[SndDataCount - 1] = 0x0d;
   SndDataBuf[0] = 0x18;

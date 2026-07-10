@@ -82,10 +82,14 @@ bool USBSerial() {
 
 void USBSerial_flush(void) {
   if (!UpPoint3_Busy && usbWritePointer > 0) {
+    __data uint8_t usbIntCopy;
+    usbIntCopy = USB_INT_EN;
+    USB_INT_EN &= ~bUIE_TRANSFER; // Disable USB interrupts
     UEP3_T_LEN = usbWritePointer;
-    UEP3_CTRL = UEP3_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
     UpPoint3_Busy = 1;
+    UEP3_CTRL = UEP3_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
     usbWritePointer = 0;
+    USB_INT_EN = usbIntCopy; // Restore USB interrupt state
   }
 }
 

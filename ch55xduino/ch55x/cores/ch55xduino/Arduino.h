@@ -87,9 +87,9 @@ void yield(void);
 #define abs(x) ((x) > 0 ? (x) : -(x))
 #define constrain(amt, low, high)                                              \
   ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
-#define round(x) ((x) >= 0 ? (long)((x) + 0.5) : (long)((x)-0.5))
-#define radians(deg) ((deg)*DEG_TO_RAD)
-#define degrees(rad) ((rad)*RAD_TO_DEG)
+#define round(x) ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
+#define radians(deg) ((deg) * DEG_TO_RAD)
+#define degrees(rad) ((rad) * RAD_TO_DEG)
 #define sq(x) ((x) * (x))
 
 #define interrupts() (EA = 1)
@@ -98,10 +98,10 @@ void yield(void);
 #define clockCyclesPerMicrosecond() (F_CPU / 1000000L)
 #define clockCyclesPerMillisecond() (F_CPU / 1000L)
 #define clockCyclesToMicroseconds(a) ((a) / clockCyclesPerMicrosecond())
-#define microsecondsToClockCycles(a) ((a)*clockCyclesPerMicrosecond())
+#define microsecondsToClockCycles(a) ((a) * clockCyclesPerMicrosecond())
 
 #define byte(w) ((uint8_t)(w))
-#define lowByte(w) ((uint8_t)((w)&0xff))
+#define lowByte(w) ((uint8_t)((w) & 0xff))
 #define highByte(w) ((uint8_t)((w) >> 8))
 
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
