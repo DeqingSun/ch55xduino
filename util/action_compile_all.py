@@ -15,8 +15,12 @@ if not os.path.isdir(example_folder):
 
 arduino_package_path = ""
 if len(sys.argv) >= 3:
-    #the second argument is the path to the arduino package
-    arduino_package_path = "--config-dir " + sys.argv[2]
+    # Second argument is config dir (newer CLI) or config file path (1.0.3).
+    config_path = sys.argv[2]
+    if config_path.endswith(".yaml"):
+        arduino_package_path = "--config-file " + config_path
+    else:
+        arduino_package_path = "--config-dir " + config_path
 
 compiled_hex_folder = os.path.join(example_folder, "compiled_hex")
 if not os.path.isdir(compiled_hex_folder):
