@@ -8,7 +8,7 @@
 #include "pins_arduino_include.h"
 // clang-format on
 
-#if defined(CH559)
+#if defined(CH559)  || defined(CH558)
 uint16_t analogRead(__data uint8_t pin)
 #else
 uint8_t analogRead(__data uint8_t pin)
@@ -30,7 +30,7 @@ uint8_t analogRead(__data uint8_t pin)
     ;
 
   return ADC_DATA;
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
 
   __data uint8_t pinMask = 1 << pin;
   P1_IE &= ~(pinMask); // Close other data functions of P1 port, if only part of
@@ -119,7 +119,7 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val) {
       }
     }
   }
-#elif defined(CH559)
+#elif defined(CH559) || defined(CH558)
   pinMode(pin, OUTPUT);
   if (val == 0) {
     digitalWrite(pin, LOW);
@@ -136,6 +136,7 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val) {
       PWM_CYCLE = 255;
     }
     switch (pwmPin) {
+#if defined(CH559)
     case PIN_PWM1:
       PIN_FUNC &= ~(bPWM1_PIN_X); // CH559 only has 1 bit for 2 PWMs
       PWM_CTRL |= bPWM_OUT_EN;
@@ -146,13 +147,12 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val) {
       PWM_CTRL |= bPWM2_OUT_EN;
       PWM_DATA2 = val;
       break;
+#endif
     case PIN_PWM3:
     case PIN_PWM3_:
       if (pwmPin == PIN_PWM3) {
         P1_DIR |= bPWM3; // push pull
         P1_PU |= bPWM3;
-        PIN_FUNC &= ~bTMR3_PIN_X;
-      } else {
         P4_DIR |= bPWM3_; // push pull
         P4_PU |= bPWM3_;
         PIN_FUNC |= bTMR3_PIN_X;
@@ -170,6 +170,7 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val) {
       T3_FIFO_H = 0;
       T3_CTRL |= bT3_CNT_EN;
       break;
+#if defined(CH559)
     case PIN_PWM1_:
       PIN_FUNC |= (bPWM1_PIN_X);
       PWM_CTRL |= bPWM_OUT_EN;
@@ -180,6 +181,7 @@ void analogWrite(__data uint8_t pin, __xdata uint16_t val) {
       PWM_CTRL |= bPWM2_OUT_EN;
       PWM_DATA2 = val;
       break;
+#endif
     case NOT_ON_PWM:
     default:
       if (val < 128) {

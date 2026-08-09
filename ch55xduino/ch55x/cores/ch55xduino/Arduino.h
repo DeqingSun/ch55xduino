@@ -160,7 +160,7 @@ void digitalWrite(__data uint8_t pin, __xdata uint8_t val);
  * @return HIGH or LOW (uint8_t).
  */
 uint8_t digitalRead(__data uint8_t pin);
-#if defined(CH559)
+#if defined(CH559)  || defined(CH558)
 uint16_t analogRead(__data uint8_t pin);
 #else
 /**

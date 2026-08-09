@@ -63,7 +63,7 @@ void Uart1_ISR(void) __interrupt(INT_NO_UART1) {
     uart1IntTxHandler();
     U1TI = 0;
   }
-#elif defined(CH559)
+#elif defined(CH559)  || defined(CH558)
   uint8_t interruptStatus = SER1_IIR & 0x0f;
   switch (interruptStatus) {
   case U1_INT_RECV_RDY:

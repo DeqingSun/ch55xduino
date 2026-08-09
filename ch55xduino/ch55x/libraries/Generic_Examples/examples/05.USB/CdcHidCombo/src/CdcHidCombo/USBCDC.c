@@ -85,7 +85,7 @@ void setControlLineStateHandler() {
 
     while (1)
       ;
-#elif defined(CH559) && (BOOT_LOAD_ADDR == 0xF400)
+#elif (defined(CH559) || defined(CH558))  && (BOOT_LOAD_ADDR == 0xF400)
     USB_CTRL = 0;
     EA = 0; // Disabling all interrupts is required.
     delayMicroseconds(50000);
