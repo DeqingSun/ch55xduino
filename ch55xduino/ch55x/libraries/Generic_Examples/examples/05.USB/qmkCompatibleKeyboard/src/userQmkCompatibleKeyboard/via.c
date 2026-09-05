@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include "../../keyboardConfig.h"
 #include "USBHIDKeyboardMouse.h"
+#include "keycodes.h"
+#include "report.h"
 // clang-format on
 
 enum {
@@ -123,6 +125,67 @@ void via_process(void) {
   raw_hid_send();
 }
 
+static inline uint16_t KEYCODE2CONSUMER(uint8_t key) {
+  switch (key) {
+    case KC_AUDIO_MUTE:
+      return AUDIO_MUTE;
+    case KC_AUDIO_VOL_UP:
+      return AUDIO_VOL_UP;
+    case KC_AUDIO_VOL_DOWN:
+      return AUDIO_VOL_DOWN;
+    case KC_MEDIA_NEXT_TRACK:
+      return TRANSPORT_NEXT_TRACK;
+    case KC_MEDIA_PREV_TRACK:
+      return TRANSPORT_PREV_TRACK;
+    case KC_MEDIA_FAST_FORWARD:
+      return TRANSPORT_FAST_FORWARD;
+    case KC_MEDIA_REWIND:
+      return TRANSPORT_REWIND;
+    case KC_MEDIA_STOP:
+      return TRANSPORT_STOP;
+    case KC_MEDIA_EJECT:
+      return TRANSPORT_STOP_EJECT;
+    case KC_MEDIA_PLAY_PAUSE:
+      return TRANSPORT_PLAY_PAUSE;
+    case KC_MEDIA_SELECT:
+      return AL_CC_CONFIG;
+    case KC_MAIL:
+      return AL_EMAIL;
+    case KC_CALCULATOR:
+      return AL_CALCULATOR;
+    case KC_MY_COMPUTER:
+      return AL_LOCAL_BROWSER;
+    case KC_CONTROL_PANEL:
+      return AL_CONTROL_PANEL;
+    case KC_ASSISTANT:
+      return AL_ASSISTANT;
+    case KC_WWW_SEARCH:
+      return AC_SEARCH;
+    case KC_WWW_HOME:
+      return AC_HOME;
+    case KC_WWW_BACK:
+      return AC_BACK;
+    case KC_WWW_FORWARD:
+      return AC_FORWARD;
+    case KC_WWW_STOP:
+      return AC_STOP;
+    case KC_WWW_REFRESH:
+      return AC_REFRESH;
+    case KC_BRIGHTNESS_UP:
+      return BRIGHTNESS_UP;
+    case KC_BRIGHTNESS_DOWN:
+      return BRIGHTNESS_DOWN;
+    case KC_WWW_FAVORITES:
+      return AC_BOOKMARKS;
+    case KC_MISSION_CONTROL:
+      return AC_DESKTOP_SHOW_ALL_WINDOWS;
+    case KC_LAUNCHPAD:
+      return AC_SOFT_KEY_LEFT;
+    default:
+      return 0;
+  }
+}
+
 void press_qmk_key(__data uint8_t row, __xdata uint8_t col,
                    __xdata uint8_t layer, __xdata uint8_t press) {
   __data uint16_t keycode = dynamic_keymap_get_keycode(layer, row, col);
@@ -157,9 +220,17 @@ void press_qmk_key(__data uint8_t row, __xdata uint8_t col,
     }
   }
 
-  if (press) {
-    Keyboard_quantum_regular_press(keycode & 0x00FF);
+  if (IS_CONSUMER_KEYCODE(keycode)) {
+    if (press) {
+      Consumer_press(KEYCODE2CONSUMER(keycode));
+    } else {
+      Consumer_release(KEYCODE2CONSUMER(keycode));
+    }
   } else {
-    Keyboard_quantum_regular_release(keycode & 0x00FF);
+    if (press) {
+      Keyboard_quantum_regular_press(keycode & 0x00FF);
+    } else {
+      Keyboard_quantum_regular_release(keycode & 0x00FF);
+    }
   }
 }

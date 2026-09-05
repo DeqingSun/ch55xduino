@@ -196,8 +196,20 @@ __code uint8_t ReportDescriptor[] = {
     0x95, 0x03, //     REPORT_COUNT (3)
     0x81, 0x06, //     INPUT (Data,Var,Rel)
     0xc0,       //     END_COLLECTION
-    0xc0        // END_COLLECTION
-                // //todo: add media control
+    0xc0,       // END_COLLECTION
+    // Consumer Keys
+    0x05, 0x0c,        // USAGE_PAGE (Consumer Devices)
+    0x09, 0x01,        // USAGE (Consumer Control)
+    0xa1, 0x01,        // COLLECTION (Application)
+    0x85, 0x03,        //   REPORT_ID (3)
+    0x15, 0x00,        //   LOGICAL_MINIMUM (0)
+    0x26, 0xff, 0x03,  //   LOGICAL_MAXIMUM (1023)
+    0x19, 0x00,        //   USAGE_MINIMUM (Unassigned)
+    0x2a, 0xff, 0x03,  //   USAGE_MAXIMUM (Undefined)
+    0x95, 0x04,        //   REPORT_COUNT (4)
+    0x75, 0x10,        //   REPORT_SIZE (16)
+    0x81, 0x00,        //   INPUT (Data,Ary,Abs)
+    0xc0               // END_COLLECTION
 };
 
 __code uint8_t RawHIDReportDescriptor[] = {
