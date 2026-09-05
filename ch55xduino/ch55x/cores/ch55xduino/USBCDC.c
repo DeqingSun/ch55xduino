@@ -115,17 +115,25 @@ bool USBSerial() {
 
 void USBSerial_flush(void) {
   if (!UpPoint2BusyFlag && usbWritePointer > 0) {
+    __data uint8_t usbIntCopy;
+    usbIntCopy = USB_INT_EN;
+    USB_INT_EN &= ~bUIE_TRANSFER; // Disable USB interrupts
     UEP2_T_LEN = usbWritePointer;
-    UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
     UpPoint2BusyFlag = 1;
+    UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
+    USB_INT_EN = usbIntCopy; // Restore USB interrupt state
 
     if (usbWritePointer ==
         MAX_PACKET_SIZE) { // write empty packet for end transmission. Needed
                            // for windows.
       if (USBSerial_wait_UpPoint2BusyFlag_clear()) {
+        __data uint8_t usbIntCopy;
+        usbIntCopy = USB_INT_EN;
+        USB_INT_EN &= ~bUIE_TRANSFER; // Disable USB interrupts
         UEP2_T_LEN = 0;
-        UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
         UpPoint2BusyFlag = 1;
+        UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK; // Respond ACK
+        USB_INT_EN = usbIntCopy; // Restore USB interrupt state
       }
     }
     usbWritePointer = 0;

@@ -124,7 +124,7 @@ recipe.size.regex.data=^(?:\s+EXTERNAL RAM)\s+0x[A-Fa-f0-9]+\s+0x[A-Fa-f0-9]+\s+
 
 ## Preprocessor (re11, re12)
 preproc.includes.flags=-M -MG -MP
-recipe.preproc.includes="{compiler.path.wrapper}/{compiler.cpp.wrapper}" "{compiler.path}/{compiler.cpp.cmd}" re11 {compiler.cpp.flags} {preproc.includes.flags} -mmcs51 -D{build.mcu} -DF_CPU={build.f_cpu} -DF_EXT_OSC={build.f_oscillator_external} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {includes} "{source_file}"
+recipe.preproc.includes="{compiler.wrapper.path}/{compiler.cpp.wrapper}" "{compiler.path}/{compiler.cpp.cmd}" re11 {compiler.cpp.flags} {preproc.includes.flags} -mmcs51 -D{build.mcu} -DF_CPU={build.f_cpu} -DF_EXT_OSC={build.f_oscillator_external} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {includes} "{source_file}"
 preproc.macros.flags=-E -MC
 recipe.preproc.macros="{compiler.wrapper.path}/{compiler.cpp.cmd}.sh" "{compiler.path}/{compiler.cpp.cmd}" "{source_file}" "{preprocessed_file_path}" re12 {compiler.cpp.flags} {preproc.macros.flags} -mmcs51 -D{build.mcu} -DF_CPU={build.f_cpu} -DF_EXT_OSC={build.f_oscillator_external} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {includes} {compiler.systemincludes}
 

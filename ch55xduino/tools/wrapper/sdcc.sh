@@ -87,9 +87,47 @@ if [ $VERBOSE -gt 0 ]; then
 	>&2 echo "$SDCC" "$@" "$SRC" -o "$OBJ"
 fi
 
+# Preprocessor runs (library detection and prototype generation).
+# Arduino CLI >=1.5 passes *.cpp.merged sources and gcc-style -MMD/-MF flags
+# that SDCC does not support the same way.
+if [ "$MARK" = "re12" ]; then
+	FILTERED_ARGS=()
+	skip_next=0
+	for arg in "$@"; do
+		if [ $skip_next -eq 1 ]; then
+			skip_next=0
+			continue
+		fi
+		case "$arg" in
+			-c|-MMD|-MF)
+				skip_next=1
+				continue
+				;;
+		esac
+		FILTERED_ARGS+=("$arg")
+	done
+
+	case "$SRC" in
+		*.cpp.merged)
+			"$SDCC" "${FILTERED_ARGS[@]}" -x c "$SRC" -o "$OBJ"
+			exit $?
+			;;
+		*.cpp)
+			"$SDCC" "${FILTERED_ARGS[@]}" -x c --include dummy_variable_main.h "$SRC" -o "$OBJ"
+			exit $?
+			;;
+		*.c)
+			"$SDCC" "${FILTERED_ARGS[@]}" "$SRC" -o "$OBJ"
+			exit $?
+			;;
+	esac
+	exit 1
+fi
+
 case "$SRC" in
-	*.cpp)
+	*.cpp.merged|*.cpp)
 		# use -x c to compile as c, add a reference to main to pull in main.c
+		# *.cpp.merged is used by Arduino CLI >=1.5 for library detection and prototypes
 		"$SDCC" "$@" -x c --include dummy_variable_main.h "$SRC"  -o "$OBJ"
 		ERR=$?
 		;;
