@@ -140,7 +140,7 @@ void USBSerial_flush(void) {
   }
 }
 
-uint8_t USBSerial_write(__data char c) { // 3 bytes generic pointer
+uint8_t USBSerial_write(__data uint8_t c) { // 3 bytes generic pointer
   if (controlLineState > 0) {
     while (true) {
       if (USBSerial_wait_UpPoint2BusyFlag_clear() == 0)

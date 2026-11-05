@@ -7,7 +7,7 @@
 #include "USBconstant.h"
 
 // Device descriptor
-__code USB_Descriptor_Device_t DeviceDescriptor = {
+__code const USB_Descriptor_Device_t DeviceDescriptor = {
     .Header = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
 
     .USBSpecification = VERSION_BCD(1, 1, 0),
@@ -34,7 +34,7 @@ __code USB_Descriptor_Device_t DeviceDescriptor = {
  * process when selecting a configuration so that the host may correctly
  * communicate with the USB device.
  */
-__code USB_Descriptor_Configuration_t ConfigurationDescriptor = {
+__code const USB_Descriptor_Configuration_t ConfigurationDescriptor = {
     .Config = {.Header = {.Size = sizeof(USB_Descriptor_Configuration_Header_t),
                           .Type = DTYPE_Configuration},
 
@@ -150,13 +150,13 @@ __code USB_Descriptor_Configuration_t ConfigurationDescriptor = {
                            .PollingIntervalMS = 0x00}};
 
 // String Descriptors
-__code uint8_t LanguageDescriptor[] = {0x04, 0x03, 0x09,
+__code const uint8_t LanguageDescriptor[] = {0x04, 0x03, 0x09,
                                        0x04}; // Language Descriptor
-__code uint16_t SerialDescriptor[] = {
+__code const uint16_t SerialDescriptor[] = {
     // Serial String Descriptor
     (((5 + 1) * 2) | (DTYPE_String << 8)), 'C', 'H', '5', '5', 'x',
 };
-__code uint16_t ProductDescriptor[] = {
+__code const uint16_t ProductDescriptor[] = {
     // Produce String Descriptor
     (((10 + 1) * 2) | (DTYPE_String << 8)),
     'C',
@@ -171,7 +171,7 @@ __code uint16_t ProductDescriptor[] = {
     'o',
 };
 
-__code uint16_t CDCDescriptor[] = {
+__code const uint16_t CDCDescriptor[] = {
     (((10 + 1) * 2) | (DTYPE_String << 8)),
     'C',
     'D',
@@ -185,7 +185,7 @@ __code uint16_t CDCDescriptor[] = {
     'l',
 };
 
-__code uint16_t ManufacturerDescriptor[] = {
+__code const uint16_t ManufacturerDescriptor[] = {
     // SDCC is little endian
     (((6 + 1) * 2) | (DTYPE_String << 8)), 'D', 'e', 'q', 'i', 'n', 'g',
 };

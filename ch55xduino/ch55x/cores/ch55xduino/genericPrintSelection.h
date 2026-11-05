@@ -51,6 +51,7 @@ void printNothing();
       __code char *: USBSerial_print_s_func,                                   \
       __data char *: USBSerial_print_s_func,                                   \
       __xdata char *: USBSerial_print_s_func,                                  \
+      char *: USBSerial_print_s_func,                                          \
       float: USBSerial_print_f_func)
 #define USB_SERIAL_SELECT_2(_1, _2)                                            \
   _Generic((_1),                                                               \
@@ -58,6 +59,7 @@ void printNothing();
       __code char *: _Generic((_2), default: USBSerial_print_sn_func),         \
       __data char *: _Generic((_2), default: USBSerial_print_sn_func),         \
       __xdata char *: _Generic((_2), default: USBSerial_print_sn_func),        \
+      char *: _Generic((_2), default: USBSerial_print_sn_func),                \
       char: _Generic((_2), default: USBSerial_print_ib_func),                  \
       int: _Generic((_2), default: USBSerial_print_ib_func),                   \
       short: _Generic((_2), default: USBSerial_print_ib_func),                 \

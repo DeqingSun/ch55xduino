@@ -29,7 +29,7 @@
 #define _BV(X) (1 << (X))
 #endif
 
-__code uint8_t digital_pin_to_pwm_PGM[] = {
+__code const uint8_t digital_pin_to_pwm_PGM[] = {
     NOT_ON_PWM, // PIN00
     NOT_ON_PWM, NOT_ON_PWM, NOT_ON_PWM, NOT_ON_PWM,
     NOT_ON_PWM, NOT_ON_PWM, NOT_ON_PWM,
@@ -67,7 +67,7 @@ __code uint8_t digital_pin_to_pwm_PGM[] = {
     NOT_ON_PWM, // not exist
 };
 
-__code uint8_t PROGMEM digital_pin_to_port_PGM[] = {
+__code const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
     P0PORT, // PIN00
     P0PORT,     P0PORT, P0PORT, P0PORT, P0PORT, P0PORT, P0PORT,
     NOT_A_PORT, // not exist
@@ -99,7 +99,7 @@ __code uint8_t PROGMEM digital_pin_to_port_PGM[] = {
     NOT_A_PORT, // not exist
 };
 
-__code uint8_t digital_pin_to_bit_mask_PGM[] = {
+__code const uint8_t digital_pin_to_bit_mask_PGM[] = {
     _BV(0), // PIN00
     _BV(1), _BV(2), _BV(3), _BV(4), _BV(5), _BV(6), _BV(7),
     0, // not exist
@@ -131,7 +131,7 @@ __code uint8_t digital_pin_to_bit_mask_PGM[] = {
     0, // not exist
 };
 
-__code uint8_t digital_pin_to_channel_PGM[] = {
+__code const uint8_t digital_pin_to_channel_PGM[] = {
     NOT_ANALOG, // PIN00
     NOT_ANALOG, NOT_ANALOG, NOT_ANALOG, NOT_ANALOG,
     NOT_ANALOG, NOT_ANALOG, NOT_ANALOG,

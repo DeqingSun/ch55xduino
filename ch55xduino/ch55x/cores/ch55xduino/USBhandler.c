@@ -26,7 +26,7 @@ __data uint16_t SetupLen;
 __data uint8_t SetupReq;
 volatile __xdata uint8_t UsbConfig;
 
-__code uint8_t *__data pDescr;
+__code const uint8_t *__data pDescr;
 
 inline void NOP_Process(void) {}
 
@@ -82,30 +82,30 @@ void USB_EP0_SETUP() {
       case USB_GET_DESCRIPTOR:
         switch (UsbSetupBuf->wValueH) {
         case 1: // Device Descriptor
-          pDescr = (__code uint8_t *)
-              DeviceDescriptor; // Put Device Descriptor into outgoing buffer
+          pDescr = (__code const uint8_t *)
+              &DeviceDescriptor; // Put Device Descriptor into outgoing buffer
           len = sizeof(USB_Descriptor_Device_t);
           break;
         case 2: // Configure Descriptor
-          pDescr = (__code uint8_t *)ConfigurationDescriptor;
+          pDescr = (__code const uint8_t *)&ConfigurationDescriptor;
           len = sizeof(USB_Descriptor_Configuration_t);
           break;
         case 3:
           switch (UsbSetupBuf->wValueL) {
           case 0:
-            pDescr = (__code uint8_t *)LanguageDescriptor;
+            pDescr = (__code const uint8_t *)&LanguageDescriptor;
             break;
           case 1:
-            pDescr = (__code uint8_t *)ManufacturerDescriptor;
+            pDescr = (__code const uint8_t *)&ManufacturerDescriptor;
             break;
           case 2:
-            pDescr = (__code uint8_t *)ProductDescriptor;
+            pDescr = (__code const uint8_t *)&ProductDescriptor;
             break;
           case 3:
-            pDescr = (__code uint8_t *)SerialDescriptor;
+            pDescr = (__code const uint8_t *)&SerialDescriptor;
             break;
           case 4:
-            pDescr = (__code uint8_t *)CDCDescriptor;
+            pDescr = (__code const uint8_t *)&CDCDescriptor;
             break;
           default:
             len = 0xff;
