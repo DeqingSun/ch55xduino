@@ -78,8 +78,8 @@ uint8_t Print_print_i(__data writefunc_p writefunc, __xdata long n) {
 uint8_t Print_println(__data writefunc_p writefunc) {
   __data uint8_t n;
 
-  n = writefunc(13);
-  n += writefunc(10);
+  n = writefunc('\r');
+  n += writefunc('\n');
   return n;
 }
 
