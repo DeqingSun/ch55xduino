@@ -29,13 +29,13 @@ enum {
   NUM_PWM_PINS
 };
 
-extern __code uint8_t digital_pin_to_pwm_PGM[];
+extern __code const uint8_t digital_pin_to_pwm_PGM[];
 
-extern __code uint8_t digital_pin_to_port_PGM[];
+extern __code const uint8_t digital_pin_to_port_PGM[];
 
-extern __code uint8_t digital_pin_to_bit_mask_PGM[];
+extern __code const uint8_t digital_pin_to_bit_mask_PGM[];
 
-extern __code uint8_t digital_pin_to_channel_PGM[];
+extern __code const uint8_t digital_pin_to_channel_PGM[];
 
 // Get the bit location within the hardware port of the given virtual pin.
 // This comes from the pins_*.c file for the active board configuration.
