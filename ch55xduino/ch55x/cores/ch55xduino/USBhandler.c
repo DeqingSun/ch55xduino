@@ -26,7 +26,7 @@ __data uint16_t SetupLen;
 __data uint8_t SetupReq;
 volatile __xdata uint8_t UsbConfig;
 
-__code uint8_t *__data pDescr;
+__code const uint8_t *__data pDescr;
 
 inline void NOP_Process(void) {}
 
