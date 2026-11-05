@@ -284,7 +284,7 @@ inline unsigned int makeWord(unsigned char h, unsigned char l) {
 // later
 bool USBSerial();
 uint8_t USBSerial_print_n(uint8_t *__xdata buf, __xdata int len);
-uint8_t USBSerial_write(__data char c);
+uint8_t USBSerial_write(__data uint8_t c);
 void USBSerial_flush(void);
 uint8_t USBSerial_available();
 char USBSerial_read();
